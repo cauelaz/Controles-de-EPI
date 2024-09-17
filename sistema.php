@@ -17,16 +17,22 @@
     <title>Controle de EPIs</title>
     <link href="assets/css/sistema.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
 </head>
 <body>
-    <header class="navbar sticky-top bg-dark flex-md-nowrap p-0 shadow" data-bs-theme="dark">
-        <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3 fs-6 text-white" href="#">Controle de EPIs</a>
+    <header class="navbar sticky-top bg-white flex-md-nowrap p-0 shadow" data-bs-theme="white">
+        <div class="d-flex align-items-center col-md-3 col-lg-2">
+            <!-- Envolvendo imagem e texto no link -->
+            <a class="d-flex align-items-center text-dark text-decoration-none" href="sistema.php">
+                <img class="img-thumbnail img-fluid me-2" src="assets/img/trabalhador.png" alt="logo" style="width: 40px; height: auto;">
+                Controle de EPIs
+            </a>
+        </div>
         <ul class="navbar-nav flex-row d-md-none">
             <li class="nav-item text-nowrap">
-                <button class="nav-link px-3 text-white" type="button" data-bs-toggle="offcanvas"
-                    data-bs-target="#sidebarMenu">
+                <button class="nav-link px-3 text-white" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu">
                     <svg class="bi">
-                        <use xlink:href="#list">
+                        <use xlink:href="#list"></use>
                     </svg>
                 </button>
             </li>
@@ -43,22 +49,22 @@
                     <div class="offcanvas-body d-md-flex flex-column p-0 pt-lg-3 overflow-y-auto">
                         <ul class="nav flex-column">
                             <li class="nav-item">
-                                <a class="nav-link d-flex align-items-center gap-2 active" href="sistema.php?tela=equipamentos">Equipamentos</a>
+                                <a class="nav-link d-flex align-items-center gap-2 active" href="sistema.php?tela=equipamentos"><i class="bi bi-hammer"></i>Equipamentos</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link d-flex align-items-center gap-2" href="sistema.php?tela=colaboradores">Colaboradores</a>
+                                <a class="nav-link d-flex align-items-center gap-2" href="sistema.php?tela=colaboradores"> <i class="bi bi-people"></i>Colaboradores</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link d-flex align-items-center gap-2" href="sistema.php?tela=usuarios">Usuários</a>
+                                <a class="nav-link d-flex align-items-center gap-2" href="sistema.php?tela=usuarios"> <i class="bi bi-person"></i>Usuários</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link d-flex align-items-center gap-2" href="sistema.php?tela=emprestimos">Empréstimos</a>
+                                <a class="nav-link d-flex align-items-center gap-2" href="sistema.php?tela=emprestimos"><i class="bi bi-arrow-left-right"></i>Empréstimos</a>
                             </li>
                         </ul>
                         <hr class="my-3">
                         <ul class="nav flex-column mb-auto">
                             <li class="nav-item">
-                                <a class="nav-link d-flex align-items-center gap-2" href="#" onclick="sair()">Sair</a>
+                                <a class="nav-link d-flex align-items-center gap-2" href="#" onclick="sair()"><i class="bi bi-box-arrow-right"></i>Sair</a>
                             </li>
                         </ul>
                     </div>
