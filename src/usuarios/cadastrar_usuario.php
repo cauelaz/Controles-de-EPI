@@ -1,40 +1,40 @@
 <?php
     $formulario['id']           = isset($_POST['txt_id']) ? $_POST['txt_id'] : '';
     $formulario['nome']         = isset($_POST['txt_nome']) ? $_POST['txt_nome'] : '';
-    $formulario['preco']        = isset($_POST['txt_preco']) ? $_POST['txt_preco'] : '';
-    $formulario['quantidade']   = isset($_POST['txt_quantidade']) ? $_POST['txt_quantidade'] : '';
+    $formulario['senha']        = isset($_POST['txt_senha']) ? $_POST['txt_senha'] : '';
+    $formulario['adm']          = isset($_POST['chk_administrador']) ? $_POST['chk_administrador'] : '';
     if(in_array('', $formulario))
     {
         echo
         "<script>
             alert('Existem dados faltando! Verifique');
-            window.location = '../index.php?tela=produtos.php';
+            window.location = '../index.php?tela=usuarios.php';
         </script>";
         exit;
     }
     try
     {
-        include 'class/BancodeDados.php';
+        include '../class/BancodeDados.php';
         $banco = new BancodeDados;
         if($formulario['id'] == 'NOVO')
         {
-            $sql = 'INSERT INTO  produtos (nome, precodevenda, quantidade) VALUES (?,?,?)';
+            $sql = 'INSERT INTO  usuarios (nome, senha, adm) VALUES (?,?,?)';
             $parametros =
             [
                 $formulario['nome'],
-                $formulario['preco'],
-                $formulario['quantidade']
+                $formulario['senha'],
+                $formulario['adm']
             ];
             $msg_sucesso = 'Dados cadastrados com sucesso!';
         }
         else
         {
-            $sql = 'UPDATE produtos SET nome = ?, precodevenda = ?, quantidade = ? WHERE id_produto = ?';
+            $sql = 'UPDATE usuarios SET nome = ?, senha = ?, adm = ? WHERE id_usuario = ?';
             $parametros =
             [
                 $formulario['nome'],
-                $formulario['preco'],
-                $formulario['quantidade'],
+                $formulario['senha'],
+                $formulario['adm'],
                 $formulario['id']
             ];
             $msg_sucesso = 'Dados alterados com sucesso!';
@@ -43,7 +43,7 @@
         echo
         "<script>
             alert('$msg_sucesso');
-            window.location = '../index.php?tela=produtos';
+            window.location = '../index.php?tela=usuarios';
         </script>";
     }
     catch(PDOException $erro)
@@ -52,6 +52,6 @@
         echo
         "<script>
             alert(\"$msg\");
-            window.location = '../index.php?tela=produtos';
+            window.location = '../index.php?tela=usuarios';
         </script>";
     }

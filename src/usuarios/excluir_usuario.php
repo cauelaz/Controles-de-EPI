@@ -1,7 +1,7 @@
 <?php
     // Validação
-    $id_cliente = isset($_GET['IdColaborador']) ? $_GET['IdColaborador'] : '';
-    if (empty($id_cliente)) {
+    $id_usuario = isset($_GET['IdUsuario']) ? $_GET['IdUsuario'] : '';
+    if (empty($id_usuario)) {
         header('LOCATION: ../sistema.php?tela=equipamentos');
         // Não é necessário usar 'exit' após o header()
     }
@@ -10,19 +10,19 @@
 
     // Banco de dados
     try {
-        include 'class/BancoDeDados.php';
+        include_once '../class/BancoDeDados.php';
         $banco = new BancoDeDados;
-        $sql = 'DELETE FROM clientes WHERE id_cliente = ?';
-        $parametros = [ $id_cliente ];
+        $sql = 'UPDATE usuarios SET ativo = 0 WHERE id_usuario = ?';
+        $parametros = [ $id_usuario ];
         $banco -> ExecutarComando($sql,$parametros);
         echo "<script>
-            alert('Cliente removido com sucesso!');
-            window.location = '../sistema.php?tela=equipamentos';
+            alert('Usuário removido com sucesso!');
+            window.location = '../sistema.php?tela=usuarios';
         </script>";
     } catch(PDOException $erro) {
         $msg = $erro->getMessage();
         echo "<script>
             alert(\"$msg\");
-            window.location = '../sistema.php?tela=equipamentos';
+            window.location = '../sistema.php?tela=usuarios';
         </script>";
     }

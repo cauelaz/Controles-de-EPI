@@ -17,9 +17,9 @@
         $banco = new BancoDeDados; // Não é necessário '()' pois não é passado nenhum parametro
         
         // Definir o SQL e os parâmetros
-        $sql = "SELECT id_usuario, nome
+        $sql = "SELECT id_usuario, nome_usuario
                 FROM usuarios 
-                WHERE usuario = ? AND senha = ?";
+                WHERE nome_usuario = ? AND senha = ?";
         $parametros = [ $usuario, $senha ];
         
         //Consultar os dados 

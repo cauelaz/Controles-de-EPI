@@ -13,11 +13,12 @@
             </div>
             <div class="col-sm-3">
                 <label for="txt_preco" class="form-label">Senha:</label>
-                <input type="tex" class="form-control" name="txt_preco" id="txt_preco" required>
+                <input type="password" class="form-control" name="txt_senha" id="txt_senha" required>
             </div>
             <div class="col-sm-3">
-                <label for="txt_quantidade" class="form-label">Cargo:</label>
-                <input type="text" class="form-control" name="txt_quantidade" id="txt_quantidade" required>
+                <label for="chk_administrador" class="form-label">Administrador:</label>
+                <br>
+                <input type="checkbox" name="txt_quantidade" id="chk_administrador" value="1">
             </div>
             <div  class="col-sm-15">
                 <button class="w-100 btn btn-primary btn-lg" type="submit">Salvar</button>
@@ -32,8 +33,7 @@
                     <th scope="col">ID</th>
                     <th scope="col">Nome</th>
                     <th scope="col">Senha</th>
-                    <th scope="col">Cargo</th>
-                    <th scope="col">Ações</th>
+                    <th scope="col">Administrador</th>
                 </tr>
             </thead>
             <tbody>
@@ -42,22 +42,20 @@
                     {
                         include_once 'src/class/BancodeDados.php';
                         $banco = new BancodeDados;
-                        $sql = 'SELECT * FROM produtos';
+                        $sql = 'SELECT * FROM usuarios';
                         $dados = $banco -> Consultar($sql,[], true);
                         if($dados)
                         {
                             foreach ($dados as $linha)
                             {
-                                echo
-                                "<tr'>
-                                    <td>{$linha['id_produto']}</td>
-                                    <td>{$linha['nome']}</td>
-                                    <td> R$ {$linha['precodevenda']}</td>
-                                    <td>{$linha['quantidade']}</td>
+                                echo "<tr>
+                                    <td>{$linha['id_usuario']}</td>
+                                    <td>{$linha['nome_usuario']}</td>
+                                    <td>{$linha['senha']}</td>
+                                    <td><input type='checkbox' " . ($linha['administrador'] == 1 ? "checked" : "") . " disabled></td>
                                     <td>
-                                        <a href='index.php?tela=produtos&idProduto={$linha['id_produto']}'>Editar</a>
-                                        <a href='#' onclick='excluir({$linha['id_produto']})'>Excluir</a>
-                                        <a href='index.php?tela=estoque&IdEquipamento={$linha['id_produto']}'>Estoque</a>
+                                        <a href='index.php?tela=produtos&idProduto={$linha['id_usuario']}'>Editar</a>
+                                        <a href='#' onclick='ExcluirUsuario({$linha['id_usuario']})'>Excluir</a>
                                     </td>
                                 </tr>";
                             }

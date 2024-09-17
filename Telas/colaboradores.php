@@ -12,12 +12,20 @@
                 <input type="text" class="form-control" name="txt_nome" id="txt_nome" maxlength="255" required>
             </div>
             <div class="col-sm-3">
-                <label for="txt_preco" class="form-label">Cargo:</label>
-                <input type="tex" class="form-control" name="txt_preco" id="txt_preco" required>
+                <label for="txt_preco" class="form-label">Data de Nascimento</label>
+                <input type="date" class="form-control" name="txt_preco" id="txt_preco" required>
             </div>
             <div class="col-sm-3">
-                <label for="txt_quantidade" class="form-label">Função:</label>
+                <label for="txt_quantidade" class="form-label">Documento:</label>
                 <input type="text" class="form-control" name="txt_quantidade" id="txt_quantidade" required>
+            </div>
+            <div class="col-sm-3">
+                <label for="txt_quantidade" class="form-label">RG:</label>
+                <input type="text" class="form-control" name="txt_quantidade" id="txt_quantidade" required>
+            </div>
+            <div class="col-sm-3">
+                <label for="txt_quantidade" class="form-label">Telefone:</label>
+                <input type="number" class="form-control" name="txt_quantidade" id="txt_quantidade" required>
             </div>
             <div  class="col-sm-15">
                 <button class="w-100 btn btn-primary btn-lg" type="submit">Salvar</button>
@@ -31,9 +39,10 @@
                 <tr>
                     <th scope="col">ID</th>
                     <th scope="col">Nome</th>
-                    <th scope="col">Cargo</th>
-                    <th scope="col">Função</th>
-                    <th scope="col">Ações</th>
+                    <th scope="col">Data de Nascimento</th>
+                    <th scope="col">Documento</th>
+                    <th scope="col">RG</th>
+                    <th scope="col">Telefone</th>
                 </tr>
             </thead>
             <tbody>
@@ -42,7 +51,7 @@
                     {
                         include_once 'src/class/BancodeDados.php';
                         $banco = new BancodeDados;
-                        $sql = 'SELECT * FROM produtos';
+                        $sql = 'SELECT * FROM colaboradores';
                         $dados = $banco -> Consultar($sql,[], true);
                         if($dados)
                         {
@@ -50,10 +59,12 @@
                             {
                                 echo
                                 "<tr'>
-                                    <td>{$linha['id_produto']}</td>
-                                    <td>{$linha['nome']}</td>
-                                    <td> R$ {$linha['precodevenda']}</td>
-                                    <td>{$linha['quantidade']}</td>
+                                    <td>{$linha['id_colaborador']}</td>
+                                    <td>{$linha['nome_colaborador']}</td>
+                                    <td> R$ {$linha['data_nascimento']}</td>
+                                    <td>{$linha['cpf_cnpj']}</td>
+                                    <td>{$linha['rg']}</td>
+                                    <td>{$linha['telefone']}</td>
                                     <td>
                                         <a href='index.php?tela=produtos&idProduto={$linha['id_produto']}'>Editar</a>
                                         <a href='#' onclick='ExcluirColaborador({$linha['id_produto']})'>Excluir</a>

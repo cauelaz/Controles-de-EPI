@@ -3,11 +3,11 @@
     // Se NÃO existir uma sessão, redireciona o usuário para o index.php
     // Não permitindo que seja exibido o conteúdo da página, 
     // sem que exista uma sessão (login autenticado)
-    // session_start();
-    // if (!isset($_SESSION['logado'])) {
-    //     header('LOCATION: index.php');
-    //     exit;
-    // }
+    session_start();
+    if (!isset($_SESSION['logado'])) {
+        header('LOCATION: index.php');
+        exit;
+    }
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
