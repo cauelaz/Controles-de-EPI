@@ -8,7 +8,7 @@
         echo
         "<script>
             alert('Existem dados faltando! Verifique');
-            window.location = '../index.php?tela=usuarios.php';
+            window.location = '../sistema.php?tela=usuarios.php';
         </script>";
         exit;
     }
@@ -18,18 +18,18 @@
         $banco = new BancodeDados;
         if($formulario['id'] == 'NOVO')
         {
-            $sql = 'INSERT INTO  usuarios (nome, senha, adm) VALUES (?,?,?)';
+            $sql = 'INSERT INTO  usuarios (nome_usuario, senha, administrador, ativo) VALUES (?,?,?,1)';
             $parametros =
             [
                 $formulario['nome'],
                 $formulario['senha'],
-                $formulario['adm']
+                $formulario['adm'],
             ];
             $msg_sucesso = 'Dados cadastrados com sucesso!';
         }
         else
         {
-            $sql = 'UPDATE usuarios SET nome = ?, senha = ?, adm = ? WHERE id_usuario = ?';
+            $sql = 'UPDATE usuarios SET nome_usuario = ?, senha = ?, administrador = ? WHERE id_usuario = ?';
             $parametros =
             [
                 $formulario['nome'],
@@ -43,7 +43,7 @@
         echo
         "<script>
             alert('$msg_sucesso');
-            window.location = '../index.php?tela=usuarios';
+            window.location = '../../sistema.php?tela=usuarios';
         </script>";
     }
     catch(PDOException $erro)
@@ -52,6 +52,6 @@
         echo
         "<script>
             alert(\"$msg\");
-            window.location = '../index.php?tela=usuarios';
+            window.location = '../../sistema.php?tela=usuarios';
         </script>";
     }

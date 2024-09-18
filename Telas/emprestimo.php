@@ -42,7 +42,7 @@
                     {
                         include_once 'src/class/BancodeDados.php';
                         $banco = new BancodeDados;
-                        $sql = 'SELECT * FROM produtos';
+                        $sql = 'SELECT * FROM emprestimos';
                         $dados = $banco -> Consultar($sql,[], true);
                         if($dados)
                         {
