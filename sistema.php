@@ -46,10 +46,9 @@
         </li>
     </ul>
 </header>
-
     <div class="container-fluid">
         <div class="row">
-            <main class="">
+            <main>
                 <!-- Script para importar as telas do sistema -->
                 <?php
                     $tela = isset($_GET['tela']) ? $_GET['tela'] : '';
@@ -60,8 +59,8 @@
                         case 'equipamentos':
                             include 'telas/equipamentos.php';
                             break;
-                        case 'usuarios':
-                            include 'telas/usuarios.php';
+                            case 'usuarios':
+                                include 'telas/usuarios.php';
                             break;
                         case 'emprestimos':
                             include 'telas/emprestimo.php';
@@ -88,9 +87,11 @@
         // A função 'excluir' do Javascript recebe um valor via parâmetro
         // Esse valor é o id do cliente, que se deseja excluir
         // Esse valor foi impresso via php, na chamada da função excluir() na tabela de clientes
-        function ExcluirColaborador(IdColaborador) {
+        function ExcluirColaborador(IdColaborador) 
+        {
             var confirmou = confirm('Tem certeza que quer excluir este cliente?');
-            if (confirmou) {
+            if (confirmou) 
+            {
                 window.location = 'src/colaboradores/excluir_colaborador.php?IdColaborador=' + idCliente;
             }
         }
@@ -112,30 +113,64 @@
         }
     </script>
     <?php
-        if (isset($_GET['acao']) && $_GET['acao'] == 'alterar') {
-            $id_usuario = isset($_GET['IdUsuario']) ? $_GET['IdUsuario'] : '';
-            if (!empty($id_usuario)) {
-                try {
+        $acao = isset($_GET['acao']) ? $_GET['acao'] : '';
+        switch ($acao) {
+            case 'alterarusuario':
+                $id_usuario = isset($_GET['IdUsuario']) ? $_GET['IdUsuario'] : '';
+                if (!empty($id_usuario))
+                {
+                    try 
+                    {
+                        include_once 'src/class/BancoDeDados.php';
+                        $banco = new BancoDeDados;
+                        $sql = 'SELECT * FROM usuarios WHERE id_usuario = ?';
+                        $parametros = [ $id_usuario ];
+                        $dados = $banco->consultar($sql, $parametros);
+                        echo 
+                        "<script>
+                            EditarUsuarioModal();
+                            document.getElementById('txt_id').value   = '{$dados['id_usuario']}';
+                            document.getElementById('txt_nome').value = '{$dados['nome_usuario']}';
+                            document.getElementById('txt_senha').value = '{$dados['senha']}';
+                            document.getElementById('chk_administrador').checked = " . ($dados['administrador'] == 1 ? 'true' : 'false') . ";
+                        </script>";
+                    } 
+                    catch (PDOException $erro) 
+                    {
+                        echo $erro->getMessage();
+                    }
+                }
+            break;
+            case 'alterarcolaborador':
+                $id_usuario = isset($_GET['IdColaborador']) ? $_GET['IdColaborador'] : '';
+                if (!empty($id_usuario)) 
+                {
+                    try 
+                    {
                     include_once 'src/class/BancoDeDados.php';
                     $banco = new BancoDeDados;
-                    $sql = 'SELECT * FROM usuarios WHERE id_usuario = ?';
+                    $sql = 'SELECT * FROM colaboradores WHERE id_colaborador = ?';
                     $parametros = [ $id_usuario ];
                     $dados = $banco->consultar($sql, $parametros);
-
                     echo 
                     "<script>
-                        document.getElementById('txt_id').value             = '{$dados['id_usuario']}';
-                        document.getElementById('txt_nome').value           = '{$dados['nome_usuario']}';
-                        document.getElementById('txt_senha').value          = '{$dados['senha']}';
-                        var modalElement = document.getElementById('adicionar_usuario');
-                        var modal = new bootstrap.Modal(modalElement);
-                        modal.show();
+                        EditarColaboradorModal();
+                        document.getElementById('txt_id').value   = '{$dados['id_colaborador']}';
+                        document.getElementById('txt_nome').value = '{$dados['nome_colaborador']}';
+                        document.getElementById('txt_data_nasc').value = '{$dados['data_nascimento']}';
+                        document.getElementById('txt_cpf_cnpj').value = '{$dados['cpf_cnpj']}';
+                        document.getElementById('txt_rg').value = '{$dados['rg']}';
+                        document.getElementById('txt_data_nasc').value = '{$dados['data_nascimento']}';
+                        document.getElementById('txt_telefone').value = '{$dados['telefone']}';
                     </script>";
-                } catch (PDOException $erro) {
-                    echo $erro->getMessage();
+                    } 
+                    catch (PDOException $erro) 
+                    {
+                        echo $erro->getMessage();
+                    }
                 }
-            }
-        }
+           break;
+        }    
     ?>
 </body>
 </html>

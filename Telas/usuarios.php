@@ -19,29 +19,35 @@
         </thead>
         <tbody>
             <?php
-                try {
+                try 
+                {
                     include_once 'src/class/BancodeDados.php';
                     $banco = new BancodeDados;
                     $sql = 'SELECT * FROM usuarios WHERE ativo = 1 ';
                     $dados = $banco->Consultar($sql, [], true);
-                    if ($dados) {
+                    if ($dados) 
+                    {
                         foreach ($dados as $linha) {
-                            echo "<tr>
+                            echo 
+                            "<tr>
                                 <td>{$linha['id_usuario']}</td>
                                 <td>{$linha['nome_usuario']}</td>
                                 <td><input type='checkbox' " . ($linha['administrador'] == 1 ? "checked" : "") . " disabled></td>
                                 <td>
-                                    <a href='sistema.php?acao=alterar&IdUsuario={$linha['id_usuario']}'>Editar</a>
+                                    <a href='sistema.php?tela=usuarios&acao=alterarusuario&IdUsuario={$linha['id_usuario']}'>Editar</a>
                                     <a href='#' onclick='ExcluirUsuario({$linha['id_usuario']})'>Excluir</a>
                                 </td>
                             </tr>";
                         }
-                    } else {
-                        echo "<tr>
+                    } else 
+                    {
+                        echo 
+                        "<tr>
                             <td colspan='5' class='text-center'>Nenhum usuário cadastrado...</td>
                         </tr>";
                     }
-                } catch (PDOException $erro) {
+                } catch (PDOException $erro) 
+                {
                     $msg = $erro->getMessage();
                     echo "<script>
                         alert(\"$msg\");
@@ -58,7 +64,7 @@
             <form id="form_usuario" method="post" action="src/usuarios/cadastrar_usuario.php">
                 <div class="modal-header">
                     <h4 class="modal-title" id="modalLabel">Novo Usuário</h4>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button onclick="window.location.href='sistema.php?tela=usuarios'" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <input type="hidden" name="txt_id" id="txt_id" value="NOVO">
@@ -71,8 +77,8 @@
                         <input type="password" class="form-control" name="txt_senha" id="txt_senha" required>
                     </div>
                     <div class="form-group">
-                        <label for="txt_administrador">Administrador</label>
-                        <input type="checkbox" name="chk_administrador" id="chk_administrador" value="1">
+                        <label for="cbx_adm">Administrador</label>
+                        <input type="checkbox" name="cbx_adm" id="cbx_adm" value="1">
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -86,5 +92,10 @@
     function abrirModal() 
     {
         $('#adicionar-produto').modal('show');
+    }
+    function EditarUsuarioModal()
+    {
+        var modal = new bootstrap.Modal(document.getElementById('adicionar_usuario'));
+        modal.show();
     }
 </script>

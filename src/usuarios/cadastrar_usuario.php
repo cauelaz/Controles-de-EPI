@@ -2,13 +2,13 @@
     $formulario['id']           = isset($_POST['txt_id']) ? $_POST['txt_id'] : '';
     $formulario['nome']         = isset($_POST['txt_nome']) ? $_POST['txt_nome'] : '';
     $formulario['senha']        = isset($_POST['txt_senha']) ? $_POST['txt_senha'] : '';
-    $formulario['adm']          = isset($_POST['chk_administrador']) ? $_POST['chk_administrador'] : '';
+    $formulario['adm']          = isset($_POST['cbx_adm']) ? $_POST['cbx_adm'] : '0';
     if(in_array('', $formulario))
     {
         echo
         "<script>
             alert('Existem dados faltando! Verifique');
-            window.location = '../sistema.php?tela=usuarios.php';
+            window.location = '../sistema.php?tela=usuarios';
         </script>";
         exit;
     }
