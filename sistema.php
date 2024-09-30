@@ -29,7 +29,7 @@
             Controle de EPIs    
         </a>
         <ul class="d-flex flex-wrap align-items-center ms-auto justify-content-center justify-content-lg-start nav col-13 col-lg-auto">
-            <li class="nav-link"><a class="nav-link d-flex ms-5" href="sistema.php?tela=equipamentos"><i class="bi bi-hammer"></i>Equipamentos</a></li>
+            <li class="nav-link"><a class="nav-link d-flex ms-5" href="sistema.php?tela=equipamentos"><i class="bi bi-hammer"></i>Equipamentos (EPIs)</a></li>
             <li class="nav-link"><a class="nav-link d-flex ms-5" href="sistema.php?tela=colaboradores"><i class="bi bi-people"></i>Colaboradores</a></li>
             <li class="nav-link"><a class="nav-link d-flex ms-5" href="sistema.php?tela=usuarios"><i class="bi bi-person"></i>Usuários</a></li>
             <li class="nav-link"><a class="nav-link d-flex ms-5" href="sistema.php?tela=emprestimos"><i class="bi bi-arrow-left-right"></i>Empréstimos</a></li>
@@ -89,10 +89,10 @@
         // Esse valor foi impresso via php, na chamada da função excluir() na tabela de clientes
         function ExcluirColaborador(IdColaborador) 
         {
-            var confirmou = confirm('Tem certeza que quer excluir este cliente?');
+            var confirmou = confirm('Tem certeza que quer excluir este colaborador?');
             if (confirmou) 
             {
-                window.location = 'src/colaboradores/excluir_colaborador.php?IdColaborador=' + idCliente;
+                window.location = 'src/colaboradores/excluir_colaborador.php?IdColaborador=' + IdColaborador;
             }
         }
         function ExcluirEquipamento(IdEquipamento)
@@ -114,7 +114,8 @@
     </script>
     <?php
         $acao = isset($_GET['acao']) ? $_GET['acao'] : '';
-        switch ($acao) {
+        switch ($acao) 
+        {
             case 'alterarusuario':
                 $id_usuario = isset($_GET['IdUsuario']) ? $_GET['IdUsuario'] : '';
                 if (!empty($id_usuario))
@@ -142,34 +143,61 @@
                 }
             break;
             case 'alterarcolaborador':
-                $id_usuario = isset($_GET['IdColaborador']) ? $_GET['IdColaborador'] : '';
-                if (!empty($id_usuario)) 
+                $id_colaborador = isset($_GET['IdColaborador']) ? $_GET['IdColaborador'] : '';
+                if (!empty($id_colaborador)) 
                 {
                     try 
                     {
-                    include_once 'src/class/BancoDeDados.php';
-                    $banco = new BancoDeDados;
-                    $sql = 'SELECT * FROM colaboradores WHERE id_colaborador = ?';
-                    $parametros = [ $id_usuario ];
-                    $dados = $banco->consultar($sql, $parametros);
-                    echo 
-                    "<script>
-                        EditarColaboradorModal();
-                        document.getElementById('txt_id').value   = '{$dados['id_colaborador']}';
-                        document.getElementById('txt_nome').value = '{$dados['nome_colaborador']}';
-                        document.getElementById('txt_data_nasc').value = '{$dados['data_nascimento']}';
-                        document.getElementById('txt_cpf_cnpj').value = '{$dados['cpf_cnpj']}';
-                        document.getElementById('txt_rg').value = '{$dados['rg']}';
-                        document.getElementById('txt_data_nasc').value = '{$dados['data_nascimento']}';
-                        document.getElementById('txt_telefone').value = '{$dados['telefone']}';
-                    </script>";
+                        include_once 'src/class/BancoDeDados.php';
+                        $banco = new BancoDeDados;
+                        $sql = 'SELECT * FROM colaboradores WHERE id_colaborador = ?';
+                        $parametros = [ $id_colaborador ];
+                        $dados = $banco->consultar($sql, $parametros);
+                        echo 
+                        "<script>
+                            EditarColaboradorModal();
+                            document.getElementById('txt_id').value   = '{$dados['id_colaborador']}';
+                            document.getElementById('txt_nome').value = '{$dados['nome_colaborador']}';
+                            document.getElementById('txt_data_nasc').value = '{$dados['data_nascimento']}';
+                            document.getElementById('txt_cpf_cnpj').value = '{$dados['cpf_cnpj']}';
+                            document.getElementById('txt_rg').value = '{$dados['rg']}';
+                            document.getElementById('txt_data_nasc').value = '{$dados['data_nascimento']}';
+                            document.getElementById('txt_telefone').value = '{$dados['telefone']}';
+                        </script>";
                     } 
                     catch (PDOException $erro) 
                     {
                         echo $erro->getMessage();
                     }
                 }
-           break;
+            break;
+            case 'alterarequipamento':
+                $id_equipamento = isset($_GET['IdEquipamento']) ? $_GET['IdEquipamento'] : '';
+                if (!empty($id_equipamento)) 
+                {
+                    try 
+                    {
+                        include_once 'src/class/BancoDeDados.php';
+                        $banco = new BancoDeDados;
+                        $sql = 'SELECT * FROM equipamentos WHERE id_equipamento = ?';
+                        $parametros = [ $id_equipamento ];
+                        $dados = $banco->consultar($sql, $parametros);
+                        echo 
+                        "<script>
+                            EditarEquipamentoModal();
+                            document.getElementById('txt_id').value   = '{$dados['id_equipamento']}';
+                            document.getElementById('txt_descricao').value = '{$dados['descricao']}';
+                            document.getElementById('txt_estoque').value = '{$dados['qtd_estoque']}';
+                            document.getElementById('txt_cert_aprovacao').value = '{$dados['certificado_aprovacao']}';
+                            document.getElementById('file_imagem').value = '{$dados['imagem_equipamento']}'
+                        </script>";
+                    } 
+                    catch (PDOException $erro) 
+                    {
+                        echo $erro->getMessage();
+                    }
+                }
+            break;
         }    
     ?>
 </body>

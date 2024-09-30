@@ -1,28 +1,30 @@
 <?php
     // Validação
-    $id_cliente = isset($_GET['IdColaborador']) ? $_GET['IdColaborador'] : '';
-    if (empty($id_cliente)) {
-        header('LOCATION: ../sistema.php?tela=equipamentos');
-        // Não é necessário usar 'exit' após o header()
+    $id_colaborador = isset($_GET['IdColaborador']) ? $_GET['IdColaborador'] : '';
+    if (empty($id_colaborador)) 
+    {
+        header('LOCATION: ../sistema.php?tela=colaboradores');
     }
-
-    // Continuando
-
     // Banco de dados
-    try {
-        include 'class/BancoDeDados.php';
+    try 
+    {
+        include '../class/BancoDeDados.php';
         $banco = new BancoDeDados;
-        $sql = 'DELETE FROM clientes WHERE id_cliente = ?';
-        $parametros = [ $id_cliente ];
+        $sql = 'UPDATE colaboradores SET ativo = 0 WHERE id_colaborador = ?';
+        $parametros = [ $id_colaborador ];
         $banco -> ExecutarComando($sql,$parametros);
-        echo "<script>
-            alert('Cliente removido com sucesso!');
-            window.location = '../sistema.php?tela=equipamentos';
+        echo 
+        "<script>
+            alert('Colaborador removido com sucesso!');
+            window.location = '../../sistema.php?tela=colaboradores';
         </script>";
-    } catch(PDOException $erro) {
+    } 
+    catch(PDOException $erro) 
+    {
         $msg = $erro->getMessage();
-        echo "<script>
+        echo 
+        "<script>
             alert(\"$msg\");
-            window.location = '../sistema.php?tela=equipamentos';
+            window.location = '../../sistema.php?tela=colaboradores';
         </script>";
     }

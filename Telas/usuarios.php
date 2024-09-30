@@ -27,7 +27,8 @@
                     $dados = $banco->Consultar($sql, [], true);
                     if ($dados) 
                     {
-                        foreach ($dados as $linha) {
+                        foreach ($dados as $linha) 
+                        {
                             echo 
                             "<tr>
                                 <td>{$linha['id_usuario']}</td>
@@ -39,17 +40,20 @@
                                 </td>
                             </tr>";
                         }
-                    } else 
+                    } 
+                    else 
                     {
                         echo 
                         "<tr>
                             <td colspan='5' class='text-center'>Nenhum usuário cadastrado...</td>
                         </tr>";
                     }
-                } catch (PDOException $erro) 
+                } 
+                catch (PDOException $erro) 
                 {
                     $msg = $erro->getMessage();
-                    echo "<script>
+                    echo 
+                    "<script>
                         alert(\"$msg\");
                     </script>";
                 }
@@ -58,7 +62,7 @@
     </table>
 </div>
 <!--Modal-->
-<div id="adicionar_usuario" class="modal fade">
+<div id="adicionar_usuario" class="modal fade" data-bs-backdrop="static">
     <div class="modal-dialog">
         <div class="modal-content">
             <form id="form_usuario" method="post" action="src/usuarios/cadastrar_usuario.php">

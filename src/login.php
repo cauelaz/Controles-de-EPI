@@ -2,8 +2,10 @@
     // Validação
     $usuario = isset($_POST['txt_usuario']) ? $_POST['txt_usuario'] : '';
     $senha = isset($_POST['txt_senha']) ? $_POST['txt_senha'] : '';
-    if (empty($usuario) || empty($senha)) {
-        echo "<script>
+    if (empty($usuario) || empty($senha)) 
+    {
+        echo 
+        "<script>
             alert('Por favor preencha todos os campos!');
             window.location = '../index.php';
         </script>";
@@ -32,9 +34,11 @@
             $_SESSION['nome_usuario'] = $dados_usuario["nome_usuario"];
             // Redirecionar
             header('LOCATION: ../sistema.php');
-        } else 
+        } 
+        else 
         {    
-            echo "<script>
+            echo 
+            "<script>
                 alert('Usuário ou senha incorretos! Verifique.');
                 window.location = '../index.php';
             </script>";

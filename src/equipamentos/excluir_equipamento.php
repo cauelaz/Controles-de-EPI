@@ -1,20 +1,20 @@
 <?php
-    $id_produto = isset($_GET['IdEquipamento']) ? $_GET['IdEquipamento'] : '';
-    if(empty($id_produto))
+    $id_equipamento = isset($_GET['IdEquipamento']) ? $_GET['IdEquipamento'] : '';
+    if(empty($id_equipamento))
     {
-        header('LOCATION: ../index.php?tela=equipamentos');
+        header('LOCATION: ../../sistema.php?tela=equipamentos');
     }
     try
     {
-        include 'class/BancodeDados.php';
+        include '../class/BancodeDados.php';
         $banco = new BancodeDados;
-        $sql = 'DELETE FROM produtos WHERE id_produto = ?';
-        $parametros = [$id_produto];
+        $sql = 'UPDATE equipamentos SET ativo = 0 WHERE id_equipamento = ?';
+        $parametros = [$id_equipamento];
         $banco -> ExecutarComando($sql,$parametros);
         echo 
         "<script>
-            alert('Produto removido com sucesso!');
-            window.location = '../index.php?tela=equipamentos';
+            alert('Equipamento removido com sucesso!');
+            window.location = '../../sistema.php?tela=equipamentos';
         </script>";
     }
     catch(PDOException $erro)
@@ -23,6 +23,6 @@
         echo
         "<script>
             alert(\"$msg\");
-            window.location = '../index.php?tela=equipamentos';
+            window.location = '../../sistema.php?tela=equipamentos';
         </script>";
     }

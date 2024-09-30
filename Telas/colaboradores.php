@@ -2,7 +2,7 @@
     <h1>Cadastro de Colaboradores</h1>
 </div>
 <div class="col-sm-6">
-    <button onclick="abrirModal()" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#adicionar_usuario">
+    <button onclick="abrirModal()" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#adicionar_colaborador">
         <i class="bi bi-plus"></i> Novo Colaborador
     </button>
 </div>
@@ -29,7 +29,8 @@
                     $dados = $banco->Consultar($sql, [], true);
                     if ($dados) 
                     {
-                        foreach ($dados as $linha) {
+                        foreach ($dados as $linha) 
+                        {
                             $data_nascimento = DateTime::createFromFormat('Y-m-d', $linha['data_nascimento'])->format('d/m/y');
                             echo 
                             "<tr>
@@ -45,14 +46,16 @@
                                 </td>
                             </tr>";
                         }
-                    } else 
+                    } 
+                    else 
                     {
                         echo 
                         "<tr>
                             <td colspan='6' class='text-center'>Nenhum colaborador cadastrado...</td>
                         </tr>";
                     }
-                } catch (PDOException $erro) 
+                } 
+                catch (PDOException $erro) 
                 {
                     $msg = $erro->getMessage();
                     echo "<script>
@@ -64,7 +67,7 @@
     </table>
 </div>
 <!--Modal-->
-<div id="adicionar_colaborador" class="modal fade">
+<div id="adicionar_colaborador" class="modal fade" data-bs-backdrop="static">
     <div class="modal-dialog">
         <div class="modal-content">
             <form id="form_colaborador" method="post" action="src/colaboradores/cadastrar_colaborador.php">
@@ -88,11 +91,11 @@
                     </div>
                     <div class="form-group">
                         <label for="txt_rg">RG</label>
-                        <input type="text" class="form-control" name="txt_rg" id="txt_rg" required minlength="8" maxlength="8">
+                        <input type="text" class="form-control" name="txt_rg" id="txt_rg" required minlength="7" maxlength="9">
                     </div>
                     <div class="form-group">
                         <label for="txt_telefone">Telefone</label>
-                        <input type="text" class="form-control" name="txt_telefone" id="txt_telefone" required minlength="10" maxlength="14">
+                        <input type="tel" class="form-control" name="txt_telefone" id="txt_telefone" required minlength="10" maxlength="14">
                     </div>    
                 </div>
                 <div class="modal-footer">
