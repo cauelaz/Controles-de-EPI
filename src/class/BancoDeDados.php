@@ -1,6 +1,6 @@
 <?php
-    include_once('ambiente.php');
-    (new DotEnv('./.env'))->load();   //Carregando os dados de acesso do arquivo env
+    include_once('Ambiente.php');
+    (new DotEnv(__DIR__ . '/../.env'))->load();   //Carregando os dados de acesso do arquivo env
 
     class BancoDeDados 
     {
