@@ -1,13 +1,15 @@
 <?php
+    include_once('ambiente.php');
+    (new DotEnv('./.env'))->load();   //Carregando os dados de acesso do arquivo env
+
     class BancoDeDados 
     {
         //Atributos da Classe
         private $conexao;
 
-        // Método 
         function __construct()
-        {
-                $this -> conexao = new PDO('mysql:host=localhost;dbname=db_epis;charset=utf8mb4', 'root', '');
+        {  
+            $this -> conexao = new PDO('mysql:host='.getenv("DB_HOST").';dbname='.getenv("DB_NAME").';charset=utf8mb4', getenv("DB_USER"), getenv("DB_PASSWORD"));
         }
         public function ExecutarComando($sql, $paramentros = [])
         {
