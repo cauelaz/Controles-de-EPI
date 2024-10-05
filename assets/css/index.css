@@ -100,3 +100,8 @@ body {
 .bd-mode-toggle .dropdown-menu .active .bi {
     display: block !important;
 }
+.btn-login {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+}

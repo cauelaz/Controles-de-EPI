@@ -29,14 +29,16 @@
                     {
                         foreach ($dados as $linha) 
                         {
+                            // Define o título de acordo com o valor de 'administrador'
+                            $tipoUsuario = $linha['administrador'] == 1 ? "Administrador" : "Usuário";
                             echo 
                             "<tr>
                                 <td>{$linha['id_usuario']}</td>
                                 <td>{$linha['nome_usuario']}</td>
-                                <td><input type='checkbox' " . ($linha['administrador'] == 1 ? "checked" : "") . " disabled></td>
+                                <td>{$tipoUsuario}</td>
                                 <td>
-                                    <a href='sistema.php?tela=usuarios&acao=alterarusuario&IdUsuario={$linha['id_usuario']}'>Editar</a>
-                                    <a href='#' onclick='ExcluirUsuario({$linha['id_usuario']})'>Excluir</a>
+                                    <a href='sistema.php?tela=usuarios&acao=alterarusuario&IdUsuario={$linha['id_usuario']}'><i class='bi bi-pencil-square'></i></a>
+                                    <a href='#' onclick='ExcluirUsuario({$linha['id_usuario']})'><i class='bi bi-trash3-fill'></i></a>
                                 </td>
                             </tr>";
                         }
@@ -80,10 +82,11 @@
                         <label for="txt_senha">Senha</label>
                         <input type="password" class="form-control" name="txt_senha" id="txt_senha" required>
                     </div>
-                    <div class="form-group">
-                        <label for="cbx_adm">Administrador</label>
-                        <input type="checkbox" name="cbx_adm" id="cbx_adm" value="1">
-                    </div>
+                    <select class="form-select" name="list_user" id="list_user" required>
+                        <option value="">Escolha...</option>
+                        <option value="1">Administrador</option>
+                        <option value="0">Usuário</option>
+                    </select>
                 </div>
                 <div class="modal-footer">
                     <button type="submit" class="btn btn-success">Salvar</button>

@@ -2,7 +2,7 @@
     $formulario['id']           = isset($_POST['txt_id']) ? $_POST['txt_id'] : '';
     $formulario['nome']         = isset($_POST['txt_nome']) ? $_POST['txt_nome'] : '';
     $formulario['senha']        = isset($_POST['txt_senha']) ? $_POST['txt_senha'] : '';
-    $formulario['adm']          = isset($_POST['cbx_adm']) ? $_POST['cbx_adm'] : '0';
+    $formulario['adm']          = isset($_POST['list_user']) ? $_POST['list_user'] : '0';
     if(in_array('', $formulario))
     {
         echo

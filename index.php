@@ -27,6 +27,9 @@
                 <label for="txt_senha">Senha</label>
             </div>
             <div class="form-check text-start my-3">
+                <a href="registrar.php" class="btn btn-link text-decoration-none">Novo Usuário</a>
+            </div>
+            <div class="form-check text-start my-3">
                 <input class="form-check-input" type="checkbox" value="true" name="check_lembrar" id="check_lembrar">
                 <label class="form-check-label" for="check_lembrar">Manter-me conectado</label>
             </div>

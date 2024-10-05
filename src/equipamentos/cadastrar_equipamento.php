@@ -40,7 +40,7 @@
                 } 
                 else 
                 {
-                    $nome_imagem = ''; 
+                    $nome_imagem = 'vazio'; 
                 }
             } 
             catch (PDOException $erro)
@@ -67,7 +67,6 @@
         }
         else
         {
-            // LEMBRAR DE MUDAR AQUI PARA O CERTO!!!!!!!!!!!
             $sql = 'SELECT imagem_equipamento FROM equipamentos WHERE id_equipamento = ?';
             $parametros = [$formulario['id']];
             $foto = $banco->consultar($sql, $parametros);

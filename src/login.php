@@ -25,16 +25,17 @@
         
         //Consultar os dados 
         $dados_usuario = $banco -> Consultar($sql,$parametros,true); // Se quiser FETCH normal, só deixa FALSE no lugar do TRUE.
-        if ($dados_usuario)
-        {
+        if ($dados_usuario) {
+            // Acessar o primeiro elemento do array
+            $usuario_data = $dados_usuario[0]; // Acesso ao primeiro usuário
             // Sessão
             session_start();
             $_SESSION['logado'] = true;
-            $_SESSION['id_user'] = $dados_usuario["id_usuario"];
-            $_SESSION['nome_usuario'] = $dados_usuario["nome_usuario"];
-            // Redirecionar
-            header('LOCATION: ../sistema.php');
-        } 
+            $_SESSION['id_user'] = $usuario_data["id_usuario"];
+            $_SESSION['nome_usuario'] = $usuario_data["nome_usuario"]; // Acessando o nome corretamente
+            header('Location: ../sistema.php');
+            exit;
+        }
         else 
         {    
             echo 
