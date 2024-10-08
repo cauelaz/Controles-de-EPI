@@ -24,7 +24,7 @@
     <div class="table-responsive">
         <table class="table table-striped table-hover">  
             <thead>
-                <tr>
+                <tr class="text-center">
                     <th scope="col">ID</th>
                     <th scope="col">Descrição</th>
                     <th scope="col">Qtd. em Estoque</th>
@@ -47,7 +47,7 @@
                                 $caminho_imagem = 'src/equipamentos/upload/' . $linha['imagem_equipamento'];
                                 $imagem_existe = file_exists($caminho_imagem);
                                 echo
-                                "<tr'>
+                                "<tr class='text-center'>
                                     <td>{$linha['id_equipamento']}</td>
                                     <td>{$linha['descricao']}</td>
                                     <td>{$linha['qtd_estoque']}</td>
@@ -87,7 +87,7 @@
         <div class="table-responsive">
         <table class="table table-striped table-hover">  
             <thead>
-                <tr>
+                <tr class="text-center">
                     <th scope="col">ID</th>
                     <th scope="col">Descrição</th>
                     <th scope="col">Qtd. em Estoque</th>
@@ -108,7 +108,7 @@
                             foreach ($dados as $linha)
                             {
                                 echo
-                                "<tr'>
+                                "<tr class='text-center'>
                                     <td>{$linha['id_equipamento']}</td>
                                     <td>{$linha['descricao']}</td>
                                     <td>{$linha['qtd_estoque']}</td>
@@ -158,7 +158,7 @@
                     </div>
                     <div class="form-group">
                         <label for="txt_estoque">Qtd. Estoque</label>
-                        <input type="number" class="form-control" name="txt_estoque" id="txt_estoque" required readonly>
+                        <input type="number" class="form-control" name="txt_estoque" id="txt_estoque" required>
                     </div>
                     <div class="form-group">
                         <label for="txt_cert_aprovacao">Certificado Aprovação</label>

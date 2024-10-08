@@ -10,7 +10,7 @@
 <div class="table-responsive">
     <table class="table table-striped table-hover">
         <thead>
-            <tr>
+            <tr class="text-center">
                 <th scope="col">ID</th>
                 <th scope="col">Nome</th>
                 <th scope="col">Administrador</th>
@@ -32,12 +32,12 @@
                             // Define o título de acordo com o valor de 'administrador'
                             $tipoUsuario = $linha['administrador'] == 1 ? "Administrador" : "Usuário";
                             echo 
-                            "<tr>
+                            "<tr class='text-center'>
                                 <td>{$linha['id_usuario']}</td>
                                 <td>{$linha['nome_usuario']}</td>
                                 <td>{$tipoUsuario}</td>
                                 <td>
-                                    <a href='sistema.php?tela=usuarios&acao=alterarusuario&IdUsuario={$linha['id_usuario']}'><i class='bi bi-pencil-square'></i></a>
+                                    <a href='sistema.php?tela=usua  rios&acao=alterarusuario&IdUsuario={$linha['id_usuario']}'><i class='bi bi-pencil-square'></i></a>
                                     <a href='#' onclick='ExcluirUsuario({$linha['id_usuario']})'><i class='bi bi-trash3-fill'></i></a>
                                 </td>
                             </tr>";

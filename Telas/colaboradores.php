@@ -23,7 +23,7 @@
         <div class="table-responsive">
             <table class="table table-striped table-hover">
                 <thead>
-                    <tr>
+                    <tr class="text-center">
                         <th scope="col">ID</th>
                         <th scope="col">Nome</th>
                         <th scope="col">Data Nascimento</th>
@@ -48,7 +48,7 @@
                                 $imagem_existe = file_exists($caminho_imagem);
                                 $data_nascimento = DateTime::createFromFormat('Y-m-d', $linha['data_nascimento'])->format('d/m/y');
                                 echo 
-                                "<tr>
+                                "<tr class='text-center'>
                                     <td>{$linha['id_colaborador']}</td>
                                     <td>{$linha['nome_colaborador']}</td>
                                     <td>{$data_nascimento}</td>
@@ -81,7 +81,7 @@
         <div class="table-responsive">
             <table class="table table-striped table-hover">
                 <thead>
-                    <tr>
+                    <tr class="text-center">
                         <th scope="col">ID</th>
                         <th scope="col">Nome</th>
                         <th scope="col">Data Nascimento</th>
@@ -103,7 +103,7 @@
                             foreach ($dados as $linha) {
                                 $data_nascimento = DateTime::createFromFormat('Y-m-d', $linha['data_nascimento'])->format('d/m/y');
                                 echo 
-                                "<tr>
+                                "<tr class='text-center'>
                                     <td>{$linha['id_colaborador']}</td>
                                     <td>{$linha['nome_colaborador']}</td>
                                     <td>{$data_nascimento}</td>
