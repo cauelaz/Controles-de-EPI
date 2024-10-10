@@ -10,24 +10,24 @@
         ]);
         exit;
     }
-    // Banco de dados
     try 
     {
         include '../class/BancoDeDados.php';
         $banco = new BancoDeDados;
-        $sql = 'UPDATE colaboradores SET ativo = 0 WHERE id_colaborador = ?';
+        $sql = 'UPDATE colaboradores SET ativo = 1 WHERE id_colaborador = ?';
         $parametros = [ $formulario['id'] ];
         $banco -> ExecutarComando($sql,$parametros);
         echo json_encode([
            'codigo' => 2,
-           'mensagem' => 'Colaborador excluído com sucesso!'
+           'mensagem' => 'Colaborador reativado com sucesso!'
         ]);
+        exit;
     } 
     catch(PDOException $erro) 
     {
         $msg = $erro->getMessage();
         echo json_encode([
            'codigo' => 0,
-           'Mensagem' => "Erro ao realizar exclusão: $msg"
+           'mensagem' => "Erro ao realizar reativação: $msg"
         ]);
     }

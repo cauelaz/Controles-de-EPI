@@ -1,15 +1,15 @@
 <?php
-    $formulario['id']           = isset($_POST['txt_id']) ? $_POST['txt_id'] : '';
-    $formulario['descricao']    = isset($_POST['txt_descricao']) ? $_POST['txt_descricao'] : '';
-    $formulario['qtd_estoque']        = isset($_POST['txt_estoque']) ? $_POST['txt_estoque'] : '';
-    $formulario['cert_aprovacao']   = isset($_POST['txt_cert_aprovacao']) ? $_POST['txt_cert_aprovacao'] : '';
+    header('Content-Type: application/json');
+    $formulario['id']             = isset($_POST['id'])             ? $_POST['id'] : '';
+    $formulario['descricao']      = isset($_POST['descricao'])      ? $_POST['descricao'] : '';
+    $formulario['qtd_estoque']    = isset($_POST['estoque'])        ? $_POST['estoque'] : '';
+    $formulario['cert_aprovacao'] = isset($_POST['cert_aprovacao']) ? $_POST['cert_aprovacao'] : '';
     if(in_array('', $formulario))
     {
-        echo
-        "<script>
-            alert('Existem dados faltando! Verifique');
-            window.location = '../../sistema.php?tela=equipamentos.php';
-        </script>";
+        echo json_encode([
+            'codigo'=> 0,
+            'mensagem' => 'Existem dados faltando! Verifique.'
+        ]);
         exit;
     }
     try
@@ -21,8 +21,19 @@
         {
             $nome_imagem = uniqid() . '.jpg';
             $destino = 'upload/' . $nome_imagem;
-            $origem = $_FILES['file_imagem']['tmp_name'];
-            move_uploaded_file($origem, $destino);
+            // Criar diretório se não existir
+            if (!is_dir('upload'))
+            {
+                mkdir('upload', 0777, true);
+            }
+            // Mover o arquivo de upload para o destino
+            if (!move_uploaded_file($_FILES['file_imagem']['tmp_name'], $destino)) {
+                echo json_encode([
+                    'codigo' => 0,
+                    'mensagem' => 'Erro ao fazer upload da imagem.'
+                ]);
+                exit;
+            }
         }
         else 
         {
@@ -46,10 +57,11 @@
             catch (PDOException $erro)
             {
                 $msg_erro = $erro->getMessage();
-                echo "<script>
-                alert(\"$msg_erro\");
-                    window.location = '../../sistema.php?tela=equipamentos';
-                </script>";
+                echo json_encode([
+                    'codigo' => 3,
+                    'mensagem' => "Erro ao realizar consulta de imagem: $msg_erro"
+                ]);
+                exit;
             }
         }
         if($formulario['id'] == 'NOVO')
@@ -63,7 +75,11 @@
                 1,
                 $nome_imagem
             ];
-            $msg_sucesso = 'Equipamento cadastrado com sucesso!';
+            $banco->ExecutarComando($sql, $parametros);
+            echo json_encode([
+                'codigo' => 2,
+                'mensagem' => 'Equipamento cadastrado com sucesso!'
+            ]);
         }
         else
         {
@@ -79,20 +95,17 @@
                     $formulario['cert_aprovacao'],
                     $formulario['id']
                 ];
-                $msg_sucesso = 'Equipamento atualizada com sucesso!';
+                $banco->ExecutarComando($sql, $parametros);
+                echo json_encode([
+                    'codigo' => 2,
+                    'mensagem' => 'Equipamento atualizado com sucesso!'
+                ]);
             }                                                                   
             else
             {
                 if (file_exists("upload/" . $foto['imagem_equipamento'])) 
                 {
-                    if (unlink("upload/" . $foto['imagem_equipamento'])) 
-                    {
-                        echo 'Imagem excluída com sucesso.';
-                    } 
-                    else 
-                    {
-                        echo 'Erro ao excluir a imagem.';
-                    }
+                    (unlink("upload/" . $foto['imagem_equipamento']));
                 }
                 $sql = 'UPDATE equipamentos SET descricao = ?, qtd_estoque = ?, certificado_aprovacao = ?, imagem_equipamento = ? WHERE id_equipamento = ?';
                 $parametros = [
@@ -102,22 +115,19 @@
                     $nome_imagem,
                     $formulario['id']
                 ];
-                $msg_sucesso = 'Equipamento atualizada com sucesso!';
+                $banco->ExecutarComando($sql, $parametros);
+                echo json_encode([
+                   'codigo' => 2,
+                   'mensagem' => 'Equipamento atualizado com sucesso!'
+                ]);
             }
         }
-        $banco -> ExecutarComando($sql, $parametros);
-        echo
-        "<script>
-            alert('$msg_sucesso');
-            window.location = '../../sistema.php?tela=equipamentos';
-        </script>";
     }
     catch(PDOException $erro)
     {
         $msg = $erro->getMessage();
-        echo
-        "<script>
-            alert(\"$msg\");
-            window.location = '../../sistema.php?tela=equipamentos';
-        </script>";
+        echo json_encode([
+            'codigo' => 0,
+            'mensagem' => "Erro ao realizar registro: $msg"
+        ]);
     }

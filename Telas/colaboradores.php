@@ -111,7 +111,7 @@
                                     <td>{$linha['rg']}</td>
                                     <td>{$linha['telefone']}</td>
                                     <td>
-                                        <a href='sistema.php?tela=colaboradores&acao=reativarcolaborador&IdColaborador={$linha['id_colaborador']}'>Reativar</a>
+                                        <a href='#' onclick='ReativarColaborador({$linha['id_colaborador']})'>Reativar</a>
                                     </td>
                                 </tr>";
                             }
@@ -135,7 +135,7 @@
 <div id="adicionar_colaborador" class="modal fade" data-bs-backdrop="static">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form id="form_colaborador" method="post" action="src/colaboradores/cadastrar_colaborador.php" enctype="multipart/form-data">
+            <form id="form_colaborador" enctype="multipart/form-data">
                 <div class="modal-header">
                     <h4 class="modal-title" id="modalLabel">Cadastrar Colaborador</h4>
                     <button onclick="window.location.href='sistema.php?tela=colaboradores'" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -168,7 +168,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="submit" class="btn btn-success">Salvar</button>
+                    <button onclick="CadastrarColaborador()" class="btn btn-success">Salvar</button>
                 </div>
             </form>
         </div>
@@ -184,5 +184,109 @@
     {
         var modal = new bootstrap.Modal(document.getElementById('adicionar_colaborador'));
         modal.show();
+    }
+    $('#form_colaborador').submit(function() 
+    {
+        return false; // Evita o envio padrão do formulário
+    });
+    function CadastrarColaborador()
+    {
+        var id        = document.getElementById('txt_id').value;
+        var nome      = document.getElementById('txt_nome').value;
+        var data_nasc = document.getElementById('txt_data_nasc').value;
+        var cpf_cnpj  = document.getElementById('txt_cpf_cnpj').value;
+        var rg        = document.getElementById('txt_rg').value;
+        var telefone  = document.getElementById('txt_telefone').value;
+        var inputFile = document.getElementById('file_imagem').files[0];
+        // Verificação básica de campos preenchidos
+        var formData = new FormData(); // Criar um FormData
+        formData.append('id', id);
+        formData.append('nome', nome);
+        formData.append('data_nasc', data_nasc);
+        formData.append('cpf_cnpj', cpf_cnpj);
+        formData.append('rg', rg);
+        formData.append('telefone', telefone);
+        // Adicionar o arquivo somente se foi selecionado
+        if (inputFile) {
+            formData.append('file_imagem', inputFile);
+        }
+        // Envio da requisição AJAX com FormData
+        $.ajax({
+            type: 'POST',
+            url: './src/colaboradores/cadastrar_colaborador.php',
+            data: formData,
+            contentType: false, // Importante: evitar que o jQuery defina o tipo de conteúdo
+            processData: false, // Importante: não processar os dados automaticamente
+            success: function(retorno) 
+            {
+                if (retorno['codigo'] == 2) 
+                {
+                    alert(retorno['mensagem']);
+                    window.location = 'sistema.php?tela=colaboradores';
+                } 
+                else if(retorno['codigo'] == 3) 
+                {
+                    alert(retorno['mensagem']);
+                    window.location = 'sistema.php?tela=colaboradores';
+                }
+            },
+            error: function(erro) 
+            {
+                alert('Ocorreu um erro na requisição: ' + erro.responseText);
+            }
+        });
+    }
+    function ExcluirColaborador(id) {
+        if (confirm('Tem certeza que deseja excluir este Colaborador?')) 
+        {
+            $.ajax({
+                type: 'post',
+                datatype: 'json',
+                url: './src/colaboradores/excluir_colaborador.php',
+                data: { 'id': id },
+                success: function(retorno) 
+                {
+                    if (retorno.codigo == 2) 
+                    {
+                        alert(retorno['mensagem']);
+                        window.location = 'sistema.php?tela=colaboradores';
+                    } 
+                    else 
+                    {
+                        alert(retorno['mensagem']);
+                    }
+                },
+                error: function(erro) 
+                {
+                    console.log(erro); // Verifica o erro retornado
+                    alert('Ocorreu um erro na requisição: ' + erro.responseText);
+                }
+            });
+        }
+    }   
+    function ReativarColaborador(id)
+    {
+        $.ajax({
+            type: 'post',
+            datatype: 'json',
+            url: './src/colaboradores/reativar_colaborador.php',
+            data: { 'id': id },
+            success: function(retorno) {
+                if (retorno['codigo'] == 2) 
+                {
+                    alert(retorno['mensagem']);
+                    window.location = 'sistema.php?tela=colaboradores';
+                } 
+                else 
+                {
+                    alert(retorno['mensagem']);
+                }
+            },
+            error: function(erro) 
+            {
+                console.log(erro); // Verifica o erro retornado
+                alert('Ocorreu um erro na requisição: ' + erro.responseText);
+            }
+        });
     }
 </script>

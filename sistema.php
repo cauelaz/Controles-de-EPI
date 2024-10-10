@@ -257,33 +257,6 @@
                 window.location = 'src/logout.php';
             }
         }
-        // A função 'excluir' do Javascript recebe um valor via parâmetro
-        // Esse valor é o id do cliente, que se deseja excluir
-        // Esse valor foi impresso via php, na chamada da função excluir() na tabela de clientes
-        function ExcluirColaborador(IdColaborador) 
-        {
-            var confirmou = confirm('Tem certeza que quer excluir este colaborador?');
-            if (confirmou) 
-            {
-                window.location = 'src/colaboradores/excluir_colaborador.php?IdColaborador=' + IdColaborador;
-            }
-        }
-        function ExcluirEquipamento(IdEquipamento)
-        {
-            var confirmou = confirm('Tem certeza que deseja realmente excluir este equipamento?');
-            if(confirmou)
-            {
-                window.location = 'src/equipamentos/excluir_equipamento.php?IdEquipamento=' + IdEquipamento;
-            }
-        }
-        function ExcluirUsuario(IdUsuario)
-        {
-            var confirmou = confirm('Tem certeza que deseja realmente excluir este usuário?');
-            if(confirmou)
-            {
-                window.location = 'src/usuarios/excluir_usuario.php?IdUsuario=' + IdUsuario;        
-            }
-        }
         // Função para criar gráfico no Dashboard
         window.onload = function Graphic() 
         {

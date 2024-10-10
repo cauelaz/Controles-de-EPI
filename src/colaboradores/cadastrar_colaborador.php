@@ -1,16 +1,18 @@
 <?php
+    header('Content-Type: application/json');
     // Validação
-    $formulario['id']         = isset($_POST['txt_id'])         ? $_POST['txt_id'] : '';
-    $formulario['nome']       = isset($_POST['txt_nome'])       ? $_POST['txt_nome'] : '';
-    $formulario['data_nasc']  = isset($_POST['txt_data_nasc'])  ? $_POST['txt_data_nasc'] : '';
-    $formulario['cpf_cnpj']   = isset($_POST['txt_cpf_cnpj'])   ? $_POST['txt_cpf_cnpj'] : '';
-    $formulario['rg']         = isset($_POST['txt_rg'])         ? $_POST['txt_rg'] : '';
-    $formulario['telefone']   = isset($_POST['txt_telefone'])   ? $_POST['txt_telefone'] : '';
+    $formulario['id']         = isset($_POST['id'])         ? $_POST['id'] : '';
+    $formulario['nome']       = isset($_POST['nome'])       ? $_POST['nome'] : '';
+    $formulario['data_nasc']  = isset($_POST['data_nasc'])  ? $_POST['data_nasc'] : '';
+    $formulario['cpf_cnpj']   = isset($_POST['cpf_cnpj'])   ? $_POST['cpf_cnpj'] : '';
+    $formulario['rg']         = isset($_POST['rg'])         ? $_POST['rg'] : '';
+    $formulario['telefone']   = isset($_POST['telefone'])   ? $_POST['telefone'] : '';
     if (in_array('', $formulario)) {
-        echo "<script>
-            alert('Existem campo vázios. Verifique!');
-            window.location = '../../sistema.php?tela=colaboradores';
-        </script>"; 
+        echo json_encode([
+           'codigo' => 0,
+           'mensagem' => 'Existem dados faltando! Verifique.' 
+        ]);
+        exit;
     }
     // Banco de Dados
     try 
@@ -25,11 +27,11 @@
             $qtd = $banco->consultar($sql, $parametros);
             if ($qtd['qtd'] > 0) 
             {
-                echo 
-                "<script>
-                    alert('CPF ou RG já existente. Verifique!');
-                    window.location = '../../sistema.php?tela=colaboradores';
-                </script>";
+                echo json_encode([
+                    'codigo' => 3,
+                    'mensagem' => 'CPF ou RG ja existente. Verifique!'
+                ]);
+                exit;
             }
         } 
         else 
@@ -43,11 +45,11 @@
 
             if ($qtd['qtd'] > 0) 
             {
-                echo 
-                "<script>
-                    alert('CPF ou RG já existente. Verifique!');
-                    window.location = '../../sistema.php?tela=colaboradores';
-                </script>";
+                echo json_encode([
+                    'codigo' => 3,
+                    'mensagem' => 'CPF ou RG ja existente. Verifique!'
+                ]);
+                exit;
             }
         }
         // Inserção da imagem na pasta UPLOAD
@@ -80,10 +82,11 @@
             catch (PDOException $erro)
             {
                 $msg_erro = $erro->getMessage();
-                echo "<script>
-                alert(\"$msg_erro\");
-                    window.location = '../../sistema.php?tela=colaboradores';
-                </script>";
+                echo json_encode([
+                   'codigo' => 0,
+                   'mensagem' => "Erro ao realizar consulta: $msg_erro" 
+                ]);
+                exit;
             }
         }
         if($formulario['id'] == 'NOVO')
@@ -98,7 +101,11 @@
                 $formulario['telefone'],
                 $nome_imagem
             ];
-            $msg_sucesso = 'Colaborador cadastrada com sucesso!';
+            $banco->ExecutarComando($sql, $parametros);
+            echo json_encode([
+               'codigo' => 2,
+               'mensagem' => 'Colaborador cadastrado com sucesso!'
+            ]);
         }
         else
         {
@@ -116,7 +123,11 @@
                     $formulario['telefone'],
                     $formulario['id']
             ];
-            $msg_sucesso = 'Colaborador atualizado com sucesso!';
+            $banco->ExecutarComando($sql, $parametros);
+            echo json_encode([
+               'codigo' => 2,
+               'mensagem' => 'Colaborador atualizado com sucesso!'
+            ]);
             }
             else
             {
@@ -139,22 +150,18 @@
                     $nome_imagem,
                     $formulario['id']
                 ];
-                $msg_sucesso = 'Colaborador atualizada com sucesso!';
+                $banco->ExecutarComando($sql, $parametros);
+                echo json_encode([
+                    'codigo' => 2,
+                    'mensagem' => 'Colaborador atualizado com sucesso!'
+                ]);
             }
         }
-        $banco->executarComando($sql, $parametros);
-        // Sucesso
-        echo 
-        "<script>
-            alert('$msg_sucesso');
-            window.location = '../../sistema.php?tela=colaboradores';
-        </script>";
     } 
     catch (PDOException $erro) {
         $msg_erro = $erro->getMessage();
-        echo 
-        "<script>
-            alert(\"$msg_erro\");
-            window.location = '../../sistema.php?tela=colaboradores';
-        </script>";
+        echo json_encode([
+           'codigo' => 0,
+           'mensagem' => 'Erro ao realizar registro: ' . $msg_erro
+        ]);
     }

@@ -1,15 +1,15 @@
 <?php
-    $formulario['id']           = isset($_POST['txt_id']) ? $_POST['txt_id'] : '';
-    $formulario['nome']         = isset($_POST['txt_nome']) ? $_POST['txt_nome'] : '';
-    $formulario['senha']        = isset($_POST['txt_senha']) ? $_POST['txt_senha'] : '';
-    $formulario['adm']          = isset($_POST['list_user']) ? $_POST['list_user'] : '0';
+    header('Content-Type: application/json');
+    $formulario['id']    = isset($_POST['id'])        ? $_POST['id'] : '';
+    $formulario['nome']  = isset($_POST['usuario'])   ? $_POST['usuario'] : '';
+    $formulario['senha'] = isset($_POST['senha'])     ? $_POST['senha'] : '';
+    $formulario['adm']   = isset($_POST['list_user']) ? $_POST['list_user'] : '0';
     if(in_array('', $formulario))
     {
-        echo
-        "<script>
-            alert('Existem dados faltando! Verifique');
-            window.location = '../sistema.php?tela=usuarios';
-        </script>";
+        echo json_encode([
+            'codigo'=> 0,
+            'mensagem' => 'Existem dados faltando! Verifique.'
+        ]);
         exit;
     }
     try
@@ -25,7 +25,10 @@
                 $formulario['senha'],
                 $formulario['adm'],
             ];
-            $msg_sucesso = 'Dados cadastrados com sucesso!';
+            echo json_encode([
+                'codigo' => 2,
+                'mensagem' => 'Usuário cadastrado com sucesso!'
+            ]);
         }
         else
         {
@@ -37,21 +40,18 @@
                 $formulario['adm'],
                 $formulario['id']
             ];
-            $msg_sucesso = 'Dados alterados com sucesso!';
+            echo json_encode([
+                'codigo' => 2,
+                'mensagem' => 'Usuário atualizado com sucesso!'
+            ]);
         }
         $banco -> ExecutarComando($sql, $parametros);
-        echo
-        "<script>
-            alert('$msg_sucesso');
-            window.location = '../../sistema.php?tela=usuarios';
-        </script>";
     }
     catch(PDOException $erro)
     {
         $msg = $erro->getMessage();
-        echo
-        "<script>
-            alert(\"$msg\");
-            window.location = '../../sistema.php?tela=usuarios';
-        </script>";
+        echo json_encode([
+            'codigo' => 0,
+            'mensagem' => "Erro ao realizar registro: $msg"
+        ]);
     }

@@ -1,28 +1,31 @@
 <?php
+    header('Content-Type: application/json');
     // Validação
-    $id_usuario = isset($_GET['IdUsuario']) ? $_GET['IdUsuario'] : '';
-    if (empty($id_usuario)) {
-        header('LOCATION: ../../sistema.php?tela=usuarios');
-        // Não é necessário usar 'exit' após o header()
+    $formulario['id'] = isset($_POST['id']) ? $_POST['id'] : '';
+    if (empty($formulario['id'])) 
+    {
+        echo json_encode([
+           'codigo' => 0,
+           'mensagem' => 'Existem dados faltando! Verifique.' 
+        ]);  
     }
-
-    // Continuando
-
-    // Banco de dados
-    try {
+    try 
+    {
         include_once '../class/BancoDeDados.php';
         $banco = new BancoDeDados;
         $sql = 'UPDATE usuarios SET ativo = 0 WHERE id_usuario = ?';
-        $parametros = [ $id_usuario ];
+        $parametros = [ $formulario['id'] ];
         $banco -> ExecutarComando($sql,$parametros);
-        echo "<script>
-            alert('Usuário removido com sucesso!');
-            window.location = '../../sistema.php?tela=usuarios';
-        </script>";
-    } catch(PDOException $erro) {
+        echo json_encode([
+           'codigo' => 2,
+           'mensagem' => 'Dados excluídos com sucesso!'
+        ]);
+    } 
+    catch(PDOException $erro) 
+    {
         $msg = $erro->getMessage();
-        echo "<script>
-            alert(\"$msg\");
-            window.location = '../../sistema.php?tela=usuarios';
-        </script>";
+        echo json_encode([
+           'codigo' => 0,
+           'mensagem' => "Erro ao realizar exclusão: $msg" 
+        ]);
     }

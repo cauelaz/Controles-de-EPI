@@ -36,7 +36,7 @@ try {
         $_SESSION['nome_usuario'] = $usuario_data["nome_usuario"]; // Acessando o nome corretamente
 
         echo json_encode([
-            'codigo' => 2, // Código 2 para sucesso
+            'codigo' => 2 // Código 2 para sucesso
         ]);
         exit;
     } else {

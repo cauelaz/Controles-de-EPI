@@ -145,32 +145,32 @@
 <div id="adicionar_equipamento" class="modal fade" data-bs-backdrop="static">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form id="form_equipamento" method="post" action="src/equipamentos/cadastrar_equipamento.php" enctype="multipart/form-data">
+            <form id="form_equipamento" enctype="multipart/form-data">
                 <div class="modal-header">
                     <h4 class="modal-title" id="modalLabel">Cadastro de Equipamento</h4>
                     <button onclick="window.location.href='sistema.php?tela=equipamentos'" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <input type="hidden" name="txt_id" id="txt_id" value="NOVO">
+                    <input type="hidden" id="txt_id" value="NOVO">
                     <div class="form-group">
                         <label for="txt_descricao">Descrição</label>
-                        <input type="text" class="form-control" name="txt_descricao" id="txt_descricao" required varchar="255">
+                        <input type="text" class="form-control" id="txt_descricao" required varchar="255">
                     </div>
                     <div class="form-group">
                         <label for="txt_estoque">Qtd. Estoque</label>
-                        <input type="number" class="form-control" name="txt_estoque" id="txt_estoque" required>
+                        <input type="number" class="form-control" id="txt_estoque" required>
                     </div>
                     <div class="form-group">
                         <label for="txt_cert_aprovacao">Certificado Aprovação</label>
-                        <input type="text" class="form-control" name="txt_cert_aprovacao" id="txt_cert_aprovacao" required>
+                        <input type="text" class="form-control" id="txt_cert_aprovacao" required>
                     </div>  
                     <div class="form-group">
                         <label>Imagem do Equipamento</label>
-                        <input type="file" class="form-control" name="file_imagem" id="file_imagem" value="S/IMG">
+                        <input type="file" class="form-control" id="file_imagem" value="S/IMG">
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="submit" class="btn btn-success">Salvar</button>
+                    <button onclick="CadastrarEquipamento()" class="btn btn-success">Salvar</button>
                 </div>
             </form>
         </div>
@@ -222,4 +222,80 @@
             var modal = new bootstrap.Modal(document.getElementById('ajuste_estoque'));
             modal.show();
         }
+        $('#form_equipamento').submit(function() 
+        {
+            return false; // Evita o envio padrão do formulário
+        });
+        function CadastrarEquipamento() 
+        {
+            var id              = document.getElementById('txt_id').value;
+            var descricao       = document.getElementById('txt_descricao').value;
+            var estoque         = document.getElementById('txt_estoque').value;
+            var cert_aprovacao  = document.getElementById('txt_cert_aprovacao').value;
+            var inputFile       = document.getElementById('file_imagem').files[0];
+            // Verificação básica de campos preenchidos
+            if (descricao && estoque && cert_aprovacao) 
+            {
+                var formData = new FormData(); // Criar um FormData
+                formData.append('id', id);
+                formData.append('descricao', descricao);
+                formData.append('estoque', estoque);
+                formData.append('cert_aprovacao', cert_aprovacao);
+                // Adicionar o arquivo somente se foi selecionado
+                if (inputFile) {
+                    formData.append('file_imagem', inputFile);
+                }
+                // Envio da requisição AJAX com FormData
+                $.ajax({
+                    type: 'POST',
+                    url: './src/equipamentos/cadastrar_equipamento.php',
+                    data: formData,
+                    contentType: false, // Importante: evitar que o jQuery defina o tipo de conteúdo
+                    processData: false, // Importante: não processar os dados automaticamente
+                    success: function(retorno) 
+                    {
+                        if (retorno['codigo'] == 2) 
+                        {
+                            alert(retorno['mensagem']);
+                            window.location = 'sistema.php?tela=equipamentos';
+                        } 
+                        else 
+                        {
+                            alert(retorno['mensagem']);
+                        }
+                    },
+                    error: function(erro) 
+                    {
+                        alert('Ocorreu um erro na requisição: ' + erro.responseText);
+                    }
+                });
+            } 
+            else 
+            {
+                alert('Por favor, preencha todos os campos!');
+            }
+        }
+        function ExcluirEquipamento(id) {
+            if (confirm('Tem certeza que deseja excluir este equipamento?')) {
+                $.ajax({
+                    type: 'post',
+                    datatype: 'json',
+                    url: './src/equipamentos/excluir_equipamento.php',
+                    data: { 'id': id },
+                    success: function(retorno) {
+                        console.log(retorno); // Para verificar o que está retornando
+                        if (retorno.codigo == 2) {
+                            alert(retorno['mensagem']);
+                            window.location = 'sistema.php?tela=equipamentos'; // Atualiza a página
+                        } else {
+                            alert(retorno['mensagem']);
+                        }
+                    },
+                    error: function(erro) {
+                        console.log(erro); // Verifica o erro retornado
+                        alert('Ocorreu um erro na requisição: ' + erro.responseText);
+                    }
+                });
+            }
+        }   
     </script>
