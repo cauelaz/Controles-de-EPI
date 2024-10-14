@@ -14,12 +14,10 @@
         ]);
         exit;
     }
-    // Banco de Dados
     try 
     {
         include_once '../class/BancoDeDados.php';
         $banco = new BancoDeDados;
-        // Validar CPF
         if ($formulario['id'] == 'NOVO') 
         {
             $sql = 'SELECT COUNT(id_colaborador) as qtd FROM colaboradores WHERE (cpf_cnpj = ? or rg = ?)';
@@ -123,7 +121,6 @@
                     $formulario['telefone'],
                     $formulario['id']
             ];
-            $banco->ExecutarComando($sql, $parametros);
             echo json_encode([
                'codigo' => 2,
                'mensagem' => 'Colaborador atualizado com sucesso!'
@@ -133,12 +130,7 @@
             {
                 if (file_exists("upload/" . $foto['imagem_colaborador'])) 
                 {
-                    if (unlink("upload/" . $foto['imagem_colaborador'])) 
-                    {
-                        echo 'Imagem excluída com sucesso.';
-                    } else {
-                        echo 'Erro ao excluir a imagem.';
-                    }
+                    (unlink("upload/" . $foto['imagem_colaborador']));
                 }
                 $sql = 'UPDATE colaboradores SET nome_colaborador = ?, cpf_cnpj = ?, data_nascimento = ?, rg = ?, telefone = ?, imagem_colaborador = ? WHERE id_colaborador = ?';
                 $parametros = [
@@ -150,12 +142,12 @@
                     $nome_imagem,
                     $formulario['id']
                 ];
-                $banco->ExecutarComando($sql, $parametros);
                 echo json_encode([
                     'codigo' => 2,
                     'mensagem' => 'Colaborador atualizado com sucesso!'
                 ]);
             }
+            $banco->ExecutarComando($sql, $parametros);
         }
     } 
     catch (PDOException $erro) {

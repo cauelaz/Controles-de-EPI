@@ -95,7 +95,6 @@
                     $formulario['cert_aprovacao'],
                     $formulario['id']
                 ];
-                $banco->ExecutarComando($sql, $parametros);
                 echo json_encode([
                     'codigo' => 2,
                     'mensagem' => 'Equipamento atualizado com sucesso!'
@@ -115,12 +114,12 @@
                     $nome_imagem,
                     $formulario['id']
                 ];
-                $banco->ExecutarComando($sql, $parametros);
                 echo json_encode([
                    'codigo' => 2,
                    'mensagem' => 'Equipamento atualizado com sucesso!'
                 ]);
             }
+            $banco->ExecutarComando($sql, $parametros);
         }
     }
     catch(PDOException $erro)

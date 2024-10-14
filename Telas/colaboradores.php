@@ -57,7 +57,7 @@
                                     <td>{$linha['telefone']}</td>
                                     <td>
                                         " . ($imagem_existe ? "<a href='$caminho_imagem' target='_blank'><i class='bi bi-image'></i></a>" : "<i class='bi bi-image' style='color: gray;'></i>") . "
-                                        <a href='sistema.php?tela=colaboradores&acao=alterarcolaborador&IdColaborador={$linha['id_colaborador']}'><i class='bi bi-pencil-square'></i></a>
+                                        <a href='#' onclick='AlterarColaborador({$linha['id_colaborador']})'><i class='bi bi-pencil-square'></i></a>
                                         <a href='#' onclick='ExcluirColaborador({$linha['id_colaborador']})'><i class='bi bi-trash3-fill'></i></a>
                                     </td>
                                 </tr>";
@@ -163,7 +163,7 @@
                         <input type="tel" class="form-control" name="txt_telefone" id="txt_telefone" required minlength="10" maxlength="14">
                     </div>    
                     <div class="form-group">
-                        <label>Foto do Colaborador</label>
+                        <label for="file_imagem">Foto do Colaborador</label>
                         <input type="file" class="form-control" name="file_imagem" id="file_imagem" value="S/IMG">
                     </div>
                 </div>
@@ -207,12 +207,13 @@
         formData.append('rg', rg);
         formData.append('telefone', telefone);
         // Adicionar o arquivo somente se foi selecionado
-        if (inputFile) {
+        if (inputFile) 
+        {
             formData.append('file_imagem', inputFile);
         }
         // Envio da requisição AJAX com FormData
         $.ajax({
-            type: 'POST',
+            type: 'post',
             url: './src/colaboradores/cadastrar_colaborador.php',
             data: formData,
             contentType: false, // Importante: evitar que o jQuery defina o tipo de conteúdo
@@ -251,14 +252,15 @@
                         alert(retorno['mensagem']);
                         window.location = 'sistema.php?tela=colaboradores';
                     } 
-                    else 
+                    else if (retorno['codigo'] == 5)
                     {
                         alert(retorno['mensagem']);
+                        window.location = 'sistema.php?tela=colaboradores';
                     }
                 },
                 error: function(erro) 
                 {
-                    console.log(erro); // Verifica o erro retornado
+                    console.log(erro);
                     alert('Ocorreu um erro na requisição: ' + erro.responseText);
                 }
             });
@@ -284,9 +286,32 @@
             },
             error: function(erro) 
             {
-                console.log(erro); // Verifica o erro retornado
+                console.log(erro); 
                 alert('Ocorreu um erro na requisição: ' + erro.responseText);
             }
         });
     }
+    function AlterarColaborador(id)
+        {
+            $.ajax({
+                type: 'post',
+                url: './src/colaboradores/get_colaborador.php',
+                data: { 'id': id },
+                success: function(retorno) 
+                {
+                    var colaborador = JSON.parse(retorno);
+                    document.getElementById('txt_id').value = colaborador.id;
+                    document.getElementById('txt_nome').value = colaborador.nome;
+                    document.getElementById('txt_data_nasc').value = colaborador.data_nascimento;
+                    document.getElementById('txt_cpf_cnpj').value = colaborador.cpf_cnpj;
+                    document.getElementById('txt_rg').value = colaborador.rg;
+                    document.getElementById('txt_telefone').value = colaborador.telefone;
+                    EditarColaboradorModal();
+                },
+                error: function(erro) 
+                {
+                    alert('Ocorreu um erro na requisição: ' + erro.responseText);
+                }
+            });
+        }
 </script>

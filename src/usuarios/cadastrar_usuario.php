@@ -3,7 +3,7 @@
     $formulario['id']    = isset($_POST['id'])        ? $_POST['id'] : '';
     $formulario['nome']  = isset($_POST['usuario'])   ? $_POST['usuario'] : '';
     $formulario['senha'] = isset($_POST['senha'])     ? $_POST['senha'] : '';
-    $formulario['adm']   = isset($_POST['list_user']) ? $_POST['list_user'] : '0';
+    $formulario['adm']   = isset($_POST['adm'])       ? $_POST['adm'] : '0';
     if(in_array('', $formulario))
     {
         echo json_encode([

@@ -1,15 +1,17 @@
 <?php
-    $formulario['id']           = isset($_POST['txt_id_estoque']) ? $_POST['txt_id_estoque'] : '';
-    $formulario['descricao']    = isset($_POST['txt_descricao_estoque']) ? $_POST['txt_descricao_estoque'] : '';
-    $formulario['qtd_estoque']  = isset($_POST['txt_estoque_estoque']) ? $_POST['txt_estoque_estoque'] : '';
-    $formulario['qtd_ajuste']   = isset($_POST['txt_new_qtd_estoque']) ? $_POST['txt_new_qtd_estoque'] : '';
+    header('content-type: application/json');
+    $formulario['id']             = isset($_POST['id'])             ? $_POST['id'] : '';
+    $formulario['qtd_estoque']    = isset($_POST['qtd_estoque'])    ? $_POST['qtd_estoque'] : '';
+    $formulario['qtd_disponivel'] = isset($_POST['qtd_disponivel']) ? $_POST['qtd_disponivel'] : '';
+    $formulario['qtd_ajuste']     = isset($_POST['qtd_ajuste'])     ? $_POST['qtd_ajuste'] : '';
+    $formulario['emprestados']    = isset($_POST['emprestados'])    ? $_POST['emprestados'] : '';
     if(in_array('',$formulario))
     {
-        echo 
-        "<script>
-            alert('Existem dados faltando! Verifique.')
-            window.location = '../../sistema.php?tela=equipamentos';
-        </script>";
+        echo json_encode([
+            'codigo' => 0,
+            'mensagem' => 'Existem dados faltando! Verifique.'
+        ]);
+        exit;
     }
     try
     {
@@ -19,34 +21,42 @@
         $parametros = [$formulario['id']];
         $resultado = $banco->Consultar($sql,$parametros);
         $qtd_estoque = $resultado['qtd_estoque'];
+        $qtd_ajuste = $qtd_estoque + (int)$formulario['qtd_ajuste'];
         if($formulario['qtd_ajuste'] == 0)
         {
-            $msg_sucesso = 'Não existem itens para ajuste!';
+            echo json_encode([
+               'codigo' => 3,
+               'mensagem' => 'Nenhum ajuste foi realizado!'
+            ]);
+            exit;
+        }
+        else if($qtd_ajuste < $formulario['emprestados'])
+        {         
+            echo json_encode([
+               'codigo' => 3,
+               'mensagem' => 'Estoque insuficiente para o ajuste, pois existem itens emprestaodos!'
+            ]);
+            exit;
         }
         else 
         {
-            // Converter $formulario['qtd_ajuste'] para número se necessário
-            $qtd_ajuste = $qtd_estoque + (int)$formulario['qtd_ajuste'];
             $sql = 'UPDATE equipamentos SET qtd_estoque = ? WHERE id_equipamento = ?';
             $parametros = [
                 $qtd_ajuste,
                 $formulario['id']
             ];
-            $msg_sucesso = 'Estoque atualizado com sucesso!';
         }
         $banco->ExecutarComando($sql,$parametros);
-        echo
-        "<script>
-            alert('$msg_sucesso');
-            window.location = '../../sistema.php?tela=equipamentos';
-        </script>";
+        echo json_encode([
+           'codigo' => 2,
+           'mensagem' => 'Estoque atualizado com sucesso!'
+        ]);    
     }
     catch(PDOException $erro)
     {
         echo $erro->getMessage();
-        echo 
-        "<script>
-            alert(\"$msg\");
-            window.location = '../../sistema.php?tela=equipamentos';
-        </script";
+        echo json_encode([
+            'codigo' => 0,
+            'mensagem' => "Erro ao realizar registro: $msg"
+        ]);
     }
