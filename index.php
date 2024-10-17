@@ -28,12 +28,12 @@
             <div class="form-check text-start my-3">
                 <a href="registrar.php" class="btn btn-link text-decoration-none">Novo Usuário</a>
             </div>
-            <div class="form-check text-start my-3">
+            <!-- <div class="form-check text-start my-3">
                 <input class="form-check-input" type="checkbox" value="true" id="check_lembrar">
-                <label class="form-check-label" for="check_lembrar">Manter-me conectado</label>
-            </div>
+                <label class="form-check-label" for="check_lembrar">Lembrar-me</label>
+            </div> -->
             <button class="btn btn-primary w-100 py-2" onclick="login()">Entrar</button>
-            <p class="mt-5 mb-3 text-body-secondary text-center">&copy; 2024</p>
+            <p class="mt-5 mb-3 text-body-secondary text-center">EPIs Control &copy; 2024</p>
         </form>
     </main>
     <!--Jquery-->
@@ -63,7 +63,7 @@
                 {
                     if(retorno['codigo'] == 2)
                     {
-                        window.location = 'sistema.php';   
+                        window.location = 'sistema.php';
                     }
                     else
                     {

@@ -1,14 +1,14 @@
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-    <h1>Usuários</h1>
+    <h1>Departamentos</h1>
 </div>
 <div class="col-sm-6">
-    <button onclick="abrirModal()" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#adicionar_usuario">
-        <i class="bi bi-plus"></i> Novo Usuário
+    <button onclick="abrirModal()" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#adicionar_departamento">
+        <i class="bi bi-plus"></i> Novo Departamento
     </button>
 </div>
 <hr class="my-4">
 <!-- Abas para Ativos e Inativos -->
-<ul class="nav nav-tabs" id="colaboradoresTab" role="tablist">
+<ul class="nav nav-tabs" id="departamentostab" role="tablist">
     <li class="nav-item" role="presentation">
         <a class="nav-link active" id="ativos-tab" data-bs-toggle="tab" href="#ativos" role="tab" aria-controls="ativos" aria-selected="true">Ativos</a>
     </li>
@@ -17,7 +17,7 @@
     </li>
 </ul>
 <!-- Conteúdo das Abas -->
-<div class="tab-content" id="usuariosTabContent">
+<div class="tab-content" id="departamentosTabContent">
     <!-- Usuários Ativos -->
     <div class="tab-pane fade show active" id="ativos" role="tabpanel" aria-labelledby="ativos-tab">
         <div class="table-responsive">
@@ -26,7 +26,7 @@
                     <tr class="text-center">
                         <th scope="col">ID</th>
                         <th scope="col">Nome</th>
-                        <th scope="col">Cargo</th>
+                        <th scope="col">Qtd. Colaboradores</th>
                         <th scope="col">Ações</th>
                     </tr>
                 </thead>
@@ -36,28 +36,32 @@
                     {
                         include_once 'src/class/BancodeDados.php';
                         $banco = new BancodeDados;
-                        $sql = 'SELECT * FROM usuarios WHERE ativo = 1';
+                        $sql = 'SELECT departamentos.id_departamento
+                                     , departamentos.nome_departamento
+                                     , COALESCE(COUNT(colaboradores.id_departamento), 0) AS total_departamentos
+                                 FROM departamentos
+                                 LEFT JOIN colaboradores ON colaboradores.id_departamento = departamentos.id_departamento 
+                                 WHERE departamentos.ativo = 1
+                                 GROUP BY departamentos.id_departamento, departamentos.nome_departamento;';
                         $dados = $banco->Consultar($sql, [], true);
                         if ($dados) {
                             foreach ($dados as $linha) 
                             {
-                                // Define o título de acordo com o valor de 'administrador'
-                                $tipoUsuario = $linha['administrador'] == 1 ? "Administrador" : "Usuário";
                                 echo 
                                 "<tr class='text-center'>
-                                    <td>{$linha['id_usuario']}</td>
-                                    <td>{$linha['nome_usuario']}</td>
-                                    <td>{$tipoUsuario}</td>
+                                    <td>{$linha['id_departamento']}</td>
+                                    <td>{$linha['nome_departamento']}</td>
+                                    <td>{$linha['total_departamentos']}</td>
                                     <td>
-                                        <a href='#' onclick='AlterarUsuario({$linha['id_usuario']})'><i class='bi bi-pencil-square'></i></a>
-                                        <a href='#' onclick='ExcluirUsuario({$linha['id_usuario']})'><i class='bi bi-trash3-fill'></i></a>
+                                        <a href='#' onclick='AlterarDepartamento({$linha['id_departamento']})'><i class='bi bi-pencil-square'></i></a>
+                                        <a href='#' onclick='ExcluirDepartamento({$linha['id_departamento']})'><i class='bi bi-trash3-fill'></i></a>
                                     </td>
                                 </tr>";
                             }
                         } 
                         else 
                         {
-                            echo "<tr><td colspan='4' class='text-center'>Nenhum usuário ativo...</td></tr>";
+                            echo "<tr><td colspan='4' class='text-center'>Nenhum departamento ativo...</td></tr>";
                         }
                     } 
                     catch (PDOException $erro) 
@@ -78,7 +82,6 @@
                     <tr class="text-center">
                         <th scope="col">ID</th>
                         <th scope="col">Nome</th>
-                        <th scope="col">Cargo</th>
                         <th scope="col">Ações</th>
                     </tr>
                 </thead>
@@ -86,26 +89,24 @@
                     <?php
                     try 
                     {
-                        $sql = 'SELECT * FROM usuarios WHERE ativo = 0';
+                        $sql = 'SELECT * FROM departamentos WHERE ativo = 0';
                         $dados = $banco->Consultar($sql, [], true);
                         if ($dados) {
                             foreach ($dados as $linha) 
                             {
-                                $tipoUsuario = $linha['administrador'] == 1 ? "Administrador" : "Usuário";
                                 echo 
                                 "<tr class='text-center'>
-                                    <td>{$linha['id_usuario']}</td>
-                                    <td>{$linha['nome_usuario']}</td>
-                                    <td>{$tipoUsuario}</td>
+                                    <td>{$linha['id_departamento']}</td>
+                                    <td>{$linha['nome_departamento']}</td>
                                     <td>
-                                        <a href='#' onclick='ReativarUsuario({$linha['id_usuario']})'>Reativar</a>
+                                        <a href='#' onclick='ReativarDepartamento({$linha['id_departamento']})'>Reativar</a>
                                     </td>
                                 </tr>";
                             }
                         } 
                         else 
                         {
-                            echo "<tr><td colspan='4' class='text-center'>Nenhum usuário inativo...</td></tr>";
+                            echo "<tr><td colspan='4' class='text-center'>Nenhum departamento inativo...</td></tr>";
                         }
                     } 
                     catch (PDOException $erro) 
@@ -120,13 +121,13 @@
     </div>
 </div>
 <!--Modal-->
-<div id="adicionar_usuario" class="modal fade" data-bs-backdrop="static">
+<div id="adicionar_departamento" class="modal fade" data-bs-backdrop="static">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form id="form_usuario">
+            <form id="form_departamento">
                 <div class="modal-header">
-                    <h4 class="modal-title" id="modalLabel">Usuário</h4>
-                    <button onclick="window.location.href='sistema.php?tela=usuarios'" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <h4 class="modal-title" id="modalLabel">Departamentos</h4>
+                    <button onclick="window.location.href='sistema.php?tela=departamentos'" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <input type="hidden" id="txt_id" value="NOVO">
@@ -134,21 +135,9 @@
                         <label for="txt_nome">Nome</label>
                         <input type="text" class="form-control" id="txt_nome" required>
                     </div>
-                    <div class="form-group">
-                        <label for="txt_senha">Senha</label>
-                        <input type="password" class="form-control" id="txt_senha" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="list_user">Cargo</label>
-                        <select class="form-select" id="list_user" required>
-                            <option value="">Escolha...</option>
-                            <option value="1">Administrador</option>
-                            <option value="0">Usuário</option>
-                        </select>
-                    </div>
                 </div>
                 <div class="modal-footer">
-                    <button onclick="CadastrarUsuario()" class="btn btn-success">Salvar</button>
+                    <button onclick="CadastrarDepartamento()" class="btn btn-success">Salvar</button>
                 </div>
             </form>
         </div>
@@ -157,48 +146,43 @@
 <script>
     function abrirModal() 
     {
-        $('#adicionar-produto').modal('show');
+        $('#adicionar_departamento').modal('show');
     }
-    function EditarUsuarioModal()
+    function EditarDepartamentoModal()
     {
-        var modal = new bootstrap.Modal(document.getElementById('adicionar_usuario'));
+        var modal = new bootstrap.Modal(document.getElementById('adicionar_departamento'));
         modal.show();
     }
-    $('#form_usuario').submit(function() 
+    $('#form_departamento').submit(function() 
     {
         return false; // Evita o envio padrão do formulário
     });
-    function CadastrarUsuario() 
+    function CadastrarDepartamento() 
     {
         var id      = document.getElementById('txt_id').value;
-        var usuario = document.getElementById('txt_nome').value;
-        var senha   = document.getElementById('txt_senha').value;
-        var adm     = document.getElementById('list_user').value;
-
-        if (usuario && senha) 
+        var nome    = document.getElementById('txt_nome').value;
+        if (nome) 
         { // Validação simples
             $.ajax({
                 type: 'post',
                 datatype: 'json',
-                url: './src/usuarios/cadastrar_usuario.php',
+                url: './src/departamentos/cadastrar_departamento.php',
                 data: 
                 {
                     'id': id,
-                    'usuario': usuario,
-                    'senha': senha,
-                    'adm': adm
+                    'nome': nome,
                 },
                 success: function(retorno) 
                 {
                     if (retorno['codigo'] == 2) 
                     {
                         alert(retorno['mensagem']);
-                        window.location = 'sistema.php?tela=usuarios';
+                        window.location = 'sistema.php?tela=departamentos';
                     }
                     else 
                     {
                         alert(retorno['mensagem']);
-                        window.location = 'sistema.php?tela=usuarios';
+                        window.location = 'sistema.php?tela=departamentos';
                     }
                 },
                 error: function(erro) 
@@ -212,21 +196,21 @@
             alert('Por favor, preencha todos os campos!');
         }
     }
-    function ExcluirUsuario(id)
+    function ExcluirDepartamento(id)
     {
-        if (confirm('Tem certeza que deseja excluir este usuário?')) 
+        if (confirm('Tem certeza que deseja excluir este departamento?')) 
         {
             $.ajax({
                 type: 'post',
                 datatype: 'json',
-                url: './src/usuarios/excluir_usuario.php',
+                url: './src/departamentos/excluir_departamento.php',
                 data: { 'id': id },
                 success: function(retorno) 
                 {
                     if (retorno['codigo'] == 2) 
                     {
                         alert(retorno['mensagem']);
-                        window.location = 'sistema.php?tela=usuarios';
+                        window.location = 'sistema.php?tela=departamentos';
                     } 
                     else 
                     {
@@ -240,23 +224,21 @@
             });
         }
     }
-    function AlterarUsuario(id)
+    function AlterarDepartamento(id)
     {
         // Envia o ID do equipamento para o backend
         $.ajax({
             type: 'post',
-            url: './src/usuarios/get_usuario.php', // Endpoint que retorna os dados do equipamento
+            url: './src/departamentos/get_departamentos.php', // Endpoint que retorna os dados do equipamento
             data: { 'id': id },
             success: function(retorno) 
             {
-                var usuario = JSON.parse(retorno); // Converter o retorno para objeto JavaScript
+                var departamento = JSON.parse(retorno); // Converter o retorno para objeto JavaScript
                 // Preencher os campos do modal com os dados recebidos
-                document.getElementById('txt_id').value = usuario.id;
-                document.getElementById('txt_nome').value = usuario.nome;
-                document.getElementById('txt_senha').value = usuario.senha;
-                document.getElementById('list_user').value = usuario.administrador;
+                document.getElementById('txt_id').value = departamento.id;
+                document.getElementById('txt_nome').value = departamento.nome;
                 // Abrir o modal usando Bootstrap
-                EditarUsuarioModal()
+                EditarDepartamentoModal()
             },
             error: function(erro) 
             {
@@ -264,18 +246,18 @@
             }
         });
     }
-    function ReativarUsuario(id)
+    function ReativarDepartamento(id)
     {
         $.ajax({
             type: 'post',
             datatype: 'json',
-            url: './src/usuarios/reativar_usuario.php',
+            url: './src/departamentos/reativar_departamento.php',
             data: { 'id': id },
             success: function(retorno) {
                 if (retorno['codigo'] == 2) 
                 {
                     alert(retorno['mensagem']);
-                    window.location = 'sistema.php?tela=usuarios';
+                    window.location = 'sistema.php?tela=departamentos';
                 } 
                 else 
                 {

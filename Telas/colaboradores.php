@@ -1,5 +1,5 @@
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-    <h1>Cadastro de Colaboradores</h1>
+    <h1>Colaboradores</h1>
 </div>
 <div class="col-sm-6">
     <button onclick="abrirModal()" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#adicionar_colaborador">
@@ -131,7 +131,16 @@
         </div>
     </div>
 </div>
-<!--Modal-->
+<!--Coletar dados para ComboBox do Modal-->
+<?php
+    // Inclua o arquivo do banco de dados
+    include_once 'src/class/BancodeDados.php';
+    // Consultar os departamentos diretamente
+    $banco = new BancodeDados;
+    $sql = 'SELECT id_departamento, nome_departamento FROM departamentos WHERE ativo = 1';
+    $departamentos = $banco->Consultar($sql, [], true);
+?>
+<!-- Modal -->
 <div id="adicionar_colaborador" class="modal fade" data-bs-backdrop="static">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -158,10 +167,28 @@
                         <label for="txt_rg">RG</label>
                         <input type="text" class="form-control" name="txt_rg" id="txt_rg" required minlength="7" maxlength="9">
                     </div>
-                    <div class="form-group">
-                        <label for="txt_telefone">Telefone</label>
-                        <input type="tel" class="form-control" name="txt_telefone" id="txt_telefone" required minlength="10" maxlength="14">
-                    </div>    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="txt_telefone">Telefone</label>
+                                <input type="tel" class="form-control" name="txt_telefone" id="txt_telefone" required minlength="10" maxlength="14">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="opt_departamento">Departamento</label>
+                                <select class="form-control" id="opt_departamento" name="opt_departamento">
+                                    <option value="0">Selecione o Departamento</option>
+                                    <!-- Loop para preencher o select com os departamentos do banco de dados -->
+                                    <?php foreach ($departamentos as $departamento): ?>
+                                        <option value="<?= $departamento['id_departamento']; ?>">
+                                            <?= $departamento['nome_departamento']; ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                        </div>
+                    </div>  
                     <div class="form-group">
                         <label for="file_imagem">Foto do Colaborador</label>
                         <input type="file" class="form-control" name="file_imagem" id="file_imagem" value="S/IMG">
@@ -173,7 +200,6 @@
             </form>
         </div>
     </div>
-</div>
 </div>
 <script>
     function abrirModal() 
@@ -198,6 +224,7 @@
         var rg        = document.getElementById('txt_rg').value;
         var telefone  = document.getElementById('txt_telefone').value;
         var inputFile = document.getElementById('file_imagem').files[0];
+        var departamento = document.getElementById('opt_departamento').value;
         // Verificação básica de campos preenchidos
         var formData = new FormData(); // Criar um FormData
         formData.append('id', id);
@@ -206,6 +233,7 @@
         formData.append('cpf_cnpj', cpf_cnpj);
         formData.append('rg', rg);
         formData.append('telefone', telefone);
+        formData.append('departamento', departamento);
         // Adicionar o arquivo somente se foi selecionado
         if (inputFile) 
         {
@@ -306,6 +334,7 @@
                     document.getElementById('txt_cpf_cnpj').value = colaborador.cpf_cnpj;
                     document.getElementById('txt_rg').value = colaborador.rg;
                     document.getElementById('txt_telefone').value = colaborador.telefone;
+                    document.getElementById('opt_departamento').value = colaborador.departamento;
                     EditarColaboradorModal();
                 },
                 error: function(erro) 

@@ -8,44 +8,65 @@
         header('LOCATION: index.php');
         exit;
     }
-    $dataPointsGraphic = array(
-        array("label"=> 1997, "y"=> 254722.1),
-        array("label"=> 1998, "y"=> 292175.1),
-        array("label"=> 1999, "y"=> 369565),
-        array("label"=> 2000, "y"=> 284918.9),
-        array("label"=> 2001, "y"=> 325574.7),
-        array("label"=> 2002, "y"=> 254689.8),
-        array("label"=> 2003, "y"=> 303909),
-        array("label"=> 2004, "y"=> 335092.9),
-        array("label"=> 2005, "y"=> 408128),
-        array("label"=> 2006, "y"=> 300992.2),
-        array("label"=> 2007, "y"=> 401911.5),
-        array("label"=> 2008, "y"=> 299009.2),
-        array("label"=> 2009, "y"=> 319814.4),
-        array("label"=> 2010, "y"=> 357303.9),
-        array("label"=> 2011, "y"=> 353838.9),
-        array("label"=> 2012, "y"=> 288386.5),
-        array("label"=> 2013, "y"=> 485058.4),
-        array("label"=> 2014, "y"=> 326794.4),
-        array("label"=> 2015, "y"=> 483812.3),
-        array("label"=> 2016, "y"=> 254484)
-    );
-    $dataPointsPizza = array(
-        array("label"=> "Food + Drinks", "y"=> 590),
-        array("label"=> "Activities and Entertainments", "y"=> 261),
-        array("label"=> "Health and Fitness", "y"=> 158),
-        array("label"=> "Shopping & Misc", "y"=> 72),
-        array("label"=> "Transportation", "y"=> 191),
-        array("label"=> "Rent", "y"=> 573),
-        array("label"=> "Travel Insurance", "y"=> 126)
-    );
+    include_once 'src/class/BancodeDados.php';
+    $banco = new BancodeDados;
+    $sql = 'SELECT count(id_emprestimo) as qtd_emprestimos
+         , colaboradores.nome_colaborador as nome_colaborador
+         , departamentos.nome_departamento as nome_departamento
+         from equipamentos_emprestimo
+         join emprestimos on emprestimos.id_emprestimo = equipamentos_emprestimo.emprestimo
+         join colaboradores on colaboradores.id_colaborador = emprestimos.colaborador
+         left join departamentos on departamentos.id_departamento = colaboradores.id_departamento';
+    $equipamentos = $banco->Consultar($sql, [], true);
+    $dataPointsPizza_totalemprestimospordepartamento = [];
+    foreach ($equipamentos as $equipamento) 
+    {
+        $dataPointsPizza_totalemprestimospordepartamento[] = 
+        [
+            "label" => $equipamento['nome_departamento'], // Nome do departamento como label
+            "y" => $equipamento['qtd_emprestimos']       // Quantidade de empréstimos como valor
+        ];
+    }
+    $sql = 'SELECT COUNT(id_colaborador) as qtd_colaboradores
+                 , COALESCE(departamentos.nome_departamento, "Sem departamento") as nome_departamento
+                 FROM colaboradores
+                 LEFT JOIN departamentos on departamentos.id_departamento = colaboradores.id_departamento
+                 WHERE colaboradores.ativo = 1
+                 GROUP BY nome_departamento';
+    $colaboradores = $banco->Consultar($sql, [], true);
+    $dataPointsPizza_totalcolaboradorespordepartamento = [];
+    foreach($colaboradores as $colaborador)
+    {
+        $dataPointsPizza_totalcolaboradorespordepartamento[] = 
+        [
+            "label" => $colaborador['nome_departamento'], // Nome do departamento como label
+            "y" => $colaborador['qtd_colaboradores']      // Quantidade de colaboradores como valor
+        ];
+    }
+    $sql = 'SELECT equipamentos.descricao
+                 , (equipamentos.qtd_estoque - COALESCE(SUM(CASE WHEN emprestimos.ativo = 1 THEN 1 ELSE 0 END), 0)) AS qtd_disponivel
+                 FROM equipamentos
+                 LEFT JOIN equipamentos_emprestimo ON equipamentos.id_equipamento = equipamentos_emprestimo.equipamento
+                 LEFT JOIN emprestimos ON equipamentos_emprestimo.emprestimo = emprestimos.id_emprestimo AND emprestimos.ativo = 1
+                 WHERE equipamentos.ativo = 1
+                 GROUP BY equipamentos.id_equipamento, equipamentos.descricao, equipamentos.qtd_estoque';
+    $estoquepordepartamento = $banco->Consultar($sql, [], true);
+    $dataPointsPizza_estoquepordepartamento = [];
+    foreach($estoquepordepartamento as $estoque)
+    {
+        $dataPointsPizza_estoquepordepartamento[] = 
+        [
+            "label" => $estoque['descricao'], // Nome do departamento como label
+            "y" => $estoque['qtd_disponivel']      // Quantidade de empréstimos como valor
+        ];
+    }
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Controle de EPIs</title>
+    <title>EPI's Control</title>
     <link href="assets/css/sistema.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
@@ -55,9 +76,8 @@
 <body>
     <nav class="navbar navbar-light bg-light sticky-top shadow">
         <div class="container-fluid">
-            <a class="navbar-brand bg-light" href="sistema.php">
-                <img src="assets/img/trabalhador.png" alt="logo" width="30" height="30" class="d-inline-block align-text-top">
-                <strong>Controle de EPIs</strong>
+            <a class="navbar navbar-expand-lg navbar-light bg-light" href="sistema.php">
+                <img src="assets/img/trabalhador.png" alt="logo" width="40" height="40" class="d-inline-block align-text-top">
             </a>
             <!-- Menu para dispositivos maiores -->
             <ul class="d-none d-md-flex flex-wrap align-items-center nav mx-auto">
@@ -69,6 +89,11 @@
                 <li class="nav-item">
                     <a class="nav-link d-flex ms-5" href="sistema.php?tela=colaboradores">
                         <i class="bi bi-people"></i> Colaboradores
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link d-flex ms-5" href="sistema.php?tela=departamentos">
+                        <i class="bi bi-building"></i> Departamentos
                     </a>
                 </li>
                 <li class="nav-item">
@@ -96,20 +121,22 @@
                 <p class="text-dark mb-0">
                     Usuário logado: 
                     <strong>
-                    <?php
-                        // Verifica se o nome do usuário está na sessão
-                        if (isset($_SESSION['nome_usuario']) && !empty($_SESSION['nome_usuario'])) {
-                            echo htmlspecialchars($_SESSION['nome_usuario']); // Proteção contra XSS
-                        } else {
-                            echo "Convidado";
-                        }
+                        <?php
+                            // Verifica se o nome do usuário está na sessão
+                            if (isset($_SESSION['nome_usuario']) && !empty($_SESSION['nome_usuario'])) 
+                            {
+                                echo htmlspecialchars($_SESSION['nome_usuario']); // Proteção contra XSS
+                            } 
+                            else 
+                            {
+                                echo "Convidado";
+                            }
                         ?>
                     </strong>
                 </p>
             </div>
         </div>
     </nav>
-
     <!-- Offcanvas para dispositivos móveis -->
     <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasMenu">
     <div class="offcanvas-header">
@@ -122,10 +149,15 @@
                 <a class="nav-link" href="sistema.php?tela=equipamentos">
                     <i class="bi bi-hammer"></i> Equipamentos (EPIs)
                 </a>
-            </li>
+            </li>   
             <li class="nav-item">
                 <a class="nav-link" href="sistema.php?tela=colaboradores">
                     <i class="bi bi-people"></i> Colaboradores
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="sistema.php?tela=departamentos">
+                    <i class="bi bi-building"></i> Departamentos
                 </a>
             </li>
             <li class="nav-item">
@@ -235,13 +267,19 @@
                         case 'emprestimos':
                             include 'telas/emprestimo.php';
                         break;
+                        case 'departamentos':
+                            include 'telas/departamentos.php';
+                        break;
                         default:
                             echo 
                             '<div class="d-flex justify-content-center flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                                 <h1 class="h2">Bem-vindo <strong>' . $_SESSION['nome_usuario'] . '</strong>!</h1>
                             </div>
-                            <div id="chartContainerGraphic" style="height: 370px; width: 100%;"></div>
-                            <div id="chartContainerGraphicPizza" style="height: 370px; width: 100%;"></div>';
+                                <div class="col-md-6" id="chartContainerGraphicDISPONIVELporDEPARTAMENTO" style="height: 370px;"></div>
+                            <div class="row">
+                                <div class="col-md-6" id="chartContainerGraphicPizzaEMPRESTIMOS" style="height: 370px;"></div>
+                                <div class="col-md-6" id="chartContainerGraphicPizzaCOLABORADORES" style="height: 370px;"></div>
+                            </div>';
                         break;
                     }
                 ?>
@@ -261,55 +299,58 @@
         window.onload = function Graphic() 
         {
             // Grafico com crosshair
-            var chartgraphic = new CanvasJS.Chart("chartContainerGraphic", {
+            var chartgraphicestoquepordepartamento = new CanvasJS.Chart("chartContainerGraphicDISPONIVELporDEPARTAMENTO", {
                 animationEnabled: true,
+                theme: "light2",
                 title:{
-                    text: "Salmon Production - 1997 to 2006"
+                    text: "Estoque Disponível por Departamento"
                 },
-                axisX:{
-                    crosshair: {
-                        enabled: true,
-                        snapToDataPoint: true
-                    }
-                },
-                axisY:{
-                    title: "in Metric Tons",
-                    includeZero: true,
-                    crosshair: {
-                        enabled: true,
-                        snapToDataPoint: true
-                    }
-                },
-                toolTip:{
-                    enabled: false
+                axisY: {
+                    title: "Qtd. Disponível"
                 },
                 data: [{
-                    type: "area",
-                    dataPoints: <?php echo json_encode($dataPointsGraphic, JSON_NUMERIC_CHECK); ?>
+                    type: "column",
+                    yValueFormatString: "#",
+                    dataPoints: <?php echo json_encode($dataPointsPizza_estoquepordepartamento, JSON_NUMERIC_CHECK); ?>
                 }]
             });
-            chartgraphic.render();
-            // Grafico Pizza
-            var chartgraphicpizza = new CanvasJS.Chart("chartContainerGraphicPizza", {
-                animationEnabled: true,
-                exportEnabled: true,
-                title:{
-                    text: "Average Expense Per Day  in Thai Baht"
-                },
-                subtitles: [{
-                    text: "Currency Used: Thai Baht (฿)"
-                }],
-                data: [{
-                    type: "pie",
-                    showInLegend: "true",
-                    legendText: "{label}",
-                    indexLabelFontSize: 16,
-                    indexLabel: "{label} - #percent%",
-                    yValueFormatString: "฿#,##0",
-                    dataPoints: <?php echo json_encode($dataPointsPizza, JSON_NUMERIC_CHECK); ?>
-                }]
+            chartgraphicestoquepordepartamento.render();
+            // Grafico Pizza Empréstimos por Departamento
+            var chartgraphicpizzaEMPRESTIMOS = new CanvasJS.Chart("chartContainerGraphicPizzaEMPRESTIMOS", {
+            animationEnabled: true,
+            exportEnabled: false,
+            title:{
+                text: "Empréstimos por Departamento"
+            },
+            data: [{
+                type: "pie",
+                showInLegend: true,
+                legendText: "{label}",
+                indexLabelFontSize: 16,
+                indexLabel: "{label} - {y}",
+                yValueFormatString: "#,##0",
+                dataPoints: <?php echo json_encode($dataPointsPizza_totalemprestimospordepartamento, JSON_NUMERIC_CHECK); ?>
+            }]
             });
-            chartgraphicpizza.render();
+            chartgraphicpizzaEMPRESTIMOS.render();
+            //Gráfio Pizza Colaboradores por Departamento
+            var chartgraphicpizzaCOLABORADORES = new CanvasJS.Chart("chartContainerGraphicPizzaCOLABORADORES", {
+            animationEnabled: true,
+            exportEnabled: false,
+            title:{
+                text: "Colaboradores por Departamento"
+            },
+            data: [{
+                type: "pie",
+                showInLegend: true,
+                legendText: "{label}",
+                indexLabelFontSize: 16,
+                indexLabel: "{label} - {y}",
+                yValueFormatString: "#,##0",
+                dataPoints: <?php echo json_encode($dataPointsPizza_totalcolaboradorespordepartamento, JSON_NUMERIC_CHECK); ?>
+            }]
+            });
+            chartgraphicpizzaCOLABORADORES.render();
         }
     </script>
 </body>

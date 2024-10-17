@@ -1,12 +1,13 @@
 <?php
     header('Content-Type: application/json');
     // Validação
-    $formulario['id']         = isset($_POST['id'])         ? $_POST['id'] : '';
-    $formulario['nome']       = isset($_POST['nome'])       ? $_POST['nome'] : '';
-    $formulario['data_nasc']  = isset($_POST['data_nasc'])  ? $_POST['data_nasc'] : '';
-    $formulario['cpf_cnpj']   = isset($_POST['cpf_cnpj'])   ? $_POST['cpf_cnpj'] : '';
-    $formulario['rg']         = isset($_POST['rg'])         ? $_POST['rg'] : '';
-    $formulario['telefone']   = isset($_POST['telefone'])   ? $_POST['telefone'] : '';
+    $formulario['id']           = isset($_POST['id'])         ? $_POST['id'] : '';
+    $formulario['nome']         = isset($_POST['nome'])       ? $_POST['nome'] : '';
+    $formulario['data_nasc']    = isset($_POST['data_nasc'])  ? $_POST['data_nasc'] : '';
+    $formulario['cpf_cnpj']     = isset($_POST['cpf_cnpj'])   ? $_POST['cpf_cnpj'] : '';
+    $formulario['rg']           = isset($_POST['rg'])         ? $_POST['rg'] : '';
+    $formulario['telefone']     = isset($_POST['telefone'])   ? $_POST['telefone'] : '';
+    $formulario['departamento'] = isset($_POST['departamento']) ? $_POST['departamento'] : '';
     if (in_array('', $formulario)) {
         echo json_encode([
            'codigo' => 0,
@@ -16,6 +17,10 @@
     }
     try 
     {
+        if($formulario['departamento'] == '0')
+        {
+            $formulario['departamento'] = null;
+        }
         include_once '../class/BancoDeDados.php';
         $banco = new BancoDeDados;
         if ($formulario['id'] == 'NOVO') 
@@ -89,7 +94,7 @@
         }
         if($formulario['id'] == 'NOVO')
         {
-            $sql = 'INSERT INTO colaboradores (nome_colaborador, cpf_cnpj, data_nascimento, rg, ativo, telefone, imagem_colaborador) VALUES (?,?,?,?,?,?,?)';
+            $sql = 'INSERT INTO colaboradores (nome_colaborador, cpf_cnpj, data_nascimento, rg, ativo, telefone, imagem_colaborador, id_departamento) VALUES (?,?,?,?,?,?,?,?)';
             $parametros = [
                 $formulario['nome'],
                 $formulario['cpf_cnpj'],
@@ -97,7 +102,8 @@
                 $formulario['rg'],
                 1,
                 $formulario['telefone'],
-                $nome_imagem
+                $nome_imagem,
+                $formulario['departamento']
             ];
             $banco->ExecutarComando($sql, $parametros);
             echo json_encode([
@@ -112,13 +118,14 @@
             $foto = $banco->consultar($sql, $parametros);
             if($foto['imagem_colaborador'] == $nome_imagem)
             {
-                $sql = 'UPDATE colaboradores SET nome_colaborador = ?, cpf_cnpj = ?, data_nascimento = ?, rg = ?, telefone = ? WHERE id_colaborador = ?';
+                $sql = 'UPDATE colaboradores SET nome_colaborador = ?, cpf_cnpj = ?, data_nascimento = ?, rg = ?, telefone = ?, id_departamento = ? WHERE id_colaborador = ?';
                 $parametros = [
                     $formulario['nome'],
                     $formulario['cpf_cnpj'],
                     $formulario['data_nasc'],
                     $formulario['rg'],
                     $formulario['telefone'],
+                    $formulario['departamento'],
                     $formulario['id']
             ];
             echo json_encode([
@@ -132,7 +139,7 @@
                 {
                     (unlink("upload/" . $foto['imagem_colaborador']));
                 }
-                $sql = 'UPDATE colaboradores SET nome_colaborador = ?, cpf_cnpj = ?, data_nascimento = ?, rg = ?, telefone = ?, imagem_colaborador = ? WHERE id_colaborador = ?';
+                $sql = 'UPDATE colaboradores SET nome_colaborador = ?, cpf_cnpj = ?, data_nascimento = ?, rg = ?, telefone = ?, imagem_colaborador = ?, id_departamento = ? WHERE id_colaborador = ?';
                 $parametros = [
                     $formulario['nome'],
                     $formulario['cpf_cnpj'],
@@ -140,6 +147,7 @@
                     $formulario['rg'],
                     $formulario['telefone'],
                     $nome_imagem,
+                    $formulario['departamento'],
                     $formulario['id']
                 ];
                 echo json_encode([

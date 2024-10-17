@@ -9,7 +9,7 @@
 
         function __construct()
         {  
-            $this -> conexao = new PDO('mysql:host='.getenv("DB_HOST").';dbname='.getenv("DB_NAME").';charset=utf8mb4', getenv("DB_USER"), getenv("DB_PASSWORD"));
+            $this -> conexao = new PDO('mysql:host='.getenv("DB_HOST").';dbname='.getenv("DB_NAME").';port='.getenv("DB_PORT").';charset=utf8mb4', getenv("DB_USER"), getenv("DB_PASSWORD"));
         }
         public function ExecutarComando($sql, $paramentros = [])
         {

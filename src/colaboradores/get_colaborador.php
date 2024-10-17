@@ -6,7 +6,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
     $banco = new BancodeDados;
     try 
     {
-        $sql = 'SELECT id_colaborador, nome_colaborador, data_nascimento, cpf_cnpj, rg, telefone FROM colaboradores WHERE id_colaborador = ?';
+        $sql = 'SELECT id_colaborador, nome_colaborador, data_nascimento, cpf_cnpj, rg, telefone, id_departamento FROM colaboradores WHERE id_colaborador = ?';
         $dados = $banco->Consultar($sql, [$id], true);
         if ($dados) 
         {
@@ -16,7 +16,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
                 'data_nascimento' => $dados[0]['data_nascimento'],
                 'cpf_cnpj' => $dados[0]['cpf_cnpj'],
                 'rg' => $dados[0]['rg'],
-                'telefone' => $dados[0]['telefone']
+                'telefone' => $dados[0]['telefone'],
+                'departamento' => $dados[0]['id_departamento']
             ]);
         } 
         else 
