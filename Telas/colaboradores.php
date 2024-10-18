@@ -149,53 +149,144 @@
                     <h4 class="modal-title" id="modalLabel">Cadastrar Colaborador</h4>
                     <button onclick="window.location.href='sistema.php?tela=colaboradores'" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
+                <ul class="nav nav-tabs" id="colaboradoresTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link active" id="dados-tab" data-bs-toggle="tab" href="#dados" role="tab" aria-controls="dados" aria-selected="true">Dados Pessoais</a>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link" id="endereco-tab" data-bs-toggle="tab" href="#endereco" role="tab" aria-controls="endereco" aria-selected="false">Endereço</a>
+                    </li>
+                </ul>
                 <div class="modal-body">
                     <input type="hidden" name="txt_id" id="txt_id" value="NOVO">
-                    <div class="form-group">
-                        <label for="txt_nome">Nome</label>
-                        <input type="text" class="form-control" name="txt_nome" id="txt_nome" required varchar="255">
-                    </div>
-                    <div class="form-group">
-                        <label for="txt_data_nasc">Data Nascimento</label>
-                        <input type="date" class="form-control" name="txt_data_nasc" id="txt_data_nasc" required date>
-                    </div>
-                    <div class="form-group">
-                        <label for="txt_cpf_cnpj">CPF/CNPJ</label>
-                        <input type="text" class="form-control" name="txt_cpf_cnpj" id="txt_cpf_cnpj" required minlength="11" maxlength="18">
-                    </div>
-                    <div class="form-group">
-                        <label for="txt_rg">RG</label>
-                        <input type="text" class="form-control" name="txt_rg" id="txt_rg" required minlength="7" maxlength="9">
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6">
+                    <div class="tab-content" id="colaboradoresTabContent">
+                        <!-- Dados Pessoais -->
+                        <div class="tab-pane fade show active" id="dados" role="tabpanel" aria-labelledby="dados-tab">
                             <div class="form-group">
-                                <label for="txt_telefone">Telefone</label>
-                                <input type="tel" class="form-control" name="txt_telefone" id="txt_telefone" required minlength="10" maxlength="14">
+                                <label for="txt_nome">Nome</label>
+                                <input type="text" class="form-control" name="txt_nome" id="txt_nome" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="txt_data_nasc">Data Nascimento</label>
+                                <input type="date" class="form-control" name="txt_data_nasc" id="txt_data_nasc" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="txt_cpf_cnpj">CPF/CNPJ</label>
+                                <input type="text" class="form-control" name="txt_cpf_cnpj" id="txt_cpf_cnpj" required minlength="11" maxlength="18">
+                            </div>
+                            <div class="form-group">
+                                <label for="txt_rg">RG</label>
+                                <input type="text" class="form-control" name="txt_rg" id="txt_rg" required minlength="7" maxlength="9">
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="txt_telefone">Telefone</label>
+                                        <input type="tel" class="form-control" name="txt_telefone" id="txt_telefone" required minlength="10" maxlength="14">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="opt_departamento">Departamento</label>
+                                        <select class="form-control" id="opt_departamento" name="opt_departamento" required>
+                                            <option value="0">Selecione o Departamento</option>
+                                            <?php foreach ($departamentos as $departamento): ?>
+                                                <option value="<?= $departamento['id_departamento']; ?>">
+                                                    <?= $departamento['nome_departamento']; ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>  
+                            <div class="form-group">
+                                <label for="file_imagem">Foto do Colaborador</label>
+                                <input type="file" class="form-control" name="file_imagem" id="file_imagem">
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <!-- Aba de Endereço -->
+                        <div class="tab-pane fade" id="endereco" role="tabpanel" aria-labelledby="endereco-tab">
                             <div class="form-group">
-                                <label for="opt_departamento">Departamento</label>
-                                <select class="form-control" id="opt_departamento" name="opt_departamento">
-                                    <option value="0">Selecione o Departamento</option>
-                                    <!-- Loop para preencher o select com os departamentos do banco de dados -->
-                                    <?php foreach ($departamentos as $departamento): ?>
-                                        <option value="<?= $departamento['id_departamento']; ?>">
-                                            <?= $departamento['nome_departamento']; ?>
-                                        </option>
+                                <label for="txt_cep" class="form-label">CEP</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="txt_cep" maxlength="9">
+                                    <button type="button" class="btn btn-primary" onclick="consultarCep()">Buscar</button>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="list_uf" class="form-label">UF</label>
+                                <select class="form-select" id="list_uf" onchange="carregarCidades(this.value)">
+                                    <option value="">Escolha...</option>
+                                    <?php
+                                    $ufs = 
+                                    [
+                                        'AC',
+                                        'AL',
+                                        'AP',
+                                        'AM',
+                                        'BA',
+                                        'CE',
+                                        'DF',
+                                        'ES',
+                                        'GO',
+                                        'MA',
+                                        'MT',
+                                        'MS',
+                                        'MG',
+                                        'PA',
+                                        'PB', 
+                                        'PR',
+                                        'PE',
+                                        'PI',
+                                        'RJ',
+                                        'RN',
+                                        'RS',
+                                        'RO',
+                                        'RR',
+                                        'SC',
+                                        'SP',
+                                        'SE',
+                                        'TO'
+                                    ];
+                                    foreach ($ufs as $uf): 
+                                    ?>
+                                        <option value="<?= $uf; ?>"><?= $uf; ?></option>
                                     <?php endforeach; ?>
                                 </select>
                             </div>
+                            <div class="form-group">
+                                <label for="list_cidade" class="form-label">Cidade</label>
+                                <select class="form-select" id="list_cidade">
+                                    <option value="">Escolha...</option>
+                                </select>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="txt_rua">Rua</label>
+                                        <input type="text" class="form-control" id="txt_rua" maxlength="255">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="txt_numero">Número</label>
+                                        <input type="number" class="form-control" id="txt_numero">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="txt_bairro" class="form-label">Bairro</label>
+                                <input type="text" class="form-control" id="txt_bairro" maxlength="255">
+                            </div>
+                            <div class="form-group">
+                                <label for="txt_complemento" class="form-label">Complemento</label>
+                                <input type="text" class="form-control" id="txt_complemento" maxlength="255">
+                            </div>
                         </div>
-                    </div>  
-                    <div class="form-group">
-                        <label for="file_imagem">Foto do Colaborador</label>
-                        <input type="file" class="form-control" name="file_imagem" id="file_imagem" value="S/IMG">
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button onclick="CadastrarColaborador()" class="btn btn-success">Salvar</button>
+                    <button type="button" class="btn btn-success" onclick="CadastrarColaborador()">Salvar</button>
                 </div>
             </form>
         </div>
@@ -217,14 +308,21 @@
     });
     function CadastrarColaborador()
     {
-        var id        = document.getElementById('txt_id').value;
-        var nome      = document.getElementById('txt_nome').value;
-        var data_nasc = document.getElementById('txt_data_nasc').value;
-        var cpf_cnpj  = document.getElementById('txt_cpf_cnpj').value;
-        var rg        = document.getElementById('txt_rg').value;
-        var telefone  = document.getElementById('txt_telefone').value;
-        var inputFile = document.getElementById('file_imagem').files[0];
+        var id           = document.getElementById('txt_id').value;
+        var nome         = document.getElementById('txt_nome').value;
+        var data_nasc    = document.getElementById('txt_data_nasc').value;
+        var cpf_cnpj     = document.getElementById('txt_cpf_cnpj').value;
+        var rg           = document.getElementById('txt_rg').value;
+        var telefone     = document.getElementById('txt_telefone').value;
+        var inputFile    = document.getElementById('file_imagem').files[0];
         var departamento = document.getElementById('opt_departamento').value;
+        var cep          = document.getElementById('txt_cep').value;
+        var rua          = document.getElementById('txt_rua').value;
+        var bairro       = document.getElementById('txt_bairro').value;
+        var cidade       = document.getElementById('list_cidade').value;
+        var uf           = document.getElementById('list_uf').value;
+        var complemento  = document.getElementById('txt_complemento').value;
+        var numero       = document.getElementById('txt_numero').value;
         // Verificação básica de campos preenchidos
         var formData = new FormData(); // Criar um FormData
         formData.append('id', id);
@@ -234,6 +332,13 @@
         formData.append('rg', rg);
         formData.append('telefone', telefone);
         formData.append('departamento', departamento);
+        formData.append('cep', cep);
+        formData.append('rua', rua);
+        formData.append('bairro', bairro);
+        formData.append('cidade', cidade);
+        formData.append('uf', uf);
+        formData.append('complemento', complemento);
+        formData.append('numero', numero);
         // Adicionar o arquivo somente se foi selecionado
         if (inputFile) 
         {
@@ -248,6 +353,7 @@
             processData: false, // Importante: não processar os dados automaticamente
             success: function(retorno) 
             {
+                alert(formData);
                 if (retorno['codigo'] == 2) 
                 {
                     alert(retorno['mensagem']);
@@ -343,4 +449,48 @@
                 }
             });
         }
+    function consultarCep() 
+    {
+        var cep = document.getElementById('txt_cep').value;
+        cep = cep.replace(/[^a-zA-Z0-9]/g, '');
+        $.ajax({
+            type: 'get',
+            dataType: 'json',
+            url: 'https://viacep.com.br/ws/' + cep + '/json/',
+            success: function(retorno) {
+                document.getElementById('txt_rua').value        = retorno.logradouro;
+                document.getElementById('txt_bairro').value     = retorno.bairro;
+                document.getElementById('list_uf').value        = retorno.uf;
+                document.getElementById('list_uf').dispatchEvent(new Event('change'));
+                
+                // Atrasando a execução do comando
+                setTimeout(function(){
+                    document.getElementById('list_cidade').value = retorno.localidade;
+                }, 1000);
+            },
+            error: function(erro) {
+                alert('Ocorreu um erro na requisição: ' + erro);
+            }
+        });
+    }
+    function carregarCidades(uf) 
+    {
+        $.ajax({
+            type: 'get',
+            dataType: 'json',
+            url: 'https://servicodados.ibge.gov.br/api/v1/localidades/estados/' + uf + '/municipios',
+            success: function(retorno) {
+                document.getElementById('list_cidade').innerHTML = "<option value=''>Escolha...</option>";
+                $.each(retorno, function(chave, valor) {
+                    var option = document.createElement('option');
+                    option.value = valor.nome;
+                    option.text = valor.nome;
+                    document.getElementById('list_cidade').appendChild(option);
+                });
+            },
+            error: function(erro) {
+                alert('Ocorreu um erro na requisição: ' + erro);
+            }
+        });
+    }
 </script>

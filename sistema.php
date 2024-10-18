@@ -10,9 +10,9 @@
     }
     include_once 'src/class/BancodeDados.php';
     $banco = new BancodeDados;
-    $sql = 'SELECT count(id_emprestimo) as qtd_emprestimos
+    $sql = 'SELECT COALESCE(count(id_emprestimo), "0") as qtd_emprestimos
          , colaboradores.nome_colaborador as nome_colaborador
-         , departamentos.nome_departamento as nome_departamento
+         , COALESCE(departamentos.nome_departamento, "Nenhum empréstimo feito") as nome_departamento
          from equipamentos_emprestimo
          join emprestimos on emprestimos.id_emprestimo = equipamentos_emprestimo.emprestimo
          join colaboradores on colaboradores.id_colaborador = emprestimos.colaborador

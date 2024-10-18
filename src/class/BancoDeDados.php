@@ -30,4 +30,7 @@
                 return $stmt->fetch(PDO::FETCH_ASSOC);
             }
         }
+        public function getLastInsertId() {
+            return $this->conexao->lastInsertId();
+        }
     }

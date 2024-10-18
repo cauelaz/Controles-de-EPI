@@ -1,13 +1,20 @@
 <?php
     header('Content-Type: application/json');
     // Validação
-    $formulario['id']           = isset($_POST['id'])         ? $_POST['id'] : '';
-    $formulario['nome']         = isset($_POST['nome'])       ? $_POST['nome'] : '';
-    $formulario['data_nasc']    = isset($_POST['data_nasc'])  ? $_POST['data_nasc'] : '';
-    $formulario['cpf_cnpj']     = isset($_POST['cpf_cnpj'])   ? $_POST['cpf_cnpj'] : '';
-    $formulario['rg']           = isset($_POST['rg'])         ? $_POST['rg'] : '';
-    $formulario['telefone']     = isset($_POST['telefone'])   ? $_POST['telefone'] : '';
+    $formulario['id']           = isset($_POST['id'])           ? $_POST['id'] : '';
+    $formulario['nome']         = isset($_POST['nome'])         ? $_POST['nome'] : '';
+    $formulario['data_nasc']    = isset($_POST['data_nasc'])    ? $_POST['data_nasc'] : '';
+    $formulario['cpf_cnpj']     = isset($_POST['cpf_cnpj'])     ? $_POST['cpf_cnpj'] : '';
+    $formulario['rg']           = isset($_POST['rg'])           ? $_POST['rg'] : '';
+    $formulario['telefone']     = isset($_POST['telefone'])     ? $_POST['telefone'] : '';
     $formulario['departamento'] = isset($_POST['departamento']) ? $_POST['departamento'] : '';
+    $formulario['cep']          = isset($_POST['cep'])          ? $_POST['cep'] : '';
+    $formulario['rua']          = isset($_POST['rua'])          ? $_POST['rua'] : '';
+    $formulario['numero']       = isset($_POST['numero'])       ? $_POST['numero'] : '';
+    $formulario['bairro']       = isset($_POST['bairro'])       ? $_POST['bairro'] : '';
+    $formulario['cidade']       = isset($_POST['cidade'])       ? $_POST['cidade'] : '';
+    $formulario['uf']           = isset($_POST['uf'])           ? $_POST['uf'] : '';
+    $formulario['complemento']  = isset($_POST['complemento'])  ? $_POST['complemento'] : '';
     if (in_array('', $formulario)) {
         echo json_encode([
            'codigo' => 0,
@@ -128,6 +135,21 @@
                     $formulario['departamento'],
                     $formulario['id']
             ];
+            $id_colaborador = $banco->getLastInsertId();
+
+            // Insert address into inter_colaborador_endereco
+            $sql_endereco = 'INSERT INTO inter_colaborador_endereco (fk_id_colaborador, rua, numero, bairro, cidade, uf, cep, complemento) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
+            $parametros_endereco = [
+                $id_colaborador,
+                $formulario['rua'],
+                $formulario['numero'],
+                $formulario['bairro'],
+                $formulario['cidade'],
+                $formulario['uf'],
+                $formulario['cep'],
+                $formulario['complemento']
+            ];
+            $banco->ExecutarComando($sql_endereco, $parametros_endereco);
             echo json_encode([
                'codigo' => 2,
                'mensagem' => 'Colaborador atualizado com sucesso!'
@@ -150,6 +172,18 @@
                     $formulario['departamento'],
                     $formulario['id']
                 ];
+                $sql_endereco = 'UPDATE inter_colaborador_endereco SET rua = ?, numero = ?, bairro = ?, cidade = ?, uf = ?, cep = ?, complemento = ? WHERE fk_id_colaborador = ?';
+                $parametros_endereco = [
+                    $formulario['rua'],
+                    $formulario['numero'],
+                    $formulario['bairro'],
+                    $formulario['cidade'],
+                    $formulario['uf'],
+                    $formulario['cep'],
+                    $formulario['complemento'],
+                    $formulario['id']
+                ];
+                $banco->ExecutarComando($sql_endereco, $parametros_endereco);
                 echo json_encode([
                     'codigo' => 2,
                     'mensagem' => 'Colaborador atualizado com sucesso!'
