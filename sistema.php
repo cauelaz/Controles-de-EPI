@@ -265,7 +265,7 @@
                                 include 'telas/usuarios.php';
                         break;
                         case 'emprestimos':
-                            include 'telas/emprestimo.php';
+                            include 'telas/emprestimos.php';
                         break;
                         case 'departamentos':
                             include 'telas/departamentos.php';
