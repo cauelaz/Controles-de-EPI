@@ -99,46 +99,24 @@
                 exit;
             }
         }
-        if($formulario['id'] == 'NOVO')
-        {
+        if ($formulario['id'] == 'NOVO') {
+            // Inserir na tabela colaboradores
             $sql = 'INSERT INTO colaboradores (nome_colaborador, cpf_cnpj, data_nascimento, rg, ativo, telefone, imagem_colaborador, id_departamento) VALUES (?,?,?,?,?,?,?,?)';
             $parametros = [
                 $formulario['nome'],
                 $formulario['cpf_cnpj'],
                 $formulario['data_nasc'],
                 $formulario['rg'],
-                1,
+                1,  // Ativo
                 $formulario['telefone'],
                 $nome_imagem,
                 $formulario['departamento']
             ];
             $banco->ExecutarComando($sql, $parametros);
-            echo json_encode([
-               'codigo' => 2,
-               'mensagem' => 'Colaborador cadastrado com sucesso!'
-            ]);
-        }
-        else
-        {
-            $sql = 'SELECT imagem_colaborador FROM colaboradores WHERE id_colaborador = ?';
-            $parametros = [$formulario['id']];
-            $foto = $banco->consultar($sql, $parametros);
-            if($foto['imagem_colaborador'] == $nome_imagem)
-            {
-                $sql = 'UPDATE colaboradores SET nome_colaborador = ?, cpf_cnpj = ?, data_nascimento = ?, rg = ?, telefone = ?, id_departamento = ? WHERE id_colaborador = ?';
-                $parametros = [
-                    $formulario['nome'],
-                    $formulario['cpf_cnpj'],
-                    $formulario['data_nasc'],
-                    $formulario['rg'],
-                    $formulario['telefone'],
-                    $formulario['departamento'],
-                    $formulario['id']
-            ];
+            // Obter o ID do colaborador recém-inserido
             $id_colaborador = $banco->getLastInsertId();
-
-            // Insert address into inter_colaborador_endereco
-            $sql_endereco = 'INSERT INTO inter_colaborador_endereco (fk_id_colaborador, rua, numero, bairro, cidade, uf, cep, complemento) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
+            // Inserir na tabela de endereço
+            $sql_endereco = 'INSERT INTO endereco_colaborador (fk_id_colaborador, rua, numero, bairro, cidade, uf, cep, complemento) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
             $parametros_endereco = [
                 $id_colaborador,
                 $formulario['rua'],
@@ -151,15 +129,32 @@
             ];
             $banco->ExecutarComando($sql_endereco, $parametros_endereco);
             echo json_encode([
-               'codigo' => 2,
-               'mensagem' => 'Colaborador atualizado com sucesso!'
+                'codigo' => 2,
+                'mensagem' => 'Colaborador cadastrado com sucesso!'
             ]);
-            }
-            else
-            {
-                if (file_exists("upload/" . $foto['imagem_colaborador'])) 
-                {
-                    (unlink("upload/" . $foto['imagem_colaborador']));
+        }
+        else {
+            // Consultar a imagem atual do colaborador
+            $sql = 'SELECT imagem_colaborador FROM colaboradores WHERE id_colaborador = ?';
+            $parametros = [$formulario['id']];
+            $foto = $banco->consultar($sql, $parametros);
+        
+            // Verificar se a imagem foi atualizada
+            if ($foto['imagem_colaborador'] == $nome_imagem) {
+                $sql = 'UPDATE colaboradores SET nome_colaborador = ?, cpf_cnpj = ?, data_nascimento = ?, rg = ?, telefone = ?, id_departamento = ? WHERE id_colaborador = ?';
+                $parametros = [
+                    $formulario['nome'],
+                    $formulario['cpf_cnpj'],
+                    $formulario['data_nasc'],
+                    $formulario['rg'],
+                    $formulario['telefone'],
+                    $formulario['departamento'],
+                    $formulario['id']
+                ];
+            } else {
+                // Excluir a imagem antiga se a nova foi enviada
+                if (file_exists("upload/" . $foto['imagem_colaborador'])) {
+                    unlink("upload/" . $foto['imagem_colaborador']);
                 }
                 $sql = 'UPDATE colaboradores SET nome_colaborador = ?, cpf_cnpj = ?, data_nascimento = ?, rg = ?, telefone = ?, imagem_colaborador = ?, id_departamento = ? WHERE id_colaborador = ?';
                 $parametros = [
@@ -172,8 +167,17 @@
                     $formulario['departamento'],
                     $formulario['id']
                 ];
-                $sql_endereco = 'UPDATE inter_colaborador_endereco SET rua = ?, numero = ?, bairro = ?, cidade = ?, uf = ?, cep = ?, complemento = ? WHERE fk_id_colaborador = ?';
-                $parametros_endereco = [
+            }
+            // Executar a atualização do colaborador
+            $banco->ExecutarComando($sql, $parametros);
+            // Atualizar ou inserir o endereço
+            $sql_endereco = 'SELECT * FROM endereco_colaborador WHERE fk_id_colaborador = ?';
+            $parametros_endereco = [$formulario['id']];
+            $endereco = $banco->consultar($sql_endereco, $parametros_endereco);
+            if ($endereco) {
+                // Atualizar o endereço existente
+                $sql_endereco_update = 'UPDATE endereco_colaborador SET rua = ?, numero = ?, bairro = ?, cidade = ?, uf = ?, cep = ?, complemento = ? WHERE fk_id_colaborador = ?';
+                $parametros_endereco_update = [
                     $formulario['rua'],
                     $formulario['numero'],
                     $formulario['bairro'],
@@ -183,14 +187,27 @@
                     $formulario['complemento'],
                     $formulario['id']
                 ];
-                $banco->ExecutarComando($sql_endereco, $parametros_endereco);
-                echo json_encode([
-                    'codigo' => 2,
-                    'mensagem' => 'Colaborador atualizado com sucesso!'
-                ]);
+                $banco->ExecutarComando($sql_endereco_update, $parametros_endereco_update);
+            } else {
+                // Inserir um novo endereço
+                $sql_endereco_insert = 'INSERT INTO endereco_colaborador (fk_id_colaborador, rua, numero, bairro, cidade, uf, cep, complemento) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
+                $parametros_endereco_insert = [
+                    $formulario['id'],
+                    $formulario['rua'],
+                    $formulario['numero'],
+                    $formulario['bairro'],
+                    $formulario['cidade'],
+                    $formulario['uf'],
+                    $formulario['cep'],
+                    $formulario['complemento']
+                ];
+                $banco->ExecutarComando($sql_endereco_insert, $parametros_endereco_insert);
             }
-            $banco->ExecutarComando($sql, $parametros);
-        }
+            echo json_encode([
+                'codigo' => 2,
+                'mensagem' => 'Colaborador atualizado com sucesso!'
+            ]);
+        }    
     } 
     catch (PDOException $erro) {
         $msg_erro = $erro->getMessage();

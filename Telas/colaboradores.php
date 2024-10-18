@@ -286,7 +286,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-success" onclick="CadastrarColaborador()">Salvar</button>
+                    <button class="btn btn-success" onclick="CadastrarColaborador()">Salvar</button>
                 </div>
             </form>
         </div>
@@ -353,10 +353,8 @@
             processData: false, // Importante: não processar os dados automaticamente
             success: function(retorno) 
             {
-                alert(formData);
                 if (retorno['codigo'] == 2) 
                 {
-                    alert(retorno['mensagem']);
                     window.location = 'sistema.php?tela=colaboradores';
                 } 
                 else if(retorno['codigo'] == 3) 
@@ -441,6 +439,13 @@
                     document.getElementById('txt_rg').value = colaborador.rg;
                     document.getElementById('txt_telefone').value = colaborador.telefone;
                     document.getElementById('opt_departamento').value = colaborador.departamento;
+                    document.getElementById('txt_cep').value = colaborador.cep;
+                    document.getElementById('txt_rua').value = colaborador.rua;
+                    document.getElementById('txt_bairro').value = colaborador.bairro;
+                    document.getElementById('list_uf').value = colaborador.uf;
+                    document.getElementById('list_cidade').value = colaborador.cidade;
+                    document.getElementById('txt_complemento').value = colaborador.complemento;
+                    document.getElementById('txt_numero').value = colaborador.numero;
                     EditarColaboradorModal();
                 },
                 error: function(erro) 
