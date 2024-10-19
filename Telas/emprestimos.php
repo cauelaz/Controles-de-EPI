@@ -128,10 +128,9 @@
 </div>
 <!--Modal-->
 <!--Modal Principal-->
+<!--Modal Principal-->
 <?php
-    // Inclua o arquivo do banco de dados
     include_once 'src/class/BancodeDados.php';
-    // Consultar os departamentos diretamente
     $banco = new BancodeDados;
     $sql = 'SELECT id_colaborador, nome_colaborador FROM colaboradores WHERE ativo = 1';
     $colaboradores = $banco->Consultar($sql, [], true);
@@ -142,26 +141,47 @@
 <div id="emprestimo_editor" class="modal fade" data-bs-backdrop="static">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form id="form_departamento" enctype="multipart/form-data">
+            <form id="form_emprestimo" enctype="multipart/form-data">
                 <div class="modal-header">
-                    <h4 class="modal-title" id="modalLabel">Cadastro de Emprestimos</h4>
-                    <button onclick="window.location.href='sistema.php?tela=equipamentos'" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <h4 class="modal-title" id="modalLabel">Cadastro de Empréstimos</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="col-md-12">
-                        <div class="form-group">
-                            <label for="cbColaborador">Colaborador</label>
-                            <select class="form-control" id="cbColaborador" name="cbColaborador" required>
-                                <option value="0">Selecione o Colaborador</option>
-                                <?php foreach ($colaboradores as $colaborador): ?>
-                                    <option value="<?= $colaborador['id_colaborador']; ?>">
-                                        <?= $colaborador['colaborador']; ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
+                    <!-- Colaborador -->
+                    <div class="form-group">
+                        <label for="cbColaborador">Colaborador</label>
+                        <select class="form-control" id="cbColaborador" name="cbColaborador" required>
+                            <option value="0">Selecione o Colaborador</option>
+                            <?php foreach ($colaboradores as $colaborador): ?>
+                                <option value="<?= $colaborador['id_colaborador']; ?>">
+                                    <?= $colaborador['nome_colaborador']; ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
                     </div>
 
+                    <!-- Situação -->
+                    <div class="form-group">
+                        <label for="cbSituacao">Situação</label>
+                        <select class="form-control" id="cbSituacao" required>
+                            <option value="em aberto">Em Aberto</option>
+                            <option value="pendente">Pendente</option>
+                            <option value="finalizado">Finalizado</option>
+                        </select>
+                    </div>
+
+                    <!-- Datas -->
+                    <div class="form-group">
+                        <label for="dataEmprestimo">Data Empréstimo</label>
+                        <input type="date" class="form-control" id="dataEmprestimo" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="dataDevolucao">Data Devolução</label>
+                        <input type="date" class="form-control" id="dataDevolucao">
+                    </div>
+
+                    <!-- Grade de Equipamentos -->
                     <div class="form-group">
                         <label for="cbEquipamento">Equipamento</label>
                         <select class="form-control" id="cbEquipamento" required>
@@ -183,27 +203,24 @@
                                     <th>Ação</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                            </tbody>
+                            <tbody></tbody>
                         </table>
                     </div>
 
+                    <!-- Observações -->
                     <div class="form-group">
-                        <label for="txt_cert_aprovacao">Certificado Aprovação</label>
-                        <input type="text" class="form-control" id="txt_cert_aprovacao" required>
-                    </div>  
-                    <div class="form-group">
-                        <label for="file_imagem">Nome do Equipamento</label>
-                        <input type="file" class="form-control" id="nome_equipamento" value="S/IMG">
+                        <label for="txtObservacoes">Observações</label>
+                        <textarea class="form-control" id="txtObservacoes"></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button onclick="CadastrarEquipamento()" class="btn btn-success">Salvar</button>
+                    <button onclick="CadastrarEmprestimo()" class="btn btn-success">Salvar</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
+
 
 <script>
     function abrirModal() 
@@ -215,49 +232,64 @@
         var modal = new bootstrap.Modal(document.getElementById('emprestimo_editor'));
         modal.show();
     }
-    $('#form_departamento').submit(function() 
+    $('#emprestimo_editor').submit(function() 
     {
         return false; // Evita o envio padrão do formulário
     });
-    function CadastrarEmprestimo() 
-    {
-        var id      = document.getElementById('txt_id').value;
-        var nome    = document.getElementById('txt_nome').value;
-        if (nome) 
-        { // Validação simples
+
+    function CadastrarEmprestimo() {
+        // Obtém os valores dos campos
+        var id = document.getElementById('txt_id').value;
+        var colaborador = document.getElementById('cbColaborador').value;
+        var situacao = document.getElementById('cbSituacao').value;
+        var dataEmprestimo = document.getElementById('dataEmprestimo').value;
+        var dataDevolucao = document.getElementById('dataDevolucao').value;
+        var observacoes = document.getElementById('txtObservacoes').value;
+
+        if (colaborador && situacao && dataEmprestimo) {
+            // Monta o array de equipamentos adicionados à grid
+            var equipamentos = [];
+            var tabelaEquipamentos = document.getElementById('tabelaEquipamentos').getElementsByTagName('tbody')[0];
+            for (var i = 0; i < tabelaEquipamentos.rows.length; i++) {
+                var equipamentoId = tabelaEquipamentos.rows[i].getAttribute('data-id-equipamento');
+                equipamentos.push(equipamentoId);
+            }
+
+            var emprestimoData = {
+                'id': id,
+                'colaborador': colaborador,
+                'situacao': situacao,
+                'dataEmprestimo': dataEmprestimo,
+                'dataDevolucao': dataDevolucao,
+                'equipamentos': equipamentos, // Array com os IDs dos equipamentos
+                'observacoes': observacoes
+            };
+
+            alert(emprestimoData);
+
             $.ajax({
                 type: 'post',
                 datatype: 'json',
-                url: './src/departamentos/editor_emprestimo.php',
-                data: 
-                {
-                    'id': id,
-                    'nome': nome,
-                },
-                success: function(retorno) 
-                {
-                    if (retorno['codigo'] == 2) 
-                    {
+                url: './src/emprestimos/editor_emprestimo.php',
+                data: emprestimoData,
+                success: function(retorno) {
+                    if (retorno['codigo'] == 2) {
                         alert(retorno['mensagem']);
                         window.location = 'sistema.php?tela=emprestimos';
-                    }
-                    else 
-                    {
+                    } else {
                         alert(retorno['mensagem']);
                         window.location = 'sistema.php?tela=emprestimos';
                     }
                 },
-                error: function(erro) 
-                {
+                error: function(erro) {
                     alert('Ocorreu um erro na requisição: ' + erro);
                 }
             });
-        } 
-        else 
-        {
-            alert('Por favor, preencha todos os campos!');
+        } else {
+            alert('Por favor, preencha todos os campos obrigatórios!');
         }
     }
+
     function FinalizarEmprestimo(id)
     {
         if (confirm('Tem certeza que deseja finalizar esse empréstimo?')) 
@@ -332,6 +364,45 @@
             }
         });
     }
+        function verificarStatus() {
+        const dataDevolucao = document.getElementById('dataDevolucao').value;
+        const situacao = document.getElementById('situacao');
+        
+        if (dataDevolucao) {
+            situacao.value = 'finalizado';
+            bloquearCampos();
+        }
+    }
+
+    function bloquearCampos() {
+        // Desabilita todos os campos do formulário
+        document.getElementById('dataEmprestimo').disabled = true;
+        document.getElementById('dataDevolucao').disabled = true;
+        document.getElementById('situacao').disabled = true;
+        document.getElementById('observacoes').disabled = true;
+        document.getElementById('cbEquipamento').disabled = true;
+        document.getElementById('btnAdicionar').disabled = true;
+
+        // Desabilita os botões de remoção na tabela de equipamentos
+        const botoesRemover = document.querySelectorAll('#tabelaEquipamentos button');
+        botoesRemover.forEach(function (botao) {
+            botao.disabled = true;
+        });
+    }
+
+    function verificarStatusInicial() {
+        const situacao = document.getElementById('situacao').value;
+
+        if (situacao === 'finalizado') {
+            bloquearCampos();
+        }
+    }
+
+    // Chame a função verificarStatusInicial ao abrir o modal
+    document.getElementById('emprestimo_editor').addEventListener('shown.bs.modal', function() {
+        verificarStatusInicial();
+    });
+
     document.getElementById('btnAdicionar').addEventListener('click', function() {
     const cbEquipamento = document.getElementById('cbEquipamento');
     const equipamentoId = cbEquipamento.value;
