@@ -126,7 +126,7 @@
             <form id="form_usuario">
                 <div class="modal-header">
                     <h4 class="modal-title" id="modalLabel">Usuário</h4>
-                    <button onclick="window.location.href='sistema.php?tela=usuarios'" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button onclick="window.location.reload()" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <input type="hidden" id="txt_id" value="NOVO">

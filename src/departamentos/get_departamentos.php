@@ -1,7 +1,13 @@
 <?php
-if ($_SERVER['REQUEST_METHOD'] == 'POST') 
-{
     $id = isset($_POST['id']) ? $_POST['id'] : '';
+    if(empty($id))
+    {
+        echo json_encode([
+            'codigo' => 0,
+            'mensagem' => 'ID obrigatório'
+        ]);
+        exit;
+    }
     // Conectar ao banco de dados (usando sua classe BancodeDados)
     include_once '../class/BancoDeDados.php';
     $banco = new BancodeDados;
@@ -27,4 +33,3 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
     {
         echo json_encode(['erro' => $erro->getMessage()]);
     }
-}

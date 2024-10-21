@@ -30,6 +30,7 @@
                         <th scope="col">CPF/CNPJ</th>
                         <th scope="col">RG</th>
                         <th scope="col">Telefone</th>
+                        <th scope="col">Departamento</th>
                         <th scope="col">Ações</th>
                     </tr>
                 </thead>
@@ -39,9 +40,14 @@
                     {
                         include_once 'src/class/BancodeDados.php';
                         $banco = new BancodeDados;
-                        $sql = 'SELECT * FROM colaboradores WHERE ativo = 1';
+                        $sql = 'SELECT *
+                                     , COALESCE(departamentos.nome_departamento, "Sem Departamento") AS nome_departamento
+                                FROM colaboradores
+                                LEFT JOIN departamentos ON colaboradores.id_departamento = departamentos.id_departamento 
+                                WHERE colaboradores.ativo = 1';
                         $dados = $banco->Consultar($sql, [], true);
-                        if ($dados) {
+                        if ($dados) 
+                        {
                             foreach ($dados as $linha) 
                             {
                                 $caminho_imagem = 'src/colaboradores/upload/' . $linha['imagem_colaborador'];
@@ -55,6 +61,7 @@
                                     <td>{$linha['cpf_cnpj']}</td>
                                     <td>{$linha['rg']}</td>
                                     <td>{$linha['telefone']}</td>
+                                    <td>{$linha['nome_departamento']}</td>
                                     <td>
                                         " . ($imagem_existe ? "<a href='$caminho_imagem' target='_blank'><i class='bi bi-image'></i></a>" : "<i class='bi bi-image' style='color: gray;'></i>") . "
                                         <a href='#' onclick='AlterarColaborador({$linha['id_colaborador']})'><i class='bi bi-pencil-square'></i></a>
@@ -65,9 +72,10 @@
                         } 
                         else 
                         {
-                            echo "<tr><td colspan='7' class='text-center'>Nenhum colaborador cadastrado</td></tr>";
+                            echo "<tr><td colspan='8' class='text-center'>Nenhum colaborador cadastrado</td></tr>";
                         }
-                    } catch (PDOException $erro) {
+                    } 
+                    catch (PDOException $erro) {
                         $msg = $erro->getMessage();
                         echo "<script>alert(\"$msg\");</script>";
                     }
@@ -88,6 +96,7 @@
                         <th scope="col">CPF/CNPJ</th>
                         <th scope="col">RG</th>
                         <th scope="col">Telefone</th>
+                        <th scope="col">Departamento</th>
                         <th scope="col">Ações</th>
                     </tr>
                 </thead>
@@ -97,10 +106,16 @@
                     {
                         include_once 'src/class/BancodeDados.php';
                         $banco = new BancodeDados;
-                        $sql = 'SELECT * FROM colaboradores WHERE ativo = 0';
+                        $sql = 'SELECT *
+                                     , COALESCE(departamentos.nome_departamento, "Sem Departamento") AS nome_departamento
+                                FROM colaboradores
+                                LEFT JOIN departamentos ON colaboradores.id_departamento = departamentos.id_departamento 
+                                WHERE colaboradores.ativo = 0';
                         $dados = $banco->Consultar($sql, [], true);
-                        if ($dados) {
-                            foreach ($dados as $linha) {
+                        if ($dados) 
+                        {
+                            foreach ($dados as $linha) 
+                            {
                                 $data_nascimento = DateTime::createFromFormat('Y-m-d', $linha['data_nascimento'])->format('d/m/y');
                                 echo 
                                 "<tr class='text-center'>
@@ -110,6 +125,7 @@
                                     <td>{$linha['cpf_cnpj']}</td>
                                     <td>{$linha['rg']}</td>
                                     <td>{$linha['telefone']}</td>
+                                    <td>{$linha['nome_departamento']}</td>
                                     <td>
                                         <a href='#' onclick='ReativarColaborador({$linha['id_colaborador']})'>Reativar</a>
                                     </td>
@@ -118,9 +134,10 @@
                         } 
                         else 
                         {
-                            echo "<tr><td colspan='7' class='text-center'>Nenhum colaborador inativado</td></tr>";
+                            echo "<tr><td colspan='8' class='text-center'>Nenhum colaborador inativado</td></tr>";
                         }
-                    } catch (PDOException $erro) 
+                    } 
+                    catch (PDOException $erro) 
                     {
                         $msg = $erro->getMessage();
                         echo "<script>alert(\"$msg\");</script>";
@@ -146,8 +163,8 @@
         <div class="modal-content">
             <form id="form_colaborador" enctype="multipart/form-data">
                 <div class="modal-header">
-                    <h4 class="modal-title" id="modalLabel">Cadastrar Colaborador</h4>
-                    <button onclick="window.location.href='sistema.php?tela=colaboradores'" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <h4 class="modal-title" id="modalLabel">Colaborador</h4>
+                    <button onclick="window.location.reload()" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <ul class="nav nav-tabs" id="colaboradoresTab" role="tablist">
                     <li class="nav-item" role="presentation">
@@ -164,7 +181,7 @@
                         <div class="tab-pane fade show active" id="dados" role="tabpanel" aria-labelledby="dados-tab">
                             <div class="form-group">
                                 <label for="txt_nome">Nome</label>
-                                <input type="text" class="form-control" name="txt_nome" id="txt_nome" required>
+                                <input type="text" class="form-control" name="txt_nome" id="txt_nome" required maxlength="255">
                             </div>
                             <div class="form-group">
                                 <label for="txt_data_nasc">Data Nascimento</label>
@@ -176,7 +193,7 @@
                             </div>
                             <div class="form-group">
                                 <label for="txt_rg">RG</label>
-                                <input type="text" class="form-control" name="txt_rg" id="txt_rg" required minlength="7" maxlength="9">
+                                <input type="text" class="form-control" name="txt_rg" id="txt_rg" minlength="7" maxlength="9">
                             </div>
                             <div class="row">
                                 <div class="col-md-6">
@@ -203,19 +220,23 @@
                                 <label for="file_imagem">Foto do Colaborador</label>
                                 <input type="file" class="form-control" name="file_imagem" id="file_imagem">
                             </div>
+                            <div class="form-group" id="imagemContainer">
+                                <img id="caminho_imagem" class="img-thumbnail" height="300">
+                                <button class="btn btn-danger" id="btnDesvincular" onclick="DesvincularImagem()">Desvincular Imagem</button>
+                            </div>
                         </div>
                         <!-- Aba de Endereço -->
                         <div class="tab-pane fade" id="endereco" role="tabpanel" aria-labelledby="endereco-tab">
                             <div class="form-group">
                                 <label for="txt_cep" class="form-label">CEP</label>
                                 <div class="input-group">
-                                    <input type="text" class="form-control" id="txt_cep" maxlength="9">
-                                    <button type="button" class="btn btn-primary" onclick="consultarCep()">Buscar</button>
+                                    <input type="text" class="form-control" id="txt_cep" maxlength="9" minlength="8">
+                                    <button type="button" class="btn btn-primary" onclick="ConsultarCep()">Buscar</button>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label for="list_uf" class="form-label">UF</label>
-                                <select class="form-select" id="list_uf" onchange="carregarCidades(this.value)">
+                                <select class="form-select" id="list_uf" onchange="CarregarCidades(this.value)">
                                     <option value="">Escolha...</option>
                                     <?php
                                     $ufs = 
@@ -392,7 +413,6 @@
                 },
                 error: function(erro) 
                 {
-                    console.log(erro);
                     alert('Ocorreu um erro na requisição: ' + erro.responseText);
                 }
             });
@@ -418,45 +438,62 @@
             },
             error: function(erro) 
             {
-                console.log(erro); 
+                alert('Ocorreu um erro na requisição: ' + erro.responseText);
+            }   
+        });
+    }
+    function AlterarColaborador(id)
+    {
+        $.ajax({    
+            type: 'post',
+            url: './src/colaboradores/get_colaborador.php',
+            data: { 'id': id },
+            success: function(retorno) {
+                var colaborador = JSON.parse(retorno);
+                document.getElementById('txt_id').value = colaborador.id;
+                document.getElementById('txt_nome').value = colaborador.nome;
+                document.getElementById('txt_data_nasc').value = colaborador.data_nascimento;
+                document.getElementById('txt_cpf_cnpj').value = colaborador.cpf_cnpj;
+                document.getElementById('txt_rg').value = colaborador.rg;
+                document.getElementById('txt_telefone').value = colaborador.telefone;
+                document.getElementById('opt_departamento').value = colaborador.departamento;
+                document.getElementById('txt_cep').value = colaborador.cep;
+                document.getElementById('txt_rua').value = colaborador.rua;
+                document.getElementById('txt_bairro').value = colaborador.bairro;
+                document.getElementById('list_uf').value = colaborador.uf;
+                document.getElementById('list_uf').dispatchEvent(new Event('change')) 
+                document.getElementById('txt_numero').value = colaborador.numero;
+                document.getElementById('txt_complemento').value = colaborador.complemento;
+                setTimeout(function(){
+                    document.getElementById('list_cidade').value = colaborador.cidade;
+                }, 1000);
+                // Exibir o modal de edição
+                const caminhoImagem = document.getElementById('caminho_imagem');
+                const btnDesvincular = document.getElementById('btnDesvincular');
+                caminhoImagem.style.display = 'none'; 
+                btnDesvincular.style.display = 'none';
+                caminhoImagem.src = 'src/colaboradores/upload/' + colaborador.imagem_colaborador;
+                if(colaborador.imagem_colaborador != 'vazio')
+                {
+                    caminhoImagem.style.display = 'block'; // Exibe a imagem
+                    btnDesvincular.style.display = 'block'; // Exibe o botão de desvincular
+                }
+                EditarColaboradorModal();   
+            },
+            error: function(erro) 
+            {
                 alert('Ocorreu um erro na requisição: ' + erro.responseText);
             }
         });
     }
-    function AlterarColaborador(id)
-        {
-            $.ajax({
-                type: 'post',
-                url: './src/colaboradores/get_colaborador.php',
-                data: { 'id': id },
-                success: function(retorno) 
-                {
-                    var colaborador = JSON.parse(retorno);
-                    document.getElementById('txt_id').value = colaborador.id;
-                    document.getElementById('txt_nome').value = colaborador.nome;
-                    document.getElementById('txt_data_nasc').value = colaborador.data_nascimento;
-                    document.getElementById('txt_cpf_cnpj').value = colaborador.cpf_cnpj;
-                    document.getElementById('txt_rg').value = colaborador.rg;
-                    document.getElementById('txt_telefone').value = colaborador.telefone;
-                    document.getElementById('opt_departamento').value = colaborador.departamento;
-                    document.getElementById('txt_cep').value = colaborador.cep;
-                    document.getElementById('txt_rua').value = colaborador.rua;
-                    document.getElementById('txt_bairro').value = colaborador.bairro;
-                    document.getElementById('list_uf').value = colaborador.uf;
-                    document.getElementById('list_cidade').value = colaborador.cidade;
-                    document.getElementById('txt_complemento').value = colaborador.complemento;
-                    document.getElementById('txt_numero').value = colaborador.numero;
-                    EditarColaboradorModal();
-                },
-                error: function(erro) 
-                {
-                    alert('Ocorreu um erro na requisição: ' + erro.responseText);
-                }
-            });
-        }
-    function consultarCep() 
+    function ConsultarCep() 
     {
         var cep = document.getElementById('txt_cep').value;
+        if(cep.length < 8)
+        {
+            alert("Por favor, informe o CEP corretamente!");
+            return false;
+        }
         cep = cep.replace(/[^a-zA-Z0-9]/g, '');
         $.ajax({
             type: 'get',
@@ -466,8 +503,7 @@
                 document.getElementById('txt_rua').value        = retorno.logradouro;
                 document.getElementById('txt_bairro').value     = retorno.bairro;
                 document.getElementById('list_uf').value        = retorno.uf;
-                document.getElementById('list_uf').dispatchEvent(new Event('change'));
-                
+                document.getElementById('list_uf').dispatchEvent(new Event('change'))      
                 // Atrasando a execução do comando
                 setTimeout(function(){
                     document.getElementById('list_cidade').value = retorno.localidade;
@@ -478,7 +514,7 @@
             }
         });
     }
-    function carregarCidades(uf) 
+    function CarregarCidades(uf) 
     {
         $.ajax({
             type: 'get',
@@ -498,4 +534,30 @@
             }
         });
     }
+    function DesvincularImagem()
+        {
+            var id = document.getElementById('txt_id').value;  
+            $.ajax({
+                type: 'post',
+                url: './src/colaboradores/desvincular_imagem.php',
+                data: { 'id': id },
+                success: function(retorno) 
+                {
+                    if (retorno['codigo'] == 2) 
+                    {
+                        alert(retorno['mensagem']);
+                        AlterarColaborador(id);
+                        //window.location = 'sistema.php?tela=equipamentos';
+                    } 
+                    else if(retorno['codigo'] == 0)
+                    {
+                        alert(retorno['mensagem']);
+                    }
+                },
+                error: function(erro) 
+                {
+                    alert('Ocorreu um erro na requisição: ' + erro.responseText);
+                }
+            });
+        }
 </script>

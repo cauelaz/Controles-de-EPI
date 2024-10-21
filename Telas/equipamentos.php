@@ -69,6 +69,7 @@
                                     <td>{$linha['certificado_aprovacao']}</td>
                                     <td>
                                         " . ($imagem_existe ? "<a href='$caminho_imagem' target='_blank'><i class='bi bi-image'></i></a>" : "<i class='bi bi-image' style='color: gray;'></i>") . "
+                                        <a href='#' onclick='GerarCodigoBarras({$linha['id_equipamento']})'><i class='bi bi-upc-scan'></i></a>
                                         <a href='#' onclick='AlterarEquipamento({$linha['id_equipamento']})'><i class='bi bi-pencil-square'></i></a>
                                         <a href='#' onclick='GetAjustarEstoque({$linha['id_equipamento']})'><i class='bi bi-dropbox'></i></a>  
                                         <a href='#' onclick='ExcluirEquipamento({$linha['id_equipamento']})'><i class='bi bi-trash3-fill'></i></a>
@@ -162,8 +163,8 @@
         <div class="modal-content">
             <form id="form_equipamento" enctype="multipart/form-data">
                 <div class="modal-header">
-                    <h4 class="modal-title" id="modalLabel">Cadastro de Equipamento</h4>
-                    <button onclick="window.location.href='sistema.php?tela=equipamentos'" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <h4 class="modal-title" id="modalLabel">Equipamento</h4>
+                    <button onclick="window.location.reload()" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <input type="hidden" id="txt_id" value="NOVO">
@@ -193,6 +194,10 @@
                         <label for="file_imagem">Imagem do Equipamento</label>
                         <input type="file" class="form-control" id="file_imagem" value="S/IMG">
                     </div>
+                    <div class="form-group" id="imagemContainer">
+                        <img id="caminho_imagem" class="img-thumbnail" height="300">
+                        <button class="btn btn-danger" id="btnDesvincular" onclick="DesvincularImagem()">Desvincular Imagem</button>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button onclick="CadastrarEquipamento()" class="btn btn-success">Salvar</button>
@@ -208,7 +213,7 @@
             <form id="form_ajuste_equipamento" enctype="multipart/form-data">
                 <div class="modal-header">
                     <h4 class="modal-title" id="modalLabel">Ajuste de Estoque</h4>
-                    <button onclick="window.location.href='sistema.php?tela=equipamentos'" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button onclick="window.location.reload()" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <input type="hidden" name="txt_id_estoque" id="txt_id_estoque" value="NOVO">
@@ -242,6 +247,18 @@
         </div>
     </div>
 </div>
+<!-- Modal para código de barras -->
+<div id="codigo_barras" class="modal fade" data-bs-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header"> 
+                <h4 class="modal-title" id="modalLabel">Código de barras</h4>
+                <button onclick="window.location.reload()" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <img src="" id="img_barras">
+        </div>
+    </div>
+</div>
     <script>
         function abrirModal() 
         {
@@ -257,6 +274,11 @@
             var modal = new bootstrap.Modal(document.getElementById('ajuste_estoque'));
             modal.show();
         }
+        function ModalCodigoBarras()
+        {
+            var modal = new bootstrap.Modal(document.getElementById('codigo_barras'));
+            modal.show();
+        }
         $('#form_equipamento').submit(function() 
         {
             return false; // Evita o envio padrão do formulário
@@ -265,7 +287,6 @@
         {
             return false; // Evita o envio padrão do formulário
         });
-        var emprestados;
         function CadastrarEquipamento() 
         {
             var id              = document.getElementById('txt_id').value;
@@ -282,7 +303,8 @@
                 formData.append('estoque', estoque);
                 formData.append('cert_aprovacao', cert_aprovacao);
                 // Adicionar o arquivo somente se foi selecionado
-                if (inputFile) {
+                if (inputFile) 
+                {
                     formData.append('file_imagem', inputFile);
                 }
                 // Envio da requisição AJAX com FormData
@@ -360,13 +382,14 @@
                 {
                     alert(retorno['mensagem']);
                 }
-            },
-            error: function(erro) 
-            {
-                alert('Ocorreu um erro na requisição: ' + erro.responseText);
-            }
+                },
+                error: function(erro) 
+                {
+                    alert('Ocorreu um erro na requisição: ' + erro.responseText);
+                }
             });
         }  
+        var emprestados;
         function GetAjustarEstoque(id) 
         {
             // Envia o ID do equipamento para o backend
@@ -383,7 +406,6 @@
                     document.getElementById('txt_estoque_ajuste').value = equipamento.qtd_estoque;
                     document.getElementById('txt_estoque_disponivel_ajuste').value = equipamento.qtd_disponivel;
                     emprestados = equipamento.emprestados;
-                    // Abrir o modal usando Bootstrap
                     AjustarEstoqueModal();
                 },
                 error: function(erro) 
@@ -392,15 +414,13 @@
                 }
             });
         }
-        function AlterarEquipamento(id)
+        function AlterarEquipamento(id) 
         {
-            // Envia o ID do equipamento para o backend
             $.ajax({
                 type: 'post',
                 url: './src/equipamentos/get_equipamentos.php', // Endpoint que retorna os dados do equipamento
                 data: { 'id': id },
-                success: function(retorno) 
-                {
+                success: function(retorno) {
                     var equipamento = JSON.parse(retorno); // Converter o retorno para objeto JavaScript
                     // Preencher os campos do modal com os dados recebidos
                     document.getElementById('txt_id').value = equipamento.id;
@@ -408,13 +428,23 @@
                     document.getElementById('txt_estoque').value = equipamento.qtd_estoque;
                     document.getElementById('txt_estoque_disponivel').value = equipamento.qtd_disponivel;
                     document.getElementById('txt_cert_aprovacao').value = equipamento.certificado_aprovacao;
-                    // Abrir o modal usando Bootstrap
-                    EditarEquipamentoModal()
-                },
-                error: function(erro) 
-                {
-                    alert('Ocorreu um erro na requisição: ' + erro.responseText);
-                }
+                    document.getElementById('txt_estoque').readOnly = true;
+                    // Atualiza o src da imagem
+                    const caminhoImagem = document.getElementById('caminho_imagem');
+                    const btnDesvincular = document.getElementById('btnDesvincular');
+                    caminhoImagem.style.display = 'none'; 
+                    btnDesvincular.style.display = 'none';
+                    caminhoImagem.src = 'src/equipamentos/upload/' + equipamento.imagem_equipamento;
+                    if(equipamento.imagem_equipamento != 'vazio')
+                    {
+                        caminhoImagem.style.display = 'block'; // Exibe a imagem
+                        btnDesvincular.style.display = 'block'; // Exibe o botão de desvincular
+                    }
+                    EditarEquipamentoModal();
+                    },
+                    error: function(erro) {
+                        alert('Ocorreu um erro na requisição: ' + erro.responseText);
+                    }
             });
         }
         function AjustarEstoque()
@@ -456,4 +486,36 @@
                 });
             }
         }   
+        function GerarCodigoBarras(id) 
+        {
+            var barcodeUrl = 'https://www.barcodesinc.com/generator/image.php?code=' + id + '&style=197&type=C128B&width=300&height=100&xres=1&font=3';
+            $('#img_barras').attr('src', barcodeUrl);
+            ModalCodigoBarras();
+        }
+        function DesvincularImagem()
+        {
+            var id = document.getElementById('txt_id').value;  
+            $.ajax({
+                type: 'post',
+                url: './src/equipamentos/desvincular_imagem.php',
+                data: { 'id': id },
+                success: function(retorno) 
+                {
+                    if (retorno['codigo'] == 2) 
+                    {
+                        alert(retorno['mensagem']);
+                        AlterarEquipamento(id);
+                        //window.location = 'sistema.php?tela=equipamentos';
+                    } 
+                    else if(retorno['codigo'] == 0)
+                    {
+                        alert(retorno['mensagem']);
+                    }
+                },
+                error: function(erro) 
+                {
+                    alert('Ocorreu um erro na requisição: ' + erro.responseText);
+                }
+            });
+        }
     </script>

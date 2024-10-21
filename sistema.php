@@ -8,15 +8,19 @@
         header('LOCATION: index.php');
         exit;
     }
+    if(!isset($_COOKIE['id_user'])) //Caso não existir o cookie com o id do usuário, deleta a sessão
+    {
+        session_destroy();
+    }
     include_once 'src/class/BancodeDados.php';
     $banco = new BancodeDados;
-    $sql = 'SELECT COALESCE(count(id_emprestimo), "0") as qtd_emprestimos
-         , colaboradores.nome_colaborador as nome_colaborador
-         , COALESCE(departamentos.nome_departamento, "Nenhum empréstimo feito") as nome_departamento
-         from equipamentos_emprestimo
-         join emprestimos on emprestimos.id_emprestimo = equipamentos_emprestimo.emprestimo
-         join colaboradores on colaboradores.id_colaborador = emprestimos.colaborador
-         left join departamentos on departamentos.id_departamento = colaboradores.id_departamento';
+    $sql = 'SELECT COALESCE(count(id_emprestimo), "0") AS qtd_emprestimos
+         , colaboradores.nome_colaborador AS nome_colaborador
+         , COALESCE(departamentos.nome_departamento, "Nenhum empréstimo feito") AS nome_departamento
+         FROM equipamentos_emprestimo
+         JOIN emprestimos ON emprestimos.id_emprestimo = equipamentos_emprestimo.emprestimo
+         JOIN colaboradores ON colaboradores.id_colaborador = emprestimos.colaborador
+         LEFT JOIN departamentos ON departamentos.id_departamento = colaboradores.id_departamento';
     $equipamentos = $banco->Consultar($sql, [], true);
     $dataPointsPizza_totalemprestimospordepartamento = [];
     foreach ($equipamentos as $equipamento) 
@@ -24,13 +28,13 @@
         $dataPointsPizza_totalemprestimospordepartamento[] = 
         [
             "label" => $equipamento['nome_departamento'], // Nome do departamento como label
-            "y" => $equipamento['qtd_emprestimos']       // Quantidade de empréstimos como valor
+            "y"     => $equipamento['qtd_emprestimos']       // Quantidade de empréstimos como valor
         ];
     }
-    $sql = 'SELECT COUNT(id_colaborador) as qtd_colaboradores
-                 , COALESCE(departamentos.nome_departamento, "Sem departamento") as nome_departamento
+    $sql = 'SELECT COUNT(id_colaborador) AS qtd_colaboradores
+                 , COALESCE(departamentos.nome_departamento, "Sem departamento") AS nome_departamento
                  FROM colaboradores
-                 LEFT JOIN departamentos on departamentos.id_departamento = colaboradores.id_departamento
+                 LEFT JOIN departamentos ON departamentos.id_departamento = colaboradores.id_departamento
                  WHERE colaboradores.ativo = 1
                  GROUP BY nome_departamento';
     $colaboradores = $banco->Consultar($sql, [], true);
@@ -40,7 +44,7 @@
         $dataPointsPizza_totalcolaboradorespordepartamento[] = 
         [
             "label" => $colaborador['nome_departamento'], // Nome do departamento como label
-            "y" => $colaborador['qtd_colaboradores']      // Quantidade de colaboradores como valor
+            "y"     => $colaborador['qtd_colaboradores']      // Quantidade de colaboradores como valor
         ];
     }
     $sql = 'SELECT equipamentos.descricao
@@ -57,7 +61,7 @@
         $dataPointsPizza_estoquepordepartamento[] = 
         [
             "label" => $estoque['descricao'], // Nome do departamento como label
-            "y" => $estoque['qtd_disponivel']      // Quantidade de empréstimos como valor
+            "y"     => $estoque['qtd_disponivel']      // Quantidade de empréstimos como valor
         ];
     }
 ?>
@@ -73,7 +77,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="https://cdn.canvasjs.com/canvasjs.min.js"></script>
 </head>
-<body>
+<div>
     <nav class="navbar navbar-light bg-light sticky-top shadow">
         <div class="container-fluid">
             <a class="navbar navbar-expand-lg navbar-light bg-light" href="sistema.php">
@@ -117,7 +121,7 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <!-- Usuário logado à direita -->
-            <div class="d-none d-md-flex align-items-center ms-auto">
+            <div class="d-none d-md-flex align-items-center ms-auto flex-column">
                 <p class="text-dark mb-0">
                     Usuário logado: 
                     <strong>
@@ -131,68 +135,13 @@
                             {
                                 echo "Convidado";
                             }
-                        ?>
+                        ?>  
                     </strong>
                 </p>
+                <div id="temp_session" class="text-dark"></div> <!-- Mostra o tempo restante da sessão -->
             </div>
         </div>
     </nav>
-    <!-- Offcanvas para dispositivos móveis -->
-    <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasMenu">
-    <div class="offcanvas-header">
-        <h5 class="offcanvas-title">Menu</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-    </div>
-    <div class="offcanvas-body">
-        <ul class="nav flex-column">
-            <li class="nav-item">
-                <a class="nav-link" href="sistema.php?tela=equipamentos">
-                    <i class="bi bi-hammer"></i> Equipamentos (EPIs)
-                </a>
-            </li>   
-            <li class="nav-item">
-                <a class="nav-link" href="sistema.php?tela=colaboradores">
-                    <i class="bi bi-people"></i> Colaboradores
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="sistema.php?tela=departamentos">
-                    <i class="bi bi-building"></i> Departamentos
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="sistema.php?tela=usuarios">
-                    <i class="bi bi-person"></i> Usuários
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="sistema.php?tela=emprestimos">
-                    <i class="bi bi-arrow-left-right"></i> Empréstimos
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#" onclick="sair()">
-                    <i class="bi bi-box-arrow-right"></i> Sair
-                </a>
-            </li>
-        </ul>
-        <!-- Exibir o nome do usuário logado no offcanvas -->
-        <div class="d-flex align-items-center justify-content-between mb-3 p-2 border-bottom">
-            <p class="text-dark mb-0">
-                Usuário logado:
-                <strong>
-                    <?php
-                        // Verifica se o nome do usuário está na sessão
-                        if (isset($_SESSION['nome_usuario']) && !empty($_SESSION['nome_usuario'])) {
-                            echo htmlspecialchars($_SESSION['nome_usuario']); // Proteção contra XSS
-                        } else {
-                            echo "Convidado";
-                        }
-                    ?>
-                </strong>
-            </p>
-        </div>
-    </div>
     </div>
     <!-- Offcanvas para o menu lateral em dispositivos móveis -->
     <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasMenu">
@@ -228,28 +177,28 @@
                         <i class="bi bi-box-arrow-right"></i> Sair
                     </a>
                 </li>
-                <!-- Exibir o nome do usuário logado de forma destacada -->
-                <div class="d-flex align-items-center justify-content-between mb-3 p-2 border-bottom">
-                    <p class="text-dark mb-0">
-                        Usuário logado:
-                        <strong>
-                            <?php
-                                // Verifica se o nome do usuário está na sessão
-                                if (isset($_SESSION['nome_usuario']) && !empty($_SESSION['nome_usuario'])) {
-                                    echo htmlspecialchars($_SESSION['nome_usuario']); // Proteção contra XSS
-                                } else {
-                                    echo "Convidado";
-                                }
-                            ?>
-                        </strong>
-                    </p>
-                </div>
+               <!-- Exibir o nome do usuário logado e o tempo de sessão -->
+            <div class="d-flex flex-column align-items-start justify-content-between mb-3 p-2 border-bottom">
+                <p class="text-dark mb-0">
+                    Usuário logado:
+                    <strong>
+                        <?php
+                            if (isset($_SESSION['nome_usuario']) && !empty($_SESSION['nome_usuario'])) {
+                                echo htmlspecialchars($_SESSION['nome_usuario']);
+                            } else {
+                                echo "Convidado";
+                            }
+                        ?>
+                    </strong>
+                </p>
+                <div id="temp_session_mobile" class="text-dark mt-1"></div> <!-- Mostra o tempo restante da sessão no offcanvas -->
+            </div>
             </ul>
         </div>
     </div>
     <div class="container-fluid">
         <div class="row">
-            <main>
+            <main style="overflow-x: hidden">
                 <!-- Script para importar as telas do sistema -->
                 <?php
                     $tela = isset($_GET['tela']) ? $_GET['tela'] : '';
@@ -288,7 +237,8 @@
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        function sair() {
+        function sair() 
+        {
             var confirmou = confirm('Deseja realmente sair do sistema?');
             if (confirmou) 
             {
@@ -351,6 +301,51 @@
             }]
             });
             chartgraphicpizzaCOLABORADORES.render();
+        }
+        function getCookie(name) 
+        {
+            let value = `; ${document.cookie}`;
+            let parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+        }
+        // Pega o timestamp do login
+        let loginTime = getCookie('login_time');
+        if (loginTime) 
+        {
+            // Converte o valor do cookie de string para número e de segundos para milissegundos
+            loginTime = parseInt(loginTime) * 1000; 
+            // Define o tempo máximo de sessão (30 minutos em milissegundos)
+            let sessionDuration = 30 * 60 * 1000; 
+            function updateTimer() 
+            {
+                let now = new Date().getTime();
+                let elapsedTime = now - loginTime; // Tempo decorrido desde o login
+                let timeRemaining = sessionDuration - elapsedTime; // Tempo restante
+                if (timeRemaining > 0) 
+                {
+                    let minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+                    let seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+                    let sessionText = `Tempo restante da sessão: ${minutes}m ${seconds}s`;
+                    // Atualiza tanto no layout principal quanto no offcanvas
+                    document.getElementById("temp_session").innerHTML = sessionText;
+                    document.getElementById("temp_session_mobile").innerHTML = sessionText;
+                } 
+                else 
+                {
+                    document.getElementById("temp_session").innerHTML = "Sessão expirada.";
+                    document.getElementById("temp_session_mobile").innerHTML = "Sessão expirada.";
+                    alert("Sessão expirada. Por favor, realize o login novamente.");
+                    window.location = 'index.php';
+                }
+            }
+            // Atualiza o timer a cada segundo
+            setInterval(updateTimer, 1000);
+        } 
+        else 
+        {
+            document.getElementById("temp_session").innerHTML = "Nenhum cookie de login encontrado.";
+            document.getElementById("temp_session_mobile").innerHTML = "Nenhum cookie de login encontrado.";
+            window.location = 'index.php';
         }
     </script>
 </body>
