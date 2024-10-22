@@ -41,18 +41,27 @@
                         include_once 'src/class/BancodeDados.php';
                         $banco = new BancodeDados;
                         $sql = 'SELECT *
+                                     , COALESCE(colaboradores.data_nascimento, "Sem Data de Nascimento") AS data_nascimento_format
                                      , COALESCE(departamentos.nome_departamento, "Sem Departamento") AS nome_departamento
                                 FROM colaboradores
                                 LEFT JOIN departamentos ON colaboradores.id_departamento = departamentos.id_departamento 
                                 WHERE colaboradores.ativo = 1';
                         $dados = $banco->Consultar($sql, [], true);
-                        if ($dados) 
+                        if ($dados)     
                         {
                             foreach ($dados as $linha) 
                             {
                                 $caminho_imagem = 'src/colaboradores/upload/' . $linha['imagem_colaborador'];
                                 $imagem_existe = file_exists($caminho_imagem);
-                                $data_nascimento = DateTime::createFromFormat('Y-m-d', $linha['data_nascimento'])->format('d/m/y');
+                                if($linha['data_nascimento_format'] != "Sem Data de Nascimento")
+                                {
+                                     $data_nascimento = DateTime::createFromFormat('Y-m-d', $linha['data_nascimento'])->format('d/m/y');
+                                }
+                                else
+                                {
+                                    $data_nascimento = "Sem Data de Nascimento";
+                                }
+                               
                                 echo 
                                 "<tr class='text-center'>
                                     <td>{$linha['id_colaborador']}</td>
@@ -218,7 +227,8 @@
                             </div>  
                             <div class="form-group">
                                 <label for="file_imagem">Foto do Colaborador</label>
-                                <input type="file" class="form-control" name="file_imagem" id="file_imagem">
+                                <input type="file" class="form-control" id="file_imagem" value="S/IMG">
+                                <button class="btn btn-danger" id="btnLimparImagem" onclick="LimparImagem()">Limpar Imagem</button>
                             </div>
                             <div class="form-group" id="imagemContainer">
                                 <img id="caminho_imagem" class="img-thumbnail" height="300">
@@ -376,6 +386,7 @@
             {
                 if (retorno['codigo'] == 2) 
                 {
+                    alert(retorno['mensagem']);
                     window.location = 'sistema.php?tela=colaboradores';
                 } 
                 else if(retorno['codigo'] == 3) 
@@ -443,7 +454,7 @@
         });
     }
     function AlterarColaborador(id)
-    {
+    {   
         $.ajax({    
             type: 'post',
             url: './src/colaboradores/get_colaborador.php',
@@ -535,29 +546,56 @@
         });
     }
     function DesvincularImagem()
-        {
-            var id = document.getElementById('txt_id').value;  
-            $.ajax({
-                type: 'post',
-                url: './src/colaboradores/desvincular_imagem.php',
-                data: { 'id': id },
-                success: function(retorno) 
+    {
+        var id = document.getElementById('txt_id').value;  
+        $.ajax({
+            type: 'post',
+            url: './src/colaboradores/desvincular_imagem.php',
+            data: { 'id': id },
+            success: function(retorno) 
+            {
+                if (retorno['codigo'] == 2) 
                 {
-                    if (retorno['codigo'] == 2) 
-                    {
-                        alert(retorno['mensagem']);
-                        AlterarColaborador(id);
-                        //window.location = 'sistema.php?tela=equipamentos';
-                    } 
-                    else if(retorno['codigo'] == 0)
-                    {
-                        alert(retorno['mensagem']);
-                    }
-                },
-                error: function(erro) 
+                    alert(retorno['mensagem']);
+                    AlterarColaborador(id);
+                    //window.location = 'sistema.php?tela=equipamentos';
+                } 
+                else if(retorno['codigo'] == 0)
                 {
-                    alert('Ocorreu um erro na requisição: ' + erro.responseText);
+                    alert(retorno['mensagem']);
                 }
-            });
-        }
+            },
+            error: function(erro) 
+            {
+                alert('Ocorreu um erro na requisição: ' + erro.responseText);
+            }
+        });
+    }
+    function LimparImagem()
+    {    
+        const btn_limpar = document.getElementById('btnLimparImagem');
+        const input_imagem = document.getElementById('file_imagem');
+        // Esconde o botão de limpar
+        btn_limpar.style.display = 'none';
+        // Limpa a seleção de arquivo
+        input_imagem.value = ''; // Define o valor como vazio para limpar a seleção
+    }
+    const btn_limpar = document.getElementById('btnLimparImagem');
+    const input_imagem = document.getElementById('file_imagem');
+    const btn_desvincular = document.getElementById('btnDesvincular');
+    // Inicialmente oculta o botão
+    btn_desvincular.style.display = 'none';
+    btn_limpar.style.display = 'none';
+    // Adiciona um evento para quando o arquivo é selecionado
+    input_imagem.addEventListener('change', function() {
+    var img_selecionada = input_imagem.files[0];
+    if (img_selecionada) 
+    {
+        btn_limpar.style.display = 'block'; // Mostra o botão se uma imagem foi selecionada
+    } 
+    else 
+    {
+        btn_limpar.style.display = 'none'; // Esconde o botão se não houver imagem
+    }
+    });
 </script>

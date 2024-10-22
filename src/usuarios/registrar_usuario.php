@@ -15,6 +15,17 @@
     {
         include '../class/BancodeDados.php';
         $banco = new BancodeDados;
+        $sql = 'SELECT COUNT(id_usuario) AS total FROM usuarios WHERE nome_usuario = ?';
+        $parametros = [ $formulario['nome'] ];
+        $total = $banco -> Consultar($sql,$parametros,true);
+        if($total[0]['total'] > 0)
+        {
+            echo json_encode([
+                'codigo' => 0,
+                'mensagem' => 'Usuário ja existe!'
+            ]);
+            exit;
+        }
         $sql = 'INSERT INTO  usuarios (nome_usuario, senha, administrador, ativo) VALUES (?,?,?,1)';
         $parametros =
         [

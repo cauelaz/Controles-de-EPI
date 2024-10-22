@@ -25,7 +25,7 @@
                 <input type="password" class="form-control" id="txt_senha" placeholder="Senha">
                 <label for="txt_senha">Senha</label>
             </div>
-            <div class="form-check text-end my-1">        
+            <div class="form-check text-start">        
                 <a href="registrar.php" class="btn btn-link text-decoration-none">Cadastre-se</a>
             </div>
             <button class="btn btn-primary w-100 py-2 mt-1" onclick="login()">Entrar</button>

@@ -167,6 +167,10 @@
                     $formulario['departamento'] ?: null,
                     $formulario['id']
                 ];
+                echo json_encode([
+                    'codigo' => 2,
+                    'mensagem' => 'Colaborador atualizado com sucesso!'
+                ]);
             }
             // Atualizar ou inserir endereço
             $sql_endereco = 'SELECT * FROM endereco_colaborador WHERE fk_id_colaborador = ?';

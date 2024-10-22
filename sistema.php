@@ -198,7 +198,7 @@
     </div>
     <div class="container-fluid">
         <div class="row">
-            <main style="overflow-x: hidden">
+            <main>
                 <!-- Script para importar as telas do sistema -->
                 <?php
                     $tela = isset($_GET['tela']) ? $_GET['tela'] : '';
@@ -224,10 +224,10 @@
                             '<div class="d-flex justify-content-center flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                                 <h1 class="h2">Bem-vindo <strong>' . $_SESSION['nome_usuario'] . '</strong>!</h1>
                             </div>
-                                <div class="col-md-6" id="chartContainerGraphicDISPONIVELporDEPARTAMENTO" style="height: 370px;"></div>
+                                <div class="col-md-5 align-items-center" id="chartContainerGraphicDISPONIVELporDEPARTAMENTO" style="height: 370px;"></div>
                             <div class="row">
-                                <div class="col-md-6" id="chartContainerGraphicPizzaEMPRESTIMOS" style="height: 370px;"></div>
-                                <div class="col-md-6" id="chartContainerGraphicPizzaCOLABORADORES" style="height: 370px;"></div>
+                                <div class="col-md-5 align-items-center" id="chartContainerGraphicPizzaEMPRESTIMOS" style="height: 370px;"></div>
+                                <div class="col-md-5 align-items-center" id="chartContainerGraphicPizzaCOLABORADORES" style="height: 370px;"></div>
                             </div>';
                         break;
                     }

@@ -68,7 +68,7 @@
                                     <td>{$linha['qtd_disponivel']}</td>
                                     <td>{$linha['certificado_aprovacao']}</td>
                                     <td>
-                                        " . ($imagem_existe ? "<a href='$caminho_imagem' target='_blank'><i class='bi bi-image'></i></a>" : "<i class='bi bi-image' style='color: gray;'></i>") . "
+                                        " . ($imagem_existe ? "<a href='#' onclick='AbrirImagem(\"{$caminho_imagem}\", \"{$linha['id_equipamento']}\")'><i class='bi bi-image'></i></a>" : "<i class='bi bi-image' style='color: gray;'></i>") . "
                                         <a href='#' onclick='GerarCodigoBarras({$linha['id_equipamento']})'><i class='bi bi-upc-scan'></i></a>
                                         <a href='#' onclick='AlterarEquipamento({$linha['id_equipamento']})'><i class='bi bi-pencil-square'></i></a>
                                         <a href='#' onclick='GetAjustarEstoque({$linha['id_equipamento']})'><i class='bi bi-dropbox'></i></a>  
@@ -193,6 +193,7 @@
                     <div class="form-group">
                         <label for="file_imagem">Imagem do Equipamento</label>
                         <input type="file" class="form-control" id="file_imagem" value="S/IMG">
+                        <button class="btn btn-danger" id="btnLimparImagem" onclick="LimparImagem()">Limpar Imagem</button>
                     </div>
                     <div class="form-group" id="imagemContainer">
                         <img id="caminho_imagem" class="img-thumbnail" height="300">
@@ -259,6 +260,20 @@
         </div>
     </div>
 </div>
+<!-- Modal para imagem de equipamento -->
+<div id="imagem_equipamento" class="modal fade" data-bs-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="modalLabel">Imagem do Equipamento</h4>
+                <button onclick="window.location.reload()" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body"> <!-- Adicionei uma div para o corpo do modal -->
+                <img id="visualiza_imagem" alt="Imagem do Equipamento" class="img-fluid" style="display:block"> <!-- Classe img-fluid para responsividade -->
+            </div>
+        </div>
+    </div>
+</div>
     <script>
         function abrirModal() 
         {
@@ -277,6 +292,11 @@
         function ModalCodigoBarras()
         {
             var modal = new bootstrap.Modal(document.getElementById('codigo_barras'));
+            modal.show();
+        }
+        function ModalImagemEquipamento()
+        {
+            var modal = new bootstrap.Modal(document.getElementById('imagem_equipamento'));
             modal.show();
         }
         $('#form_equipamento').submit(function() 
@@ -346,7 +366,6 @@
                     data: { 'id': id },
                     success: function(retorno) 
                     {
-                        console.log(retorno); // Para verificar o que está retornando
                         if (retorno.codigo == 2) 
                         {
                             alert(retorno['mensagem']);
@@ -432,8 +451,10 @@
                     // Atualiza o src da imagem
                     const caminhoImagem = document.getElementById('caminho_imagem');
                     const btnDesvincular = document.getElementById('btnDesvincular');
+                    const btnLimpar = document.getElementById('btnLimparImagem');
                     caminhoImagem.style.display = 'none'; 
                     btnDesvincular.style.display = 'none';
+                    btnLimpar.style.display = 'none';
                     caminhoImagem.src = 'src/equipamentos/upload/' + equipamento.imagem_equipamento;
                     if(equipamento.imagem_equipamento != 'vazio')
                     {
@@ -517,5 +538,38 @@
                     alert('Ocorreu um erro na requisição: ' + erro.responseText);
                 }
             });
+        }
+        function LimparImagem()
+        {    
+            const btn_limpar = document.getElementById('btnLimparImagem');
+            const input_imagem = document.getElementById('file_imagem');
+            // Esconde o botão de limpar
+            btn_limpar.style.display = 'none';
+            // Limpa a seleção de arquivo
+            input_imagem.value = ''; // Define o valor como vazio para limpar a seleção
+        }
+        const btn_limpar = document.getElementById('btnLimparImagem');
+        const input_imagem = document.getElementById('file_imagem');
+        const btn_desvincular = document.getElementById('btnDesvincular');
+        // Inicialmente oculta o botãod
+        btn_desvincular.style.display = 'none';
+        btn_limpar.style.display = 'none';
+        // Adiciona um evento para quando o arquivo é selecionado
+        input_imagem.addEventListener('change', function() {
+        var img_selecionada = input_imagem.files[0];
+        if (img_selecionada) 
+        {
+            btn_limpar.style.display = 'block'; // Mostra o botão se uma imagem foi selecionada
+        } 
+        else 
+        {
+            btn_limpar.style.display = 'none'; // Esconde o botão se não houver imagem
+        }
+        });
+        function AbrirImagem(caminho_imagem, id)
+        {
+            const caminhoImagem = document.getElementById('visualiza_imagem');
+            caminhoImagem.src = caminho_imagem; // Define o src da imagem corretamente
+            ModalImagemEquipamento(); // Chama a função para mostrar o modal 
         }
     </script>

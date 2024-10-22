@@ -14,11 +14,11 @@
         <form id="registrarform">
             <h1 class="h3 mb-3 fw-normal text-center">Registro de Usuário</h1>
             <div class="form-floating">
-                <input type="text" class="form-control" id="txt_usuario" required>
+                <input type="text" class="form-control" id="txt_usuario" required placeholder="Usuário">
                 <label for="txt_usuario">Usuário</label>
             </div>
             <div class="form-floating">
-                <input type="password" class="form-control" id="txt_senha" required>
+                <input type="password" class="form-control" id="txt_senha" required placeholder="Senha">
                 <label for="txt_senha">Senha</label>
             </div>
             <div class="form-floating">
@@ -63,16 +63,21 @@
                     if (retorno['codigo'] == 2) {
                         alert(retorno['mensagem']);
                         window.location = 'index.php';
-                    } else {
+                    } 
+                    else if (retorno['codigo'] == 0)
+                    {
                         alert(retorno['mensagem']);
                         window.location = 'registrar.php';
                     }
                 },
-                error: function(erro) {
+                error: function(erro) 
+                {
                     alert('Ocorreu um erro na requisição: ' + erro);
                 }
             });
-        } else {
+        } 
+        else 
+        {
             alert('Por favor, preencha todos os campos!');
         }
     }
