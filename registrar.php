@@ -27,12 +27,11 @@
                 <label for="list_user">Tipo de Usuário</label>
             </div>
             <button class="btn btn-success w-100 py-2" type="button" onclick="Registrar()">Registrar</button>
-            <p class="mt-5 mb-3 text-body-secondary text-center">&copy; 2024</p>
+            <p class="mt-5 mb-3 text-body-secondary text-center">EPIs Control &copy; 2024</p>
         </form>
     </main>
 </body>
 </html>   
-
 <!--Jquery-->
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <!--Bootstrap-->
