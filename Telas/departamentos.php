@@ -155,14 +155,14 @@
     }
     $('#form_departamento').submit(function() 
     {
-        return false; // Evita o envio padrão do formulário
+        return false;
     });
     function CadastrarDepartamento() 
     {
-        var id      = document.getElementById('txt_id').value;
-        var nome    = document.getElementById('txt_nome').value;
+        var id    = document.getElementById('txt_id').value;
+        var nome  = document.getElementById('txt_nome').value;
         if (nome) 
-        { // Validação simples
+        { 
             $.ajax({
                 type: 'post',
                 datatype: 'json',
@@ -226,18 +226,15 @@
     }
     function AlterarDepartamento(id)
     {
-        // Envia o ID do equipamento para o backend
         $.ajax({
-            type: 'post',
-            url: './src/departamentos/get_departamentos.php', // Endpoint que retorna os dados do equipamento
+            type: 'get',
+            url: './src/departamentos/get_departamentos.php', 
             data: { 'id': id },
             success: function(retorno) 
             {
                 var departamento = JSON.parse(retorno); // Converter o retorno para objeto JavaScript
-                // Preencher os campos do modal com os dados recebidos
                 document.getElementById('txt_id').value = departamento.id;
                 document.getElementById('txt_nome').value = departamento.nome;
-                // Abrir o modal usando Bootstrap
                 EditarDepartamentoModal()
             },
             error: function(erro) 

@@ -16,7 +16,6 @@
         <a class="nav-link" id="inativos-tab" data-bs-toggle="tab" href="#inativos" role="tab" aria-controls="inativos" aria-selected="false">Inativos</a>
     </li>
 </ul>
-
 <!-- Conteúdo das Abas -->
 <div class="tab-content" id="colaboradoresTabContent">
     <!-- Colaboradores Ativos -->
@@ -68,7 +67,7 @@
                                     <td>{$linha['qtd_disponivel']}</td>
                                     <td>{$linha['certificado_aprovacao']}</td>
                                     <td>
-                                        " . ($imagem_existe ? "<a href='#' onclick='AbrirImagem(\"{$caminho_imagem}\", \"{$linha['id_equipamento']}\")'><i class='bi bi-image'></i></a>" : "<i class='bi bi-image' style='color: gray;'></i>") . "
+                                        " . ($imagem_existe ? "<a href='#' onclick='AbrirImagem(\"{$caminho_imagem}\")'><i class='bi bi-image'></i></a>" : "<i class='bi bi-image' style='color: gray;'></i>") . "
                                         <a href='#' onclick='GerarCodigoBarras({$linha['id_equipamento']})'><i class='bi bi-upc-scan'></i></a>
                                         <a href='#' onclick='AlterarEquipamento({$linha['id_equipamento']})'><i class='bi bi-pencil-square'></i></a>
                                         <a href='#' onclick='GetAjustarEstoque({$linha['id_equipamento']})'><i class='bi bi-dropbox'></i></a>  
@@ -214,7 +213,7 @@
             <form id="form_ajuste_equipamento" enctype="multipart/form-data">
                 <div class="modal-header">
                     <h4 class="modal-title" id="modalLabel">Ajuste de Estoque</h4>
-                    <button onclick="window.location.reload()" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <input type="hidden" name="txt_id_estoque" id="txt_id_estoque" value="NOVO">
@@ -254,7 +253,7 @@
         <div class="modal-content">
             <div class="modal-header"> 
                 <h4 class="modal-title" id="modalLabel">Código de barras</h4>
-                <button onclick="window.location.reload()" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <img src="" id="img_barras">
         </div>
@@ -266,10 +265,10 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h4 class="modal-title" id="modalLabel">Imagem do Equipamento</h4>
-                <button onclick="window.location.reload()" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body"> <!-- Adicionei uma div para o corpo do modal -->
-                <img id="visualiza_imagem" alt="Imagem do Equipamento" class="img-fluid" style="display:block"> <!-- Classe img-fluid para responsividade -->
+            <div class="modal-body"> 
+                <img id="visualiza_imagem" alt="Imagem do Equipamento" class="img-fluid" style="display:block" height="500px" width="500px">
             </div>
         </div>
     </div>
@@ -301,11 +300,11 @@
         }
         $('#form_equipamento').submit(function() 
         {
-            return false; // Evita o envio padrão do formulário
+            return false;
         });
         $('#form_ajuste_equipamento').submit(function() 
         {
-            return false; // Evita o envio padrão do formulário
+            return false;
         });
         function CadastrarEquipamento() 
         {
@@ -314,26 +313,23 @@
             var estoque         = document.getElementById('txt_estoque').value;
             var cert_aprovacao  = document.getElementById('txt_cert_aprovacao').value;
             var inputFile       = document.getElementById('file_imagem').files[0];
-            // Verificação básica de campos preenchidos
             if (descricao && estoque && cert_aprovacao) 
             {
-                var formData = new FormData(); // Criar um FormData
+                var formData = new FormData();
                 formData.append('id', id);
                 formData.append('descricao', descricao);
                 formData.append('estoque', estoque);
                 formData.append('cert_aprovacao', cert_aprovacao);
-                // Adicionar o arquivo somente se foi selecionado
                 if (inputFile) 
                 {
                     formData.append('file_imagem', inputFile);
                 }
-                // Envio da requisição AJAX com FormData
                 $.ajax({
                     type: 'post',
                     url: './src/equipamentos/cadastrar_equipamento.php',
                     data: formData,
-                    contentType: false, // Importante: evitar que o jQuery defina o tipo de conteúdo
-                    processData: false, // Importante: não processar os dados automaticamente
+                    contentType: false, 
+                    processData: false, 
                     success: function(retorno) 
                     {
                         if (retorno['codigo'] == 2) 
@@ -369,7 +365,7 @@
                         if (retorno.codigo == 2) 
                         {
                             alert(retorno['mensagem']);
-                            window.location = 'sistema.php?tela=equipamentos'; // Atualiza a página
+                            window.location = 'sistema.php?tela=equipamentos'; 
                         } 
                         else if (retorno['codigo'] == 5)
                         {
@@ -411,15 +407,13 @@
         var emprestados;
         function GetAjustarEstoque(id) 
         {
-            // Envia o ID do equipamento para o backend
             $.ajax({
-                type: 'post',
-                url: './src/equipamentos/get_equipamentos.php', // Endpoint que retorna os dados do equipamento
+                type: 'get',
+                url: './src/equipamentos/get_equipamentos.php', 
                 data: { 'id': id },
                 success: function(retorno) 
                 {
-                    var equipamento = JSON.parse(retorno); // Converter o retorno para objeto JavaScript
-                    // Preencher os campos do modal com os dados recebidos
+                    var equipamento = JSON.parse(retorno);
                     document.getElementById('txt_id_estoque').value = equipamento.id;
                     document.getElementById('txt_descricao_estoque').value = equipamento.descricao;
                     document.getElementById('txt_estoque_ajuste').value = equipamento.qtd_estoque;
@@ -436,25 +430,22 @@
         function AlterarEquipamento(id) 
         {
             $.ajax({
-                type: 'post',
-                url: './src/equipamentos/get_equipamentos.php', // Endpoint que retorna os dados do equipamento
+                type: 'get',
+                url: './src/equipamentos/get_equipamentos.php',
                 data: { 'id': id },
                 success: function(retorno) {
                     var equipamento = JSON.parse(retorno); // Converter o retorno para objeto JavaScript
-                    // Preencher os campos do modal com os dados recebidos
                     document.getElementById('txt_id').value = equipamento.id;
                     document.getElementById('txt_descricao').value = equipamento.descricao;
                     document.getElementById('txt_estoque').value = equipamento.qtd_estoque;
                     document.getElementById('txt_estoque_disponivel').value = equipamento.qtd_disponivel;
                     document.getElementById('txt_cert_aprovacao').value = equipamento.certificado_aprovacao;
                     document.getElementById('txt_estoque').readOnly = true;
-                    // Atualiza o src da imagem
                     const caminhoImagem = document.getElementById('caminho_imagem');
                     const btnDesvincular = document.getElementById('btnDesvincular');
                     const btnLimpar = document.getElementById('btnLimparImagem');
                     caminhoImagem.style.display = 'none'; 
                     btnDesvincular.style.display = 'none';
-                    btnLimpar.style.display = 'none';
                     caminhoImagem.src = 'src/equipamentos/upload/' + equipamento.imagem_equipamento;
                     if(equipamento.imagem_equipamento != 'vazio')
                     {
@@ -526,7 +517,6 @@
                     {
                         alert(retorno['mensagem']);
                         AlterarEquipamento(id);
-                        //window.location = 'sistema.php?tela=equipamentos';
                     } 
                     else if(retorno['codigo'] == 0)
                     {
@@ -543,18 +533,14 @@
         {    
             const btn_limpar = document.getElementById('btnLimparImagem');
             const input_imagem = document.getElementById('file_imagem');
-            // Esconde o botão de limpar
             btn_limpar.style.display = 'none';
-            // Limpa a seleção de arquivo
-            input_imagem.value = ''; // Define o valor como vazio para limpar a seleção
+            input_imagem.value = '';
         }
         const btn_limpar = document.getElementById('btnLimparImagem');
         const input_imagem = document.getElementById('file_imagem');
         const btn_desvincular = document.getElementById('btnDesvincular');
-        // Inicialmente oculta o botãod
         btn_desvincular.style.display = 'none';
         btn_limpar.style.display = 'none';
-        // Adiciona um evento para quando o arquivo é selecionado
         input_imagem.addEventListener('change', function() {
         var img_selecionada = input_imagem.files[0];
         if (img_selecionada) 
@@ -566,10 +552,10 @@
             btn_limpar.style.display = 'none'; // Esconde o botão se não houver imagem
         }
         });
-        function AbrirImagem(caminho_imagem, id)
+        function AbrirImagem(caminho_imagem)
         {
             const caminhoImagem = document.getElementById('visualiza_imagem');
-            caminhoImagem.src = caminho_imagem; // Define o src da imagem corretamente
-            ModalImagemEquipamento(); // Chama a função para mostrar o modal 
+            caminhoImagem.src = caminho_imagem; 
+            ModalImagemEquipamento(); 
         }
     </script>
