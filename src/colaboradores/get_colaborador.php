@@ -1,5 +1,5 @@
 <?php
-    $id = isset($_POST['id']) ? $_POST['id'] : '';
+    $id = isset($_GET['id']) ? $_GET['id'] : '';
     if(empty($id))
     {
         echo json_encode([

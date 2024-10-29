@@ -77,68 +77,162 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="https://cdn.canvasjs.com/canvasjs.min.js"></script>
 </head>
-<div>
-    <nav class="navbar navbar-light bg-light sticky-top shadow">
+<body style="overflow-x: hidden">
+    <div>
+        <nav class="navbar navbar-light bg-light sticky-top shadow">
+            <div class="container-fluid">
+                <a class="navbar navbar-expand-lg navbar-light bg-light" href="sistema.php">
+                    <img src="assets/img/trabalhador.png" alt="logo" width="40" height="40" class="d-inline-block align-text-top">
+                </a>
+                <!-- Menu para dispositivos maiores -->
+                <ul class="d-none d-md-flex flex-wrap align-items-center nav mx-auto">
+                    <li class="nav-item">
+                        <a class="nav-link d-flex ms-5" href="sistema.php?tela=equipamentos">
+                            <i class="bi bi-hammer"></i> Equipamentos (EPIs)
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link d-flex ms-5" href="sistema.php?tela=colaboradores">
+                            <i class="bi bi-people"></i> Colaboradores
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link d-flex ms-5" href="sistema.php?tela=departamentos">
+                            <i class="bi bi-building"></i> Departamentos
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link d-flex ms-5" href="sistema.php?tela=usuarios">
+                            <i class="bi bi-person"></i> Usuários
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link d-flex ms-5" href="sistema.php?tela=emprestimos">
+                            <i class="bi bi-arrow-left-right"></i> Empréstimos
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link d-flex ms-5" href="#" onclick="sair()">
+                            <i class="bi bi-box-arrow-right"></i> Sair
+                        </a>
+                    </li>
+                </ul>
+                <!-- Botão para menu offcanvas em celulares -->
+                <button class="navbar-toggler d-md-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasMenu">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="d-none d-md-flex align-items-center ms-auto flex-column">
+                    <p class="text-dark mb-0">
+                        Usuário logado: 
+                        <strong>
+                            <?php
+                                // Verifica se o nome do usuário está na sessão
+                                if (isset($_SESSION['nome_usuario']) && !empty($_SESSION['nome_usuario'])) 
+                                {
+                                    echo htmlspecialchars($_SESSION['nome_usuario']);
+                                } 
+                                else 
+                                {
+                                    echo "Convidado";
+                                }
+                            ?>  
+                        </strong>
+                    </p>
+                    <div id="temp_session" class="text-dark"></div> <!-- Mostra o tempo restante da sessão -->
+                </div>
+            </div>
+        </nav>
+        </div>
+        <!-- Offcanvas para o menu lateral em celulares -->
+        <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasMenu">
+            <div class="offcanvas-header">
+                <h5 class="offcanvas-title">Menu</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body">
+                <!-- Menu de navegação no offcanvas -->
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" href="sistema.php?tela=equipamentos">
+                            <i class="bi bi-hammer"></i> Equipamentos (EPIs)
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="sistema.php?tela=colaboradores">
+                            <i class="bi bi-people"></i> Colaboradores
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="sistema.php?tela=usuarios">
+                            <i class="bi bi-person"></i> Usuários
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="sistema.php?tela=emprestimos">
+                            <i class="bi bi-arrow-left-right"></i> Empréstimos
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="sair()">
+                            <i class="bi bi-box-arrow-right"></i> Sair
+                        </a>
+                    </li>
+                <!-- Exibir o nome do usuário logado e o tempo de sessão -->
+                <div class="d-flex flex-column align-items-start justify-content-between mb-3 p-2 border-bottom">
+                    <p class="text-dark mb-0">
+                        Usuário logado:
+                        <strong>
+                            <?php
+                                if (isset($_SESSION['nome_usuario']) && !empty($_SESSION['nome_usuario'])) {
+                                    echo htmlspecialchars($_SESSION['nome_usuario']);
+                                } else {
+                                    echo "Convidado";
+                                }
+                            ?>
+                        </strong>
+                    </p>
+                    <div id="temp_session_mobile" class="text-dark mt-1"></div>
+                </div>
+                </ul>
+            </div>
+        </div>
         <div class="container-fluid">
-            <a class="navbar navbar-expand-lg navbar-light bg-light" href="sistema.php">
-                <img src="assets/img/trabalhador.png" alt="logo" width="40" height="40" class="d-inline-block align-text-top">
-            </a>
-            <!-- Menu para dispositivos maiores -->
-            <ul class="d-none d-md-flex flex-wrap align-items-center nav mx-auto">
-                <li class="nav-item">
-                    <a class="nav-link d-flex ms-5" href="sistema.php?tela=equipamentos">
-                        <i class="bi bi-hammer"></i> Equipamentos (EPIs)
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link d-flex ms-5" href="sistema.php?tela=colaboradores">
-                        <i class="bi bi-people"></i> Colaboradores
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link d-flex ms-5" href="sistema.php?tela=departamentos">
-                        <i class="bi bi-building"></i> Departamentos
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link d-flex ms-5" href="sistema.php?tela=usuarios">
-                        <i class="bi bi-person"></i> Usuários
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link d-flex ms-5" href="sistema.php?tela=emprestimos">
-                        <i class="bi bi-arrow-left-right"></i> Empréstimos
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link d-flex ms-5" href="#" onclick="sair()">
-                        <i class="bi bi-box-arrow-right"></i> Sair
-                    </a>
-                </li>
-            </ul>
-            <!-- Botão para menu offcanvas em dispositivos móveis -->
-            <button class="navbar-toggler d-md-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasMenu">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <!-- Usuário logado à direita -->
-            <div class="d-none d-md-flex align-items-center ms-auto flex-column">
-                <p class="text-dark mb-0">
-                    Usuário logado: 
-                    <strong>
-                        <?php
-                            // Verifica se o nome do usuário está na sessão
-                            if (isset($_SESSION['nome_usuario']) && !empty($_SESSION['nome_usuario'])) 
-                            {
-                                echo htmlspecialchars($_SESSION['nome_usuario']); // Proteção contra XSS
-                            } 
-                            else 
-                            {
-                                echo "Convidado";
-                            }
-                        ?>  
-                    </strong>
-                </p>
-                <div id="temp_session" class="text-dark"></div> <!-- Mostra o tempo restante da sessão -->
+            <div class="row">
+                <main>
+                    <!-- Script para importar as telas do sistema -->
+                    <?php
+                        $tela = isset($_GET['tela']) ? $_GET['tela'] : '';
+                        switch ($tela) 
+                        {
+                            case 'colaboradores':
+                                include 'telas/colaboradores.php';
+                            break;
+                            case 'equipamentos':
+                                include 'telas/equipamentos.php';
+                            break;
+                                case 'usuarios':
+                                    include 'telas/usuarios.php';
+                            break;
+                            case 'emprestimos':
+                                include 'telas/emprestimo.php';
+                            break;
+                            case 'departamentos':
+                                include 'telas/departamentos.php';
+                            break;
+                            default:
+                                echo 
+                                '<div class="d-flex justify-content-center flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                                    <h1 class="h2">Bem-vindo <strong>' . $_SESSION['nome_usuario'] . '</strong>!</h1>
+                                </div>
+                                    <div class="col-md-6 align-items-center" id="chartContainerGraphicDISPONIVELporDEPARTAMENTO" style="height: 370px;"></div>
+                                <div class="row">
+                                    <div class="col-md-6 align-items-center" id="chartContainerGraphicPizzaEMPRESTIMOS" style="height: 370px;"></div>
+                                    <div class="col-md-6 align-items-center" id="chartContainerGraphicPizzaCOLABORADORES" style="height: 370px;"></div>
+                                </div>';
+                            break;
+                        }
+                    ?>
+                </main>
             </div>
         </div>
     </nav>
@@ -237,116 +331,118 @@
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        function sair() 
-        {
-            var confirmou = confirm('Deseja realmente sair do sistema?');
-            if (confirmou) 
+            function sair() 
             {
-                window.location = 'src/logout.php';
-            }
-        }
-        // Função para criar gráfico no Dashboard
-        window.onload = function Graphic() 
-        {
-            // Grafico com crosshair
-            var chartgraphicestoquepordepartamento = new CanvasJS.Chart("chartContainerGraphicDISPONIVELporDEPARTAMENTO", {
-                animationEnabled: true,
-                theme: "light2",
-                title:{
-                    text: "Estoque Disponível por Departamento"
-                },
-                axisY: {
-                    title: "Qtd. Disponível"
-                },
-                data: [{
-                    type: "column",
-                    yValueFormatString: "#",
-                    dataPoints: <?php echo json_encode($dataPointsPizza_estoquepordepartamento, JSON_NUMERIC_CHECK); ?>
-                }]
-            });
-            chartgraphicestoquepordepartamento.render();
-            // Grafico Pizza Empréstimos por Departamento
-            var chartgraphicpizzaEMPRESTIMOS = new CanvasJS.Chart("chartContainerGraphicPizzaEMPRESTIMOS", {
-            animationEnabled: true,
-            exportEnabled: false,
-            title:{
-                text: "Empréstimos por Departamento"
-            },
-            data: [{
-                type: "pie",
-                showInLegend: true,
-                legendText: "{label}",
-                indexLabelFontSize: 16,
-                indexLabel: "{label} - {y}",
-                yValueFormatString: "#,##0",
-                dataPoints: <?php echo json_encode($dataPointsPizza_totalemprestimospordepartamento, JSON_NUMERIC_CHECK); ?>
-            }]
-            });
-            chartgraphicpizzaEMPRESTIMOS.render();
-            //Gráfio Pizza Colaboradores por Departamento
-            var chartgraphicpizzaCOLABORADORES = new CanvasJS.Chart("chartContainerGraphicPizzaCOLABORADORES", {
-            animationEnabled: true,
-            exportEnabled: false,
-            title:{
-                text: "Colaboradores por Departamento"
-            },
-            data: [{
-                type: "pie",
-                showInLegend: true,
-                legendText: "{label}",
-                indexLabelFontSize: 16,
-                indexLabel: "{label} - {y}",
-                yValueFormatString: "#,##0",
-                dataPoints: <?php echo json_encode($dataPointsPizza_totalcolaboradorespordepartamento, JSON_NUMERIC_CHECK); ?>
-            }]
-            });
-            chartgraphicpizzaCOLABORADORES.render();
-        }
-        function getCookie(name) 
-        {
-            let value = `; ${document.cookie}`;
-            let parts = value.split(`; ${name}=`);
-            if (parts.length === 2) return parts.pop().split(';').shift();
-        }
-        // Pega o timestamp do login
-        let loginTime = getCookie('login_time');
-        if (loginTime) 
-        {
-            // Converte o valor do cookie de string para número e de segundos para milissegundos
-            loginTime = parseInt(loginTime) * 1000; 
-            // Define o tempo máximo de sessão (30 minutos em milissegundos)
-            let sessionDuration = 30 * 60 * 1000; 
-            function updateTimer() 
-            {
-                let now = new Date().getTime();
-                let elapsedTime = now - loginTime; // Tempo decorrido desde o login
-                let timeRemaining = sessionDuration - elapsedTime; // Tempo restante
-                if (timeRemaining > 0) 
+                var confirmou = confirm('Deseja realmente sair do sistema?');
+                if (confirmou) 
                 {
-                    let minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
-                    let seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
-                    let sessionText = `Tempo restante da sessão: ${minutes}m ${seconds}s`;
-                    // Atualiza tanto no layout principal quanto no offcanvas
-                    document.getElementById("temp_session").innerHTML = sessionText;
-                    document.getElementById("temp_session_mobile").innerHTML = sessionText;
-                } 
-                else 
-                {
-                    document.getElementById("temp_session").innerHTML = "Sessão expirada.";
-                    document.getElementById("temp_session_mobile").innerHTML = "Sessão expirada.";
-                    alert("Sessão expirada. Por favor, realize o login novamente.");
-                    window.location = 'index.php';
+                    window.location = 'src/logout.php';
                 }
             }
-            // Atualiza o timer a cada segundo
-            setInterval(updateTimer, 1000);
-        } 
-        else 
-        {
-            document.getElementById("temp_session").innerHTML = "Nenhum cookie de login encontrado.";
-            document.getElementById("temp_session_mobile").innerHTML = "Nenhum cookie de login encontrado.";
-            window.location = 'index.php';
-        }
-    </script>
-</body>
+            // Função para criar gráfico no Dashboard
+            window.onload = function Graphic() 
+            {
+                // Grafico com crosshair
+                var chartgraphicestoquepordepartamento = new CanvasJS.Chart("chartContainerGraphicDISPONIVELporDEPARTAMENTO", {
+                    animationEnabled: true,
+                    theme: "light2",
+                    title:{
+                        text: "Estoque Disponível por Departamento"
+                    },
+                    axisY: {
+                        title: "Qtd. Disponível"
+                    },
+                    data: [{
+                        type: "column",
+                        yValueFormatString: "#",
+                        dataPoints: <?php echo json_encode($dataPointsPizza_estoquepordepartamento, JSON_NUMERIC_CHECK); ?>
+                    }]
+                });
+                chartgraphicestoquepordepartamento.render();
+                // Grafico Pizza Empréstimos por Departamento
+                var chartgraphicpizzaEMPRESTIMOS = new CanvasJS.Chart("chartContainerGraphicPizzaEMPRESTIMOS", {
+                animationEnabled: true,
+                exportEnabled: false,
+                title:{
+                    text: "Empréstimos por Departamento"
+                },
+                data: [{
+                    type: "pie",
+                    showInLegend: true,
+                    legendText: "{label}",
+                    indexLabelFontSize: 16,
+                    indexLabel: "{label} - {y}",
+                    yValueFormatString: "#,##0",
+                    dataPoints: <?php echo json_encode($dataPointsPizza_totalemprestimospordepartamento, JSON_NUMERIC_CHECK); ?>
+                }]
+                });
+                chartgraphicpizzaEMPRESTIMOS.render();
+                //Gráfio Pizza Colaboradores por Departamento
+                var chartgraphicpizzaCOLABORADORES = new CanvasJS.Chart("chartContainerGraphicPizzaCOLABORADORES", {
+                animationEnabled: true,
+                exportEnabled: false,
+                title:{
+                    text: "Colaboradores por Departamento"
+                },
+                data: [{
+                    type: "pie",
+                    showInLegend: true,
+                    legendText: "{label}",
+                    indexLabelFontSize: 16,
+                    indexLabel: "{label} - {y}",
+                    yValueFormatString: "#,##0",
+                    dataPoints: <?php echo json_encode($dataPointsPizza_totalcolaboradorespordepartamento, JSON_NUMERIC_CHECK); ?>
+                }]
+                });
+                chartgraphicpizzaCOLABORADORES.render();
+            }
+            function getCookie(name) 
+            {
+                let value = `; ${document.cookie}`;
+                let parts = value.split(`; ${name}=`); 
+                if (parts.length === 2) return parts.pop().split(';').shift(); 
+            }
+
+            // Pega o timestamp do login
+            let loginTime = getCookie('login_time'); 
+            if (loginTime) 
+            {
+                // Converte o valor do cookie de string para número e de segundos para milissegundos
+                loginTime = parseInt(loginTime) * 1000;
+                // Define o tempo máximo de sessão (30 minutos em milissegundos)
+                let sessionDuration = 30 * 60 * 1000;
+                function updateTimer() 
+                {
+                    let now = new Date().getTime();
+                    let elapsedTime = now - loginTime; // Tempo decorrido desde o login
+                    let timeRemaining = sessionDuration - elapsedTime; // Tempo restante
+
+                    if (timeRemaining > 0) 
+                    {
+                        let minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+                        let seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+                        let sessionText = `Tempo restante da sessão: ${minutes}m ${seconds}s`;
+                        // Atualiza tanto no layout principal quanto no offcanvas
+                        document.getElementById("temp_session").innerHTML = sessionText;
+                        document.getElementById("temp_session_mobile").innerHTML = sessionText;
+                    } 
+                    else 
+                    {
+                        clearInterval(sessionInterval); // Limpa o setInterval para evitar o loop
+                        document.getElementById("temp_session").innerHTML = "Sessão expirada.";
+                        document.getElementById("temp_session_mobile").innerHTML = "Sessão expirada.";
+                        alert("Sua sessão expirou. Por favor, efetue o login novamente.");
+                        window.location = 'index.php';
+                    }
+                }
+                // Atualiza o timer a cada segundo
+                let sessionInterval = setInterval(updateTimer, 100); 
+            } 
+            else 
+            {
+                document.getElementById("temp_session").innerHTML = "Nenhum cookie de login encontrado.";
+                document.getElementById("temp_session_mobile").innerHTML = "Nenhum cookie de login encontrado.";
+                window.location = 'index.php';
+            }
+        </script>
 </html>

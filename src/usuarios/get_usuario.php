@@ -1,5 +1,5 @@
 <?php
-    $id = isset($_POST['id']) ? $_POST['id'] : '';
+    $id = isset($_GET['id']) ? $_GET['id'] : '';
     if(empty($id))
     {
         echo json_encode([
@@ -8,12 +8,10 @@
         ]);
         exit;
     }
-    // Conectar ao banco de dados (usando sua classe BancodeDados)
     include_once '../class/BancoDeDados.php';
     $banco = new BancodeDados;
     try 
     {
-        // Consulta para obter os dados do equipamento
         $sql = 'SELECT id_usuario, nome_usuario, senha, administrador FROM usuarios WHERE id_usuario = ?';
         $dados = $banco->Consultar($sql, [$id], true);
         if ($dados) 

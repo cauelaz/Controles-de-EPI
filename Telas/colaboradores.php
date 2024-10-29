@@ -27,8 +27,6 @@
                         <th scope="col">ID</th>
                         <th scope="col">Nome</th>
                         <th scope="col">Data Nascimento</th>
-                        <th scope="col">CPF/CNPJ</th>
-                        <th scope="col">RG</th>
                         <th scope="col">Telefone</th>
                         <th scope="col">Departamento</th>
                         <th scope="col">Ações</th>
@@ -41,29 +39,37 @@
                         include_once 'src/class/BancodeDados.php';
                         $banco = new BancodeDados;
                         $sql = 'SELECT *
+                                     , COALESCE(colaboradores.telefone, "Sem Telefone Cadastrado") AS telefone
+                                     , COALESCE(colaboradores.data_nascimento, "Sem Data de Nascimento") AS data_nascimento_format
                                      , COALESCE(departamentos.nome_departamento, "Sem Departamento") AS nome_departamento
                                 FROM colaboradores
                                 LEFT JOIN departamentos ON colaboradores.id_departamento = departamentos.id_departamento 
                                 WHERE colaboradores.ativo = 1';
                         $dados = $banco->Consultar($sql, [], true);
-                        if ($dados) 
+                        if ($dados)     
                         {
                             foreach ($dados as $linha) 
                             {
                                 $caminho_imagem = 'src/colaboradores/upload/' . $linha['imagem_colaborador'];
                                 $imagem_existe = file_exists($caminho_imagem);
-                                $data_nascimento = DateTime::createFromFormat('Y-m-d', $linha['data_nascimento'])->format('d/m/y');
+                                if($linha['data_nascimento_format'] != "Sem Data de Nascimento")
+                                {   
+                                    $data_nascimento = DateTime::createFromFormat('Y-m-d', $linha['data_nascimento'])->format('d/m/y');
+                                }
+                                else
+                                {
+                                    $data_nascimento = "Sem Data de Nascimento";
+                                }
+                               
                                 echo 
                                 "<tr class='text-center'>
                                     <td>{$linha['id_colaborador']}</td>
                                     <td>{$linha['nome_colaborador']}</td>
                                     <td>{$data_nascimento}</td>
-                                    <td>{$linha['cpf_cnpj']}</td>
-                                    <td>{$linha['rg']}</td>
                                     <td>{$linha['telefone']}</td>
                                     <td>{$linha['nome_departamento']}</td>
                                     <td>
-                                        " . ($imagem_existe ? "<a href='$caminho_imagem' target='_blank'><i class='bi bi-image'></i></a>" : "<i class='bi bi-image' style='color: gray;'></i>") . "
+                                        " . ($imagem_existe ? "<a href='#' onclick='AbrirImagem(\"{$caminho_imagem}\")'><i class='bi bi-image'></i></a>" : "<i class='bi bi-image' style='color: gray;'></i>") . "
                                         <a href='#' onclick='AlterarColaborador({$linha['id_colaborador']})'><i class='bi bi-pencil-square'></i></a>
                                         <a href='#' onclick='ExcluirColaborador({$linha['id_colaborador']})'><i class='bi bi-trash3-fill'></i></a>
                                     </td>
@@ -93,8 +99,6 @@
                         <th scope="col">ID</th>
                         <th scope="col">Nome</th>
                         <th scope="col">Data Nascimento</th>
-                        <th scope="col">CPF/CNPJ</th>
-                        <th scope="col">RG</th>
                         <th scope="col">Telefone</th>
                         <th scope="col">Departamento</th>
                         <th scope="col">Ações</th>
@@ -122,8 +126,6 @@
                                     <td>{$linha['id_colaborador']}</td>
                                     <td>{$linha['nome_colaborador']}</td>
                                     <td>{$data_nascimento}</td>
-                                    <td>{$linha['cpf_cnpj']}</td>
-                                    <td>{$linha['rg']}</td>
                                     <td>{$linha['telefone']}</td>
                                     <td>{$linha['nome_departamento']}</td>
                                     <td>
@@ -148,16 +150,13 @@
         </div>
     </div>
 </div>
-<!--Coletar dados para ComboBox do Modal-->
 <?php
-    // Inclua o arquivo do banco de dados
     include_once 'src/class/BancodeDados.php';
-    // Consultar os departamentos diretamente
     $banco = new BancodeDados;
     $sql = 'SELECT id_departamento, nome_departamento FROM departamentos WHERE ativo = 1';
     $departamentos = $banco->Consultar($sql, [], true);
 ?>
-<!-- Modal -->
+<!-- Modal Principal -->
 <div id="adicionar_colaborador" class="modal fade" data-bs-backdrop="static">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -177,7 +176,6 @@
                 <div class="modal-body">
                     <input type="hidden" name="txt_id" id="txt_id" value="NOVO">
                     <div class="tab-content" id="colaboradoresTabContent">
-                        <!-- Dados Pessoais -->
                         <div class="tab-pane fade show active" id="dados" role="tabpanel" aria-labelledby="dados-tab">
                             <div class="form-group">
                                 <label for="txt_nome">Nome</label>
@@ -218,14 +216,14 @@
                             </div>  
                             <div class="form-group">
                                 <label for="file_imagem">Foto do Colaborador</label>
-                                <input type="file" class="form-control" name="file_imagem" id="file_imagem">
+                                <input type="file" class="form-control" id="file_imagem" value="S/IMG">
+                                <button class="btn btn-danger" id="btnLimparImagem" onclick="LimparImagem()">Limpar Imagem</button>
                             </div>
                             <div class="form-group" id="imagemContainer">
                                 <img id="caminho_imagem" class="img-thumbnail" height="300">
                                 <button class="btn btn-danger" id="btnDesvincular" onclick="DesvincularImagem()">Desvincular Imagem</button>
                             </div>
                         </div>
-                        <!-- Aba de Endereço -->
                         <div class="tab-pane fade" id="endereco" role="tabpanel" aria-labelledby="endereco-tab">
                             <div class="form-group">
                                 <label for="txt_cep" class="form-label">CEP</label>
@@ -313,6 +311,19 @@
         </div>
     </div>
 </div>
+<!-- Modal para imagem de colaborador -->
+<div id="imagem_colaborador" class="modal fade" data-bs-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="modalLabel">Imagem do Equipamento</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+                <img id="visualiza_imagem_colaborador" alt="Imagem do colaborador" class="img-fluid" style="display:block" height="500px" width="500px">
+            </div>
+        </div>
+    </div>
+</div>
 <script>
     function abrirModal() 
     {
@@ -325,8 +336,13 @@
     }
     $('#form_colaborador').submit(function() 
     {
-        return false; // Evita o envio padrão do formulário
+        return false;
     });
+    function ModalImagemColaborador()
+    {
+        var modal = new bootstrap.Modal(document.getElementById('imagem_colaborador'));
+        modal.show();
+    }
     function CadastrarColaborador()
     {
         var id           = document.getElementById('txt_id').value;
@@ -345,7 +361,7 @@
         var complemento  = document.getElementById('txt_complemento').value;
         var numero       = document.getElementById('txt_numero').value;
         // Verificação básica de campos preenchidos
-        var formData = new FormData(); // Criar um FormData
+        var formData = new FormData(); 
         formData.append('id', id);
         formData.append('nome', nome);
         formData.append('data_nasc', data_nasc);
@@ -360,18 +376,21 @@
         formData.append('uf', uf);
         formData.append('complemento', complemento);
         formData.append('numero', numero);
-        // Adicionar o arquivo somente se foi selecionado
+        if(data_nasc == '')
+        {
+            alert('Data de Nascimento é obrigatório e obrigatório');
+            return false;
+        }
         if (inputFile) 
         {
             formData.append('file_imagem', inputFile);
         }
-        // Envio da requisição AJAX com FormData
         $.ajax({
             type: 'post',
             url: './src/colaboradores/cadastrar_colaborador.php',
             data: formData,
-            contentType: false, // Importante: evitar que o jQuery defina o tipo de conteúdo
-            processData: false, // Importante: não processar os dados automaticamente
+            contentType: false,
+            processData: false,
             success: function(retorno) 
             {
                 if (retorno['codigo'] == 2) 
@@ -443,9 +462,9 @@
         });
     }
     function AlterarColaborador(id)
-    {
+    {   
         $.ajax({    
-            type: 'post',
+            type: 'get',
             url: './src/colaboradores/get_colaborador.php',
             data: { 'id': id },
             success: function(retorno) {
@@ -475,8 +494,8 @@
                 caminhoImagem.src = 'src/colaboradores/upload/' + colaborador.imagem_colaborador;
                 if(colaborador.imagem_colaborador != 'vazio')
                 {
-                    caminhoImagem.style.display = 'block'; // Exibe a imagem
-                    btnDesvincular.style.display = 'block'; // Exibe o botão de desvincular
+                    caminhoImagem.style.display = 'block';
+                    btnDesvincular.style.display = 'block';
                 }
                 EditarColaboradorModal();   
             },
@@ -535,29 +554,57 @@
         });
     }
     function DesvincularImagem()
-        {
-            var id = document.getElementById('txt_id').value;  
-            $.ajax({
-                type: 'post',
-                url: './src/colaboradores/desvincular_imagem.php',
-                data: { 'id': id },
-                success: function(retorno) 
+    {
+        var id = document.getElementById('txt_id').value;  
+        $.ajax({
+            type: 'post',
+            url: './src/colaboradores/desvincular_imagem.php',
+            data: { 'id': id },
+            success: function(retorno) 
+            {
+                if (retorno['codigo'] == 2) 
                 {
-                    if (retorno['codigo'] == 2) 
-                    {
-                        alert(retorno['mensagem']);
-                        AlterarColaborador(id);
-                        //window.location = 'sistema.php?tela=equipamentos';
-                    } 
-                    else if(retorno['codigo'] == 0)
-                    {
-                        alert(retorno['mensagem']);
-                    }
-                },
-                error: function(erro) 
+                    alert(retorno['mensagem']);
+                    AlterarColaborador(id);
+                } 
+                else if(retorno['codigo'] == 0)
                 {
-                    alert('Ocorreu um erro na requisição: ' + erro.responseText);
+                    alert(retorno['mensagem']);
                 }
-            });
+            },
+            error: function(erro) 
+            {
+                alert('Ocorreu um erro na requisição: ' + erro.responseText);
+            }
+        });
+    }
+    function LimparImagem()
+    {    
+        const btn_limpar = document.getElementById('btnLimparImagem');
+        const input_imagem = document.getElementById('file_imagem');
+        btn_limpar.style.display = 'none';
+        input_imagem.value = ''; 
+    }
+    const btn_limpar = document.getElementById('btnLimparImagem');
+    const input_imagem = document.getElementById('file_imagem');
+    const btn_desvincular = document.getElementById('btnDesvincular');
+    btn_desvincular.style.display = 'none';
+    btn_limpar.style.display = 'none';
+    input_imagem.addEventListener('change', function() {
+    var img_selecionada = input_imagem.files[0];
+    if (img_selecionada) 
+    {
+        btn_limpar.style.display = 'block'; // Mostra o botão se uma imagem foi selecionada
+    } 
+    else 
+    {
+        btn_limpar.style.display = 'none'; // Esconde o botão se não houver imagem
+    }
+    });
+    function AbrirImagem(caminho_imagem)
+        {
+            const caminhoImagem = document.getElementById('visualiza_imagem_colaborador');
+            caminhoImagem.src = caminho_imagem; 
+            ModalImagemColaborador(); 
         }
 </script>

@@ -135,7 +135,6 @@
             $sql = 'SELECT imagem_colaborador FROM colaboradores WHERE id_colaborador = ?';
             $parametros = [$formulario['id']];
             $foto = $banco->consultar($sql, $parametros);
-
             if ($foto['imagem_colaborador'] == $nome_imagem) 
             {
                 $sql = 'UPDATE colaboradores SET nome_colaborador = ?, cpf_cnpj = ?, data_nascimento = ?, rg = ?, telefone = ?, id_departamento = ? WHERE id_colaborador = ?';
@@ -148,6 +147,10 @@
                     $formulario['departamento'] ?: null,
                     $formulario['id']
                 ];
+                echo json_encode([
+                    'codigo' => 2,
+                    'mensagem' => 'Colaborador atualizado com sucesso!'
+                ]);
             } 
             else 
             {
@@ -167,6 +170,10 @@
                     $formulario['departamento'] ?: null,
                     $formulario['id']
                 ];
+                echo json_encode([
+                    'codigo' => 2,
+                    'mensagem' => 'Colaborador atualizado com sucesso!'
+                ]);
             }
             // Atualizar ou inserir endereço
             $sql_endereco = 'SELECT * FROM endereco_colaborador WHERE fk_id_colaborador = ?';
@@ -186,10 +193,6 @@
                     $formulario['id']
                 ];
                 $banco->ExecutarComando($sql_endereco_update, $parametros_endereco_update);
-                echo json_encode([
-                    'codigo' => 2,
-                    'mensagem' => 'Colaborador atualizado com sucesso!'
-                ]);
             } 
             else 
             {
@@ -209,7 +212,7 @@
                     $banco->ExecutarComando($sql_endereco_insert, $parametros_endereco_insert);
                     echo json_encode([
                         'codigo' => 2,
-                        'mensagem' => 'Colaborador atualizado com sucesso!'
+                        'mensagem' => 'Colaborador atualizado com sucesso! 216'
                     ]);
                 }
             }

@@ -166,7 +166,7 @@
     }
     $('#form_usuario').submit(function() 
     {
-        return false; // Evita o envio padrão do formulário
+        return false; 
     });
     function CadastrarUsuario() 
     {
@@ -174,9 +174,8 @@
         var usuario = document.getElementById('txt_nome').value;
         var senha   = document.getElementById('txt_senha').value;
         var adm     = document.getElementById('list_user').value;
-
         if (usuario && senha) 
-        { // Validação simples
+        { 
             $.ajax({
                 type: 'post',
                 datatype: 'json',
@@ -242,20 +241,17 @@
     }
     function AlterarUsuario(id)
     {
-        // Envia o ID do equipamento para o backend
         $.ajax({
-            type: 'post',
-            url: './src/usuarios/get_usuario.php', // Endpoint que retorna os dados do equipamento
+            type: 'get',
+            url: './src/usuarios/get_usuario.php',
             data: { 'id': id },
             success: function(retorno) 
             {
-                var usuario = JSON.parse(retorno); // Converter o retorno para objeto JavaScript
-                // Preencher os campos do modal com os dados recebidos
+                var usuario = JSON.parse(retorno); 
                 document.getElementById('txt_id').value = usuario.id;
                 document.getElementById('txt_nome').value = usuario.nome;
                 document.getElementById('txt_senha').value = usuario.senha;
                 document.getElementById('list_user').value = usuario.administrador;
-                // Abrir o modal usando Bootstrap
                 EditarUsuarioModal()
             },
             error: function(erro) 
