@@ -147,10 +147,6 @@
                     $formulario['departamento'] ?: null,
                     $formulario['id']
                 ];
-                echo json_encode([
-                    'codigo' => 2,
-                    'mensagem' => 'Colaborador atualizado com sucesso!'
-                ]);
             } 
             else 
             {
@@ -170,10 +166,6 @@
                     $formulario['departamento'] ?: null,
                     $formulario['id']
                 ];
-                echo json_encode([
-                    'codigo' => 2,
-                    'mensagem' => 'Colaborador atualizado com sucesso!'
-                ]);
             }
             // Atualizar ou inserir endereço
             $sql_endereco = 'SELECT * FROM endereco_colaborador WHERE fk_id_colaborador = ?';
@@ -210,13 +202,13 @@
                         $formulario['complemento'] ?: null
                     ];
                     $banco->ExecutarComando($sql_endereco_insert, $parametros_endereco_insert);
-                    echo json_encode([
-                        'codigo' => 2,
-                        'mensagem' => 'Colaborador atualizado com sucesso! 216'
-                    ]);
                 }
             }
             $banco->ExecutarComando($sql, $parametros);
+            echo json_encode([
+                'codigo' => 2,
+                'mensagem' => 'Colaborador atualizado com sucesso!'
+            ]);
         }
     } 
     catch (PDOException $erro) 

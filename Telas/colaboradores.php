@@ -381,6 +381,11 @@
             alert('Data de Nascimento é obrigatório e obrigatório');
             return false;
         }
+        if(telefone == '')
+        {
+            alert('Telefone é obrigatório');
+            return false;
+        }
         if (inputFile) 
         {
             formData.append('file_imagem', inputFile);
@@ -395,6 +400,7 @@
             {
                 if (retorno['codigo'] == 2) 
                 {
+                    alert(retorno['mensagem']);
                     window.location = 'sistema.php?tela=colaboradores';
                 } 
                 else if(retorno['codigo'] == 3) 
