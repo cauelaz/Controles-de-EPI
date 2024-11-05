@@ -69,7 +69,7 @@ CREATE TABLE `emprestimos` (
   `data_devolucao` datetime DEFAULT NULL,
   `observacoes` varchar(100) DEFAULT NULL,
   `colaborador` int(11) DEFAULT NULL,
-  `ativo` tinyint(1) DEFAULT NULL,
+  `situacao` tinyint(1) DEFAULT NULL,
   PRIMARY KEY (`id_emprestimo`),
   KEY `emprestimos_colaboradores_FK` (`colaborador`),
   KEY `emprestimos_usuarios_FK` (`usuario`),
