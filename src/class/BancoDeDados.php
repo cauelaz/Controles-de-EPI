@@ -34,10 +34,4 @@
             return $this->conexao->lastInsertId();
         }
 
-        public function ExecutarRetornandoId($sql, $parametros = []){
-            $stmt = $this->conexao->prepare($sql);
-            $stmt->execute($parametros);
-
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
-        }
     }

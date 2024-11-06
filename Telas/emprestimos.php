@@ -10,10 +10,10 @@
 <!-- Abas para Ativos e Inativos -->
 <ul class="nav nav-tabs" id="departamentostab" role="tablist">
     <li class="nav-item" role="presentation">
-        <a class="nav-link active" id="ativos-tab" data-bs-toggle="tab" href="#ativos" role="tab" aria-controls="ativos" aria-selected="true">Ativos</a>
+        <a class="nav-link active" id="ativos-tab" data-bs-toggle="tab" href="#ativos" role="tab" aria-controls="ativos" aria-selected="true">Abertos</a>
     </li>
     <li class="nav-item" role="presentation">
-        <a class="nav-link" id="inativos-tab" data-bs-toggle="tab" href="#inativos" role="tab" aria-controls="inativos" aria-selected="false">Inativos</a>
+        <a class="nav-link" id="inativos-tab" data-bs-toggle="tab" href="#inativos" role="tab" aria-controls="inativos" aria-selected="false">Finalizados</a>
     </li>
 </ul>
 <!-- Conteúdo das Abas -->
@@ -28,6 +28,7 @@
                         <th scope="col">Qtd. EPI's</th>
                         <th scope="col">Data Empréstimo</th>
                         <th scope="col">Data Devolução</th>
+                        <th scope="col">Observações</th>
                         <th scope="col">Ações</th>
                     </tr>
                 </thead>
@@ -38,15 +39,19 @@
                         include_once 'src/class/BancodeDados.php';
                         $banco = new BancodeDados;
                         $sql = 'SELECT
-                                    ,e.id_emprestimo
-                                    ,e.data_emprestimo
-                                    ,e.data_devolucao
-                                    ,c.nome_colaborador
-                                    ,e.observacoes 
-                                    FROM emprestimos e
-                                    LEFT JOIN colaboradores c ON c.id_colaborador = e.colaborador
-                                    WHERE e.ativo = 1 and data_devolucao is null
-                                 GROUP BY e.id_emprestimo';
+                                    e.id_emprestimo,
+                                    e.data_emprestimo,
+                                    e.data_devolucao,
+                                    c.nome_colaborador,
+                                    e.observacoes,
+                                    SUM(ee.quantidade) AS quantidade
+                                FROM emprestimos e
+                                LEFT JOIN colaboradores c ON c.id_colaborador = e.colaborador
+                                LEFT JOIN equipamentos_emprestimo ee ON ee.emprestimo = e.id_emprestimo
+                                WHERE e.situacao = 1
+                                GROUP BY e.id_emprestimo, e.data_emprestimo, e.data_devolucao, c.nome_colaborador, e.observacoes
+                                ORDER BY e.id_emprestimo ASC;';
+
                         $dados = $banco->Consultar($sql, [], true);
                         if ($dados) {
                             foreach ($dados as $linha) 
@@ -55,12 +60,12 @@
                                 "<tr class='text-center'>
                                     <td>{$linha['id_emprestimo']}</td>
                                     <td>{$linha['nome_colaborador']}</td>
+                                    <td>{$linha['quantidade']}</td>
                                     <td>{$linha['data_emprestimo']}</td>
                                     <td>{$linha['data_devolucao']}</td>
                                     <td>{$linha['observacoes']}</td>
                                     <td>
                                         <a href='#' onclick='AlterarEmprestimo({$linha['id_emprestimo']})'><i class='bi bi-pencil-square'></i></a>
-                                        <a href='#' onclick='FinalizarEmprestimo({$linha['id_emprestimo']})'><i class='bi bi-trash3-fill'></i></a>
                                     </td>
                                 </tr>";
                             }
@@ -83,11 +88,15 @@
     <!-- Usuários Inativos -->
     <div class="tab-pane fade" id="inativos" role="tabpanel" aria-labelledby="inativos-tab">
         <div class="table-responsive">
-            <table class="table table-striped table-hover">
+        <table class="table table-striped table-hover">
                 <thead>
                     <tr class="text-center">
                         <th scope="col">ID</th>
-                        <th scope="col">Nome</th>
+                        <th scope="col">Colaborador</th>
+                        <th scope="col">Qtd. EPI's</th>
+                        <th scope="col">Data Empréstimo</th>
+                        <th scope="col">Data Devolução</th>
+                        <th scope="col">Observações</th>
                         <th scope="col">Ações</th>
                     </tr>
                 </thead>
@@ -95,24 +104,45 @@
                     <?php
                     try 
                     {
-                        $sql = 'SELECT * FROM departamentos WHERE ativo = 0';
+                        include_once 'src/class/BancodeDados.php';
+                        $banco = new BancodeDados;
+                        $sql = 'SELECT
+                                    e.id_emprestimo,
+                                    e.data_emprestimo,
+                                    e.data_devolucao,
+                                    c.nome_colaborador,
+                                    e.observacoes,
+                                    SUM(ee.quantidade) AS quantidade
+                                FROM emprestimos e
+                                LEFT JOIN colaboradores c ON c.id_colaborador = e.colaborador
+                                LEFT JOIN equipamentos_emprestimo ee ON ee.emprestimo = e.id_emprestimo
+                                WHERE e.situacao = 2 and e.data_devolucao not null  
+                                GROUP BY e.id_emprestimo, e.data_emprestimo, e.data_devolucao, c.nome_colaborador, e.observacoes
+                                ORDER BY e.id_emprestimo ASC;';
+
                         $dados = $banco->Consultar($sql, [], true);
                         if ($dados) {
                             foreach ($dados as $linha) 
                             {
                                 echo 
                                 "<tr class='text-center'>
-                                    <td>{$linha['id_departamento']}</td>
-                                    <td>{$linha['nome_departamento']}</td>
+                                    <td>{$linha['id_emprestimo']}</td>
+                                    <td>{$linha['nome_colaborador']}</td>
+                                    <td>{$linha['quantidade']}</td>
+                                    <td>{$linha['data_emprestimo']}</td>
+                                    <td>{$linha['data_devolucao']}</td>
+                                    <td>{$linha['observacoes']}</td>
                                     <td>
-                                        <a href='#' onclick='ReativarDepartamento({$linha['id_departamento']})'>Reativar</a>
+                                        <a href='#' onclick='AlterarEmprestimo({$linha['id_emprestimo']})'><i class='bi bi-pencil-square'></i></a>
+                                        <a href='#' onclick='CancelarEmprestimo($linha['id_emprestimo']})'><i class='bi bi-trash3-fill'></i></a>
+                                        <a href='#' onclick='FinalizarEmprestimo({$linha['id_emprestimo']})'><i class='bi bi-dropbox'></i></a>
                                     </td>
                                 </tr>";
                             }
                         } 
                         else 
                         {
-                            echo "<tr><td colspan='4' class='text-center'>Nenhum departamento inativo...</td></tr>";
+                            echo "<tr><td colspan='4' class='text-center'>Nenhum empréstimo finalizado...</td></tr>";
                         }
                     } 
                     catch (PDOException $erro) 
@@ -138,6 +168,7 @@
     $sql = 'SELECT id_equipamento, descricao FROM equipamentos WHERE ativo = 1';
     $equipamentos = $banco->Consultar($sql, [], true);
 ?>
+<!-- Modal de Empréstimo -->
 <div id="emprestimo_editor" class="modal fade" data-bs-backdrop="static">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -147,70 +178,100 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <!-- Colaborador -->
-                    <input type="hidden" id="txt_id" value="NOVO">
-                    <div class="form-group">
-                        <label for="cbColaborador">Colaborador</label>
-                        <select class="form-control" id="cbColaborador" name="cbColaborador" required>
-                            <option value="0">Selecione o Colaborador</option>
-                            <?php foreach ($colaboradores as $colaborador): ?>
-                                <option value="<?= $colaborador['id_colaborador']; ?>">
-                                    <?= $colaborador['nome_colaborador']; ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
+                    <!-- Abas no Modal -->
+                    <ul class="nav nav-tabs" id="modalTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link active" id="geral-tab" data-bs-toggle="tab" href="#geral" role="tab" aria-controls="geral" aria-selected="true">Geral</a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link" id="equipamentos-tab" data-bs-toggle="tab" href="#equipamentos" role="tab" aria-controls="equipamentos" aria-selected="false">Equipamentos</a>
+                        </li>
+                    </ul>
 
-                    <!-- Situação -->
-                    <div class="form-group">
-                        <label for="cbSituacao">Situação</label>
-                        <select class="form-control" id="cbSituacao" required>
-                            <option value="em aberto">Em Aberto</option>
-                            <option value="pendente">Pendente</option>
-                            <option value="finalizado">Finalizado</option>
-                        </select>
-                    </div>
+                    <div class="tab-content" id="modalTabsContent">
+                        <!-- Aba Geral -->
+                        <div class="tab-pane fade show active" id="geral" role="tabpanel" aria-labelledby="geral-tab">
+                            <input type="hidden" id="txt_id" value="NOVO">
+                            
+                            <!-- Colaborador -->
+                            <div class="form-group">
+                                <label for="cbColaborador">Colaborador</label>
+                                <select class="form-control" id="cbColaborador" name="cbColaborador" required>
+                                    <option value="0">Selecione o Colaborador</option>
+                                    <?php foreach ($colaboradores as $colaborador): ?>
+                                        <option value="<?= $colaborador['id_colaborador']; ?>">
+                                            <?= $colaborador['nome_colaborador']; ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
 
-                    <!-- Datas -->
-                    <div class="form-group">
-                        <label for="dataEmprestimo">Data Empréstimo</label>
-                        <input type="date" class="form-control" id="dataEmprestimo" required>
-                    </div>
+                            <!-- Situação -->
+                            <div class="form-group">
+                                <label for="cbSituacao">Situação</label>
+                                <select class="form-control" id="cbSituacao" required>
+                                    <option value=1>Em Aberto</option>
+                                    <option value=2>Finalizado</option>
+                                </select>
+                            </div>
 
-                    <div class="form-group">
-                        <label for="dataDevolucao">Data Devolução</label>
-                        <input type="date" class="form-control" id="dataDevolucao">
-                    </div>
-                                        <!-- Observações -->
-                    <div class="form-group">
-                        <label for="txtObservacoes">Observações</label>
-                        <textarea class="form-control" id="txtObservacoes"></textarea>
-                    </div>
+                            <!-- Datas -->
+                            <div class="form-group">
+                                <label for="dataEmprestimo">Data Empréstimo</label>
+                                <input type="date" class="form-control" id="dataEmprestimo" required>
+                            </div>
 
-                    <!-- Grade de Equipamentos -->
-                    <div class="form-group">
-                        <label for="cbEquipamento">Equipamento</label>
-                        <select class="form-control" id="cbEquipamento" required>
-                            <option value="0">Selecione o Equipamento</option>
-                            <?php foreach ($equipamentos as $equipamento): ?>
-                                <option value="<?= $equipamento['id_equipamento']; ?>">
-                                    <?= $equipamento['descricao']; ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                        <button type="button" class="btn btn-primary mt-2" id="btnAdicionar">Adicionar</button>
-                    </div>
+                            <div class="form-group">
+                                <label for="dataDevolucao">Data Devolução</label>
+                                <input type="date" class="form-control" id="dataDevolucao">
+                            </div>
 
-                    <div class="form-group">
-                        <table class="table table-striped mt-3" id="tabelaEquipamentos">
-                            <thead>
-                                <tr>
-                                    <th>Equipamento</th>
-                                    <th>Ação</th>
-                                </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
+                            <!-- Observações -->
+                            <div class="form-group">
+                                <label for="txtObservacoes">Observações</label>
+                                <textarea class="form-control" id="txtObservacoes"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Aba Equipamentos -->
+                        <div class="tab-pane fade" id="equipamentos" role="tabpanel" aria-labelledby="equipamentos-tab">
+                            <!-- Combobox Equipamento -->
+                            <div class="form-group">
+                                <label for="cbEquipamento">Equipamento</label>
+                                <select class="form-control" id="cbEquipamento" required>
+                                    <option value="0">Selecione o Equipamento</option>
+                                    <?php foreach ($equipamentos as $equipamento): ?>
+                                        <option value="<?= $equipamento['id_equipamento']; ?>">
+                                            <?= $equipamento['descricao']; ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+
+                            <!-- Quantidade Equipamento -->
+                            <div class="form-group">
+                                <label for="inputQuantidade">Quantidade</label>
+                                <input type="number" id="inputQuantidade" class="form-control" min="1" value="1" required>
+                            </div>
+
+                            <!-- Botão Adicionar -->
+                            <button type="button" class="btn btn-primary mt-2" id="btnAdicionar">Adicionar</button>
+
+                            <!-- Tabela Equipamentos -->
+                            <div class="form-group">
+                                <table class="table table-striped mt-3" id="tabelaEquipamentos">
+                                    <thead>
+                                        <tr>
+                                            <th>Equipamento</th>
+                                            <th>Quantidade</th>
+                                            <th>Ação</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -222,12 +283,13 @@
 </div>
 
 
+
 <script>
     function abrirModal() 
     {
         $('#emprestimo_editor').modal('show');
     }
-    function EditarDepartamentoModal()
+    function EditarEmprestimoModal()
     {
         var modal = new bootstrap.Modal(document.getElementById('emprestimo_editor'));
         modal.show();
@@ -239,48 +301,51 @@
 
     function CadastrarEmprestimo() {
 
-        var equipamentos = [];
+        var emprestimo = {
+            "id": document.getElementById('txt_id').value,
+            "colaborador": document.getElementById('cbColaborador').value,
+            "situacao": document.getElementById('cbSituacao').value,
+            "dataEmprestimo": document.getElementById('dataEmprestimo').value,
+            "dataDevolucao": document.getElementById('dataDevolucao').value,
+            "observacoes": document.getElementById('txtObservacoes').value,
+            "itens": [] 
+        };
+
+        // Coleta os dados dos itens (equipamentos) da tabela
         var tabelaEquipamentos = document.getElementById('tabelaEquipamentos').getElementsByTagName('tbody')[0];
 
-        // Coleta os IDs dos equipamentos da tabela
         for (var i = 0; i < tabelaEquipamentos.rows.length; i++) {
             var equipamentoId = tabelaEquipamentos.rows[i].getAttribute('data-id-equipamento');
-            equipamentos.push(equipamentoId);
+            var quantidade = tabelaEquipamentos.rows[i].getAttribute('data-quantidade'); // Coleta a quantidade de cada equipamento
+
+
+            emprestimo.itens.push({
+                "id": equipamentoId,
+                "quantidade": quantidade
+            });
         }
 
-        var emprestimoData = {
-            'id' : document.getElementById('txt_id').value,
-            'colaborador' : document.getElementById('cbColaborador').value,
-            'situacao' : document.getElementById('cbSituacao').value,
-            'dataEmprestimo' : document.getElementById('dataEmprestimo').value,
-            'dataDevolucao' : document.getElementById('dataDevolucao').value,
-            'observacoes' : document.getElementById('txtObservacoes').value,
-            'equipamentos' : equipamentos,
-        }
-
-
-        alert(emprestimoData);
+        console.log(JSON.stringify(emprestimo));
 
         $.ajax({
             type: 'post',
             datatype: 'json',
             url: './src/emprestimos/editor_emprestimo.php',
-            data: emprestimoData,
+            data: JSON.stringify(emprestimo),
             success: function(retorno) {
                 if (retorno['codigo'] == 2) {
                     alert(retorno['mensagem']);
                     window.location = 'sistema.php?tela=emprestimos';
                 } else {
                     alert(retorno['mensagem']);
-                    window.location = 'sistema.php?tela=emprestimos';
                 }
             },
             error: function(erro) {
                 alert('Ocorreu um erro na requisição: ' + erro);
             }
         });
-
     }
+
 
     function FinalizarEmprestimo(id)
     {
@@ -312,19 +377,18 @@
     }
     function AlterarEmprestimo(id)
     {
-        // Envia o ID do equipamento para o backend
         $.ajax({
-            type: 'post',
-            url: './src/emprestimos/editor_emprestimo.php', // Endpoint que retorna os dados do equipamento
+            type: 'get',
+            url: './src/emprestimos/editor_emprestimo.php', 
             data: { 'id': id },
             success: function(retorno) 
             {
-                var departamento = JSON.parse(retorno); // Converter o retorno para objeto JavaScript
-                // Preencher os campos do modal com os dados recebidos
+                var departamento = JSON.parse(retorno);
+
                 document.getElementById('txt_id').value = departamento.id;
                 document.getElementById('txt_nome').value = departamento.nome;
-                // Abrir o modal usando Bootstrap
-                EditarDepartamentoModal()
+
+                EditarEmprestimoModal()
             },
             error: function(erro) 
             {
@@ -332,7 +396,7 @@
             }
         });
     }
-    function ReativarDepartamento(id)
+    function CancelarEmprestimo(id)
     {
         $.ajax({
             type: 'post',
@@ -395,36 +459,44 @@
         verificarStatusInicial();
     });
 
+    // Função de Adicionar Equipamento com Quantidade
     document.getElementById('btnAdicionar').addEventListener('click', function() {
-    const cbEquipamento = document.getElementById('cbEquipamento');
-    const equipamentoId = cbEquipamento.value;
-    const equipamentoNome = cbEquipamento.options[cbEquipamento.selectedIndex].text;
+        const cbEquipamento = document.getElementById('cbEquipamento');
+        const equipamentoId = cbEquipamento.value;
+        const equipamentoNome = cbEquipamento.options[cbEquipamento.selectedIndex].text;
+        const quantidade = document.getElementById('inputQuantidade').value; // Obtém a quantidade
 
-    if (equipamentoId !== "0") {
-        const tabelaEquipamentos = document.getElementById('tabelaEquipamentos').getElementsByTagName('tbody')[0];
-        const novaLinha = tabelaEquipamentos.insertRow();
+        if (equipamentoId !== "0" && quantidade > 0) {
+            const tabelaEquipamentos = document.getElementById('tabelaEquipamentos').getElementsByTagName('tbody')[0];
+            const novaLinha = tabelaEquipamentos.insertRow();
 
-        // Adiciona o id do equipamento como atributo na linha da tabela
-        novaLinha.setAttribute('data-id-equipamento', equipamentoId);
+            // Adiciona o id do equipamento e a quantidade como atributos na linha da tabela
+            novaLinha.setAttribute('data-id-equipamento', equipamentoId);
+            novaLinha.setAttribute('data-quantidade', quantidade);  // Adiciona a quantidade
 
-        const celEquipamento = novaLinha.insertCell(0);
-        celEquipamento.textContent = equipamentoNome;
+            const celEquipamento = novaLinha.insertCell(0);
+            celEquipamento.textContent = equipamentoNome;
 
-        const celAcao = novaLinha.insertCell(1);
-        const btnRemover = document.createElement('button');
-        btnRemover.textContent = 'Remover';
-        btnRemover.className = 'btn btn-danger btn-sm';
-        btnRemover.onclick = function() {
-            tabelaEquipamentos.deleteRow(novaLinha.rowIndex - 1);
-        };
-        celAcao.appendChild(btnRemover);
+            const celQuantidade = novaLinha.insertCell(1);
+            celQuantidade.textContent = quantidade;
 
-        // Limpa o campo de seleção de equipamento após adicionar
-        cbEquipamento.value = "0"; 
-    } else {
-        alert('Selecione um equipamento válido.');
-    }
-});
+            const celAcao = novaLinha.insertCell(2);
+            const btnRemover = document.createElement('button');
+            btnRemover.textContent = 'Remover';
+            btnRemover.className = 'btn btn-danger btn-sm';
+            btnRemover.onclick = function() {
+                tabelaEquipamentos.deleteRow(novaLinha.rowIndex - 1);
+            };
+            celAcao.appendChild(btnRemover);
+
+            // Limpa os campos após adicionar
+            cbEquipamento.value = "0"; 
+            document.getElementById('inputQuantidade').value = "1"; // Reseta a quantidade para 1
+        } else {
+            alert('Selecione um equipamento válido e insira uma quantidade maior que 0.');
+        }
+    });
+
 
 
 </script>

@@ -1,43 +1,31 @@
 <?php
 header('Content-Type: application/json');
 
-// Recebendo os dados do POST via Ajax
-$formulario = [
-    'id' => isset($_POST['id']) ? $_POST['id'] : '',
-    'colaborador' => isset($_POST['colaborador']) ? $_POST['colaborador'] : '',
-    'situacao' => isset($_POST['situacao']) ? $_POST['situacao'] : '',
-    'dataEmprestimo' => isset($_POST['dataEmprestimo']) ? $_POST['dataEmprestimo'] : '',
-    'dataDevolucao' => isset($_POST['dataDevolucao']) ? $_POST['dataDevolucao'] : '',
-    'observacoes' => isset($_POST['observacoes']) ? $_POST['observacoes'] : '',
-    'equipamentos' => isset($_POST['equipamentos']) ? $_POST['equipamentos'] : []
-];
-
-// Validando os dados
-if (empty($formulario['colaborador']) || empty($formulario['situacao']) || empty($formulario['dataEmprestimo'])) {
-    echo json_encode([
-        'codigo' => 0,
-        'mensagem' => 'Existem dados faltando! Verifique.'
-    ]);
-    exit;
-}
+include 'functions.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
+        $jsonInput = file_get_contents('php://input');
+        $formulario = json_decode($jsonInput, true);
+
         $mensagem = '';
+
         include '../class/BancodeDados.php';
         $banco = new BancodeDados;
 
-        if ($formulario['id'] == 'NOVO') {
-            // Cadastrar empréstimo e equipamentos
+
+        if ($formulario['id'] == "NOVO") {
             $idEmprestimo = CadastrarEmprestimo($formulario, $banco);
             if ($idEmprestimo != 0) {
-                foreach ($formulario['equipamentos'] as $equipamento) {
-                    CadastrarEquipamentosEmprestimo($idEmprestimo, $equipamento, $banco);
+                foreach ($formulario['itens'] as $equipamento) {
+                    $quantidade = $equipamento['quantidade'];
+                    // VerificarEstoque( $equipamento['id']);
+                    CadastrarEquipamentosEmprestimo($idEmprestimo, $equipamento['id'], $banco, $quantidade);
                 }
             }
             $mensagem = 'Empréstimo cadastrado com sucesso!';
         } else {
-            // Atualizar empréstimo (se necessário)
+
             $mensagem = 'Empréstimo atualizado com sucesso!';
         }
 
@@ -54,50 +42,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ]);
     }
 }
+if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
-function CadastrarEmprestimo($formulario, $banco) : int {
-    try {
-        $sql = 'INSERT INTO emprestimos (colaborador, situacao, data_emprestimo, data_devolucao, observacoes)
-                VALUES (?, ?, ?, ?, ?)
-                RETURNING id_emprestimo';
+    try{
 
-        $parametros = [
-            $formulario['colaborador'],
-            $formulario['situacao'],
-            $formulario['dataEmprestimo'],
-            $formulario['dataDevolucao'],
-            $formulario['observacoes']
-        ];
+        include '../class/BancodeDados.php';
+        $banco = new BancodeDados;
 
-        $id = $banco->ExecutarRetornandoId($sql, $parametros);
-        return $id;
+        $jsonInput = file_get_contents('php://input');
+        $idEmprestimo = json_decode($jsonInput["id"], true);
+    
+        $emprestimo = BuscarEmprestimo($idEmprestimo,$banco);
 
-    } catch (PDOException $erro) {
-        $msg = $erro->getMessage();
-        echo json_encode([
-            'codigo' => 0,
-            'mensagem' => "Erro ao inserir registro: $msg"
-        ]);
-        return 0;
+
+    }catch(PDOException $erro){
+
     }
-}
 
-function CadastrarEquipamentosEmprestimo($idEmprestimo, $idEquipamento, $banco) {
-    try {
-        $sql = 'INSERT INTO emprestimo_equipamentos (id_emprestimo, id_equipamento) VALUES (?, ?)';
 
-        $parametros = [
-            $idEmprestimo,
-            $idEquipamento
-        ];
-
-        $banco->ExecutarComando($sql, $parametros);
-
-    } catch (PDOException $erro) {
-        $msg = $erro->getMessage();
-        echo json_encode([
-            'codigo' => 0,
-            'mensagem' => "Erro ao inserir equipamentos: $msg"
-        ]);
-    }
 }
