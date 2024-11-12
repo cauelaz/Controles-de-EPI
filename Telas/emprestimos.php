@@ -134,7 +134,7 @@
                                     <td>{$linha['observacoes']}</td>
                                     <td>
                                         <a href='#' onclick='AlterarEmprestimo({$linha['id_emprestimo']})'><i class='bi bi-pencil-square'></i></a>
-                                        <a href='#' onclick='CancelarEmprestimo($linha['id_emprestimo']})'><i class='bi bi-trash3-fill'></i></a>
+                                        <a href='#' onclick='CancelarEmprestimo({$linha['id_emprestimo']})'><i class='bi bi-trash3-fill'></i></a>
                                         <a href='#' onclick='FinalizarEmprestimo({$linha['id_emprestimo']})'><i class='bi bi-dropbox'></i></a>
                                     </td>
                                 </tr>";
@@ -156,8 +156,7 @@
         </div>
     </div>
 </div>
-<!--Modal-->
-<!--Modal Principal-->
+
 <!--Modal Principal-->
 <?php
     include_once 'src/class/BancodeDados.php';
@@ -175,7 +174,7 @@
             <form id="form_emprestimo" enctype="multipart/form-data">
                 <div class="modal-header">
                     <h4 class="modal-title" id="modalLabel">Cadastro de Empréstimos</h4>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" onclick="window.location.reload()" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <!-- Abas no Modal -->
@@ -375,27 +374,45 @@
             });
         }
     }
-    function AlterarEmprestimo(id)
-    {
+    function AlterarEmprestimo(id) {
         $.ajax({
             type: 'get',
-            url: './src/emprestimos/editor_emprestimo.php', 
-            data: { 'id': id },
-            success: function(retorno) 
-            {
-                var departamento = JSON.parse(retorno);
+            url: './src/emprestimos/editor_emprestimo.php?id=' + id, 
+            
+            success: function(retorno) {
+                console.log(retorno);
+                var emprestimo = (retorno);
 
-                document.getElementById('txt_id').value = departamento.id;
-                document.getElementById('txt_nome').value = departamento.nome;
+                document.getElementById('txt_id').value = emprestimo.id;
+                document.getElementById('cbColaborador').value = emprestimo.colaborador; // Exemplo de colaborador
+                document.getElementById('cbSituacao').value = emprestimo.situacao;
+                document.getElementById('dataEmprestimo').value = emprestimo.dataEmprestimo;
+                document.getElementById('dataDevolucao').value = emprestimo.dataDevolucao ? emprestimo.dataDevolucao : ''; // Se não houver devolução, deixa em branco
+                document.getElementById('txtObservacoes').value = emprestimo.observacoes;
 
-                EditarEmprestimoModal()
+                var grid = document.getElementById('tabelaEquipamentos');
+                grid.innerHTML = ''; 
+
+
+                emprestimo.itens.forEach(function(item) {
+                    var row = grid.insertRow();
+                    
+                    var cell1 = row.insertCell(0);
+                    var cell2 = row.insertCell(1);
+                    
+                    cell1.innerHTML = item.idEquipamento;
+                    cell2.innerHTML = item.descricao;
+                });
+
+                EditarEmprestimoModal();
             },
-            error: function(erro) 
-            {
+
+            error: function(erro) {
                 alert('Ocorreu um erro na requisição: ' + erro.responseText);
             }
         });
     }
+
     function CancelarEmprestimo(id)
     {
         $.ajax({

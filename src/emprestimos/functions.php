@@ -66,9 +66,33 @@ function BuscarEmprestimo($idEmprestimo,$banco){
 
     $parametros = [
         $idEmprestimo
-    ]
+    ];
+
     $emprestimo = $banco->Consultar($sql,$parametros);
+
 
     return $emprestimo;
  
 }
+function BuscarEquipamentoEmprestimo($idEmprestimo,$banco){
+    $sql = ' SELECT equip.id_equipamento 
+                    ,equip.descricao
+                FROM equipamentos_emprestimo ee 
+                LEFT JOIN equipamentos equip on equip.id_equipamento = ee.equipamento 
+                LEFT JOIN emprestimos e2 on e2.id_emprestimo = ee.emprestimo 
+                WHERE e2.id_emprestimo = ?
+                ';
+
+    $parametros = [
+        $idEmprestimo
+    ];
+
+
+    $equipamentosEmprestimo = $banco->Consultar($sql,$parametros,true);
+
+
+
+    return $equipamentosEmprestimo;
+ 
+}
+

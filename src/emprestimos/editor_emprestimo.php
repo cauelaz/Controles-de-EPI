@@ -13,6 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         include '../class/BancodeDados.php';
         $banco = new BancodeDados;
 
+        $banco->start_transaction();
 
         if ($formulario['id'] == "NOVO") {
             $idEmprestimo = CadastrarEmprestimo($formulario, $banco);
@@ -23,6 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     CadastrarEquipamentosEmprestimo($idEmprestimo, $equipamento['id'], $banco, $quantidade);
                 }
             }
+            $banco->commit();
             $mensagem = 'Empréstimo cadastrado com sucesso!';
         } else {
 
@@ -35,6 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ]);
 
     } catch (PDOException $erro) {
+        $banco->rollback();
         $msg = $erro->getMessage();
         echo json_encode([
             'codigo' => 0,
@@ -50,9 +53,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $banco = new BancodeDados;
 
         $jsonInput = file_get_contents('php://input');
-        $idEmprestimo = json_decode($jsonInput["id"], true);
-    
+        $idEmprestimo = $_GET['id'];
+        
         $emprestimo = BuscarEmprestimo($idEmprestimo,$banco);
+
+
+        $equipamentosEmprestimo = BuscarEquipamentoEmprestimo($idEmprestimo,$banco);
+
+        if ($equipamentosEmprestimo != null && $emprestimo != null) {
+        
+            $response = [
+                "id" => $emprestimo['id'],  
+                "colaborador" => $emprestimo['colaborador'],
+                "situacao" => $emprestimo['situacao'],
+                "dataEmprestimo" => $emprestimo['dataEmprestimo'],
+                "dataDevolucao" => $emprestimo['dataDevolucao'],
+                "observacoes" => $emprestimo['observacoes'],
+                "itens" => []
+            ];
+    
+            foreach ($equipamentosEmprestimo as $equipamento) {
+                extract($equipamento);
+                $response['itens'][] = [
+                    "idEquipamento" => $equipamento['id_equipamento'],  
+                    "descricao" => $equipamento['descricao'],
+                ];
+            }
+
+            echo json_encode( $response);
+            
+        } else{
+            echo json_encode([
+                'codigo' => 0,
+                'mensagem' => "Empréstimo não encontrado ou vazio!"
+            ]);
+        }
+    
+    
 
 
     }catch(PDOException $erro){
@@ -61,3 +98,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
 
 }
+
+

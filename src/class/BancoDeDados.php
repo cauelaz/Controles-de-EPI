@@ -33,5 +33,16 @@
         public function getLastInsertId() {
             return $this->conexao->lastInsertId();
         }
+        public function startTransaction(){
+            return $this->beginTransaction();
+        }
+
+        public function commit(){
+            return $this->commit();
+        }
+
+        public function rollback(){
+            return $this->rollback();
+        }
 
     }
