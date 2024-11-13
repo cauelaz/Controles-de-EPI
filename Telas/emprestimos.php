@@ -66,7 +66,9 @@
                                     <td>{$linha['observacoes']}</td>
                                     <td>
                                         <a href='#' onclick='AlterarEmprestimo({$linha['id_emprestimo']})'><i class='bi bi-pencil-square'></i></a>
-                                    </td>
+                                        <a href='#' onclick='CancelarEmprestimo({$linha['id_emprestimo']})'><i class='bi bi-trash3-fill'></i></a>
+                                        <a href='#' onclick='FinalizarEmprestimo({$linha['id_emprestimo']})'><i class='bi bi-dropbox'></i></a>
+                                     </td>
                                 </tr>";
                             }
                         } 
@@ -190,7 +192,7 @@
                     <div class="tab-content" id="modalTabsContent">
                         <!-- Aba Geral -->
                         <div class="tab-pane fade show active" id="geral" role="tabpanel" aria-labelledby="geral-tab">
-                            <input type="hidden" id="txt_id" value="NOVO">
+                            <input type="hidden" id="txt_id">
                             
                             <!-- Colaborador -->
                             <div class="form-group">
@@ -301,7 +303,7 @@
     function CadastrarEmprestimo() {
 
         var emprestimo = {
-            "id": document.getElementById('txt_id').value,
+            "id": "NOVO",
             "colaborador": document.getElementById('cbColaborador').value,
             "situacao": document.getElementById('cbSituacao').value,
             "dataEmprestimo": document.getElementById('dataEmprestimo').value,
@@ -377,7 +379,7 @@
     function AlterarEmprestimo(id) {
         $.ajax({
             type: 'get',
-            url: './src/emprestimos/editor_emprestimo.php?id=' + id, 
+            url: './src/emprestimos/get_emprestimo.php?id=' + id, 
             
             success: function(retorno) {
                 console.log(retorno);
