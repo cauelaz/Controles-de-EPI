@@ -1,164 +1,234 @@
-<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-    <h1>Empréstimos</h1>
-</div>
-<div class="col-sm-6">
-    <button onclick="abrirModal()" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#adicionar_departamento">
-        <i class="bi bi-plus"></i> Novo Empréstimo
-    </button>
-</div>
-<hr class="my-4">
-<!-- Abas para Ativos e Inativos -->
-<ul class="nav nav-tabs" id="departamentostab" role="tablist">
-    <li class="nav-item" role="presentation">
-        <a class="nav-link active" id="ativos-tab" data-bs-toggle="tab" href="#ativos" role="tab" aria-controls="ativos" aria-selected="true">Abertos</a>
-    </li>
-    <li class="nav-item" role="presentation">
-        <a class="nav-link" id="inativos-tab" data-bs-toggle="tab" href="#inativos" role="tab" aria-controls="inativos" aria-selected="false">Finalizados</a>
-    </li>
-</ul>
-<!-- Conteúdo das Abas -->
-<div class="tab-content" id="departamentosTabContent">
-    <div class="tab-pane fade show active" id="ativos" role="tabpanel" aria-labelledby="ativos-tab">
-        <div class="table-responsive">
-            <table class="table table-striped table-hover">
-                <thead>
-                    <tr class="text-center">
-                        <th scope="col">ID</th>
-                        <th scope="col">Colaborador</th>
-                        <th scope="col">Qtd. EPI's</th>
-                        <th scope="col">Data Empréstimo</th>
-                        <th scope="col">Data Devolução</th>
-                        <th scope="col">Observações</th>
-                        <th scope="col">Ações</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php
-                    try 
-                    {
-                        include_once 'src/class/BancodeDados.php';
-                        $banco = new BancodeDados;
-                        $sql = 'SELECT
-                                    e.id_emprestimo,
-                                    e.data_emprestimo,
-                                    e.data_devolucao,
-                                    c.nome_colaborador,
-                                    e.observacoes,
-                                    SUM(ee.quantidade) AS quantidade
-                                FROM emprestimos e
-                                LEFT JOIN colaboradores c ON c.id_colaborador = e.colaborador
-                                LEFT JOIN equipamentos_emprestimo ee ON ee.emprestimo = e.id_emprestimo
-                                WHERE e.situacao = 1
-                                GROUP BY e.id_emprestimo, e.data_emprestimo, e.data_devolucao, c.nome_colaborador, e.observacoes
-                                ORDER BY e.id_emprestimo ASC;';
+<div class="container-fluid py-4">
+    <!-- Cabeçalho com título e botão -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Empréstimos</h1>
+        <button onclick="abrirModal()" class="btn btn-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#adicionar_departamento">
+            <i class="bi bi-plus-lg me-2"></i>Novo Empréstimo
+        </button>
+    </div>
 
-                        $dados = $banco->Consultar($sql, [], true);
-                        if ($dados) {
-                            foreach ($dados as $linha) 
-                            {
-                                echo 
-                                "<tr class='text-center'>
-                                    <td>{$linha['id_emprestimo']}</td>
-                                    <td>{$linha['nome_colaborador']}</td>
-                                    <td>{$linha['quantidade']}</td>
-                                    <td>{$linha['data_emprestimo']}</td>
-                                    <td>{$linha['data_devolucao']}</td>
-                                    <td>{$linha['observacoes']}</td>
-                                    <td>
-                                        <a href='#' onclick='AlterarEmprestimo({$linha['id_emprestimo']})'><i class='bi bi-pencil-square'></i></a>
-                                        <a href='#' onclick='CancelarEmprestimo({$linha['id_emprestimo']})'><i class='bi bi-trash3-fill'></i></a>
-                                        <a href='#' onclick='FinalizarEmprestimo({$linha['id_emprestimo']})'><i class='bi bi-dropbox'></i></a>
-                                     </td>
-                                </tr>";
-                            }
-                        } 
-                        else 
-                        {
-                            echo "<tr><td colspan='4' class='text-center'>Nenhum empréstimo ativo...</td></tr>";
-                        }
-                    } 
-                    catch (PDOException $erro) 
-                    {
-                        $msg = $erro->getMessage();
-                        echo "<script>alert(\"$msg\");</script>";
-                    }
-                    ?>
-                </tbody>
-            </table>
+    <!-- Cards de Estatísticas (opcional) -->
+    <div class="row mb-4">
+   <!-- Card Empréstimos Ativos -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Empréstimos Ativos</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">18</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="bi bi-box-seam fs-2 text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card Empréstimos Finalizados -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Empréstimos Finalizados</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">12</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="bi bi-check-circle-fill fs-2 text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-    <!-- Usuários Inativos -->
-    <div class="tab-pane fade" id="inativos" role="tabpanel" aria-labelledby="inativos-tab">
-        <div class="table-responsive">
-        <table class="table table-striped table-hover">
-                <thead>
-                    <tr class="text-center">
-                        <th scope="col">ID</th>
-                        <th scope="col">Colaborador</th>
-                        <th scope="col">Qtd. EPI's</th>
-                        <th scope="col">Data Empréstimo</th>
-                        <th scope="col">Data Devolução</th>
-                        <th scope="col">Observações</th>
-                        <th scope="col">Ações</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php
-                    try 
-                    {
-                        include_once 'src/class/BancodeDados.php';
-                        $banco = new BancodeDados;
-                        $sql = 'SELECT
-                                    e.id_emprestimo,
-                                    e.data_emprestimo,
-                                    e.data_devolucao,
-                                    c.nome_colaborador,
-                                    e.observacoes,
-                                    SUM(ee.quantidade) AS quantidade
-                                FROM emprestimos e
-                                LEFT JOIN colaboradores c ON c.id_colaborador = e.colaborador
-                                LEFT JOIN equipamentos_emprestimo ee ON ee.emprestimo = e.id_emprestimo
-                                WHERE e.situacao = 2 and e.data_devolucao not null  
-                                GROUP BY e.id_emprestimo, e.data_emprestimo, e.data_devolucao, c.nome_colaborador, e.observacoes
-                                ORDER BY e.id_emprestimo ASC;';
 
-                        $dados = $banco->Consultar($sql, [], true);
-                        if ($dados) {
-                            foreach ($dados as $linha) 
-                            {
-                                echo 
-                                "<tr class='text-center'>
-                                    <td>{$linha['id_emprestimo']}</td>
-                                    <td>{$linha['nome_colaborador']}</td>
-                                    <td>{$linha['quantidade']}</td>
-                                    <td>{$linha['data_emprestimo']}</td>
-                                    <td>{$linha['data_devolucao']}</td>
-                                    <td>{$linha['observacoes']}</td>
-                                    <td>
-                                        <a href='#' onclick='AlterarEmprestimo({$linha['id_emprestimo']})'><i class='bi bi-pencil-square'></i></a>
-                                        <a href='#' onclick='CancelarEmprestimo({$linha['id_emprestimo']})'><i class='bi bi-trash3-fill'></i></a>
-                                        <a href='#' onclick='FinalizarEmprestimo({$linha['id_emprestimo']})'><i class='bi bi-dropbox'></i></a>
-                                    </td>
-                                </tr>";
-                            }
-                        } 
-                        else 
-                        {
-                            echo "<tr><td colspan='4' class='text-center'>Nenhum empréstimo finalizado...</td></tr>";
-                        }
-                    } 
-                    catch (PDOException $erro) 
-                    {
-                        $msg = $erro->getMessage();
-                        echo "<script>alert(\"$msg\");</script>";
-                    }
-                    ?>
-                </tbody>
-            </table>
+
+
+    <!-- Abas estilizadas -->
+    <div class="card shadow mb-4">
+        <div class="card-header p-0">
+            <ul class="nav nav-pills nav-fill p-2" id="departamentostab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active px-4 py-3" id="ativos-tab" data-bs-toggle="tab" data-bs-target="#ativos" type="button" role="tab">
+                        <i class="bi bi-box2-fill me-2"></i>
+                        Empréstimos Abertos
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link px-4 py-3" id="inativos-tab" data-bs-toggle="tab" data-bs-target="#inativos" type="button" role="tab">
+                        <i class="bi bi-check-circle-fill me-2"></i>
+                        Empréstimos Finalizados
+                    </button>
+                </li>
+            </ul>
+        </div>
+        
+        <div class="card-body">
+            <div class="tab-content" id="departamentosTabContent">
+                <div class="tab-pane fade show active" id="ativos" role="tabpanel" aria-labelledby="ativos-tab">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr class="text-center">
+                                    <th scope="col">ID</th>
+                                    <th scope="col">Colaborador</th>
+                                    <th scope="col">Qtd. EPI's</th>
+                                    <th scope="col">Data Empréstimo</th>
+                                    <th scope="col">Data Devolução</th>
+                                    <th scope="col">Observações</th>
+                                    <th scope="col">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php
+                                try 
+                                {
+                                    include_once 'src/class/BancodeDados.php';
+                                    $banco = new BancodeDados;
+                                    $sql = 'SELECT
+                                                e.id_emprestimo,
+                                                e.data_emprestimo,
+                                                e.data_devolucao,
+                                                c.nome_colaborador,
+                                                e.observacoes,
+                                                SUM(ee.quantidade) AS quantidade
+                                            FROM emprestimos e
+                                            LEFT JOIN colaboradores c ON c.id_colaborador = e.colaborador
+                                            LEFT JOIN equipamentos_emprestimo ee ON ee.emprestimo = e.id_emprestimo
+                                            WHERE e.situacao = 1
+                                            GROUP BY e.id_emprestimo, e.data_emprestimo, e.data_devolucao, c.nome_colaborador, e.observacoes
+                                            ORDER BY e.id_emprestimo ASC;';
+            
+                                    $dados = $banco->Consultar($sql, [], true);
+                                    if ($dados) {
+                                        foreach ($dados as $linha) 
+                                        {
+                                            echo 
+                                            "<tr class='text-center'>
+                                                <td>{$linha['id_emprestimo']}</td>
+                                                <td>{$linha['nome_colaborador']}</td>
+                                                <td>{$linha['quantidade']}</td>
+                                                <td>{$linha['data_emprestimo']}</td>
+                                                <td>{$linha['data_devolucao']}</td>
+                                                <td>{$linha['observacoes']}</td>
+                                                <td>
+                                                    <a href='#' onclick='AlterarEmprestimo({$linha['id_emprestimo']})'><i class='bi bi-pencil-square'></i></a>
+                                                    <a href='#' onclick='CancelarEmprestimo({$linha['id_emprestimo']})'><i class='bi bi-trash3-fill'></i></a>
+                                                    <a href='#' onclick='FinalizarEmprestimo({$linha['id_emprestimo']})'><i class='bi bi-dropbox'></i></a>
+                                                 </td>
+                                            </tr>";
+                                        }
+                                    } 
+                                    else 
+                                    {
+                                        echo "<tr><td colspan='4' class='text-center'>Nenhum empréstimo ativo...</td></tr>";
+                                    }
+                                } 
+                                catch (PDOException $erro) 
+                                {
+                                    $msg = $erro->getMessage();
+                                    echo "<script>alert(\"$msg\");</script>";
+                                }
+                                ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <!-- Usuários Inativos -->
+                <div class="tab-pane fade" id="inativos" role="tabpanel" aria-labelledby="inativos-tab">
+                    <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                            <thead>
+                                <tr class="text-center">
+                                    <th scope="col">ID</th>
+                                    <th scope="col">Colaborador</th>
+                                    <th scope="col">Qtd. EPI's</th>
+                                    <th scope="col">Data Empréstimo</th>
+                                    <th scope="col">Data Devolução</th>
+                                    <th scope="col">Observações</th>
+                                    <th scope="col">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php
+                                try 
+                                {
+                                    include_once 'src/class/BancodeDados.php';
+                                    $banco = new BancodeDados;
+                                    $sql = 'SELECT
+                                                e.id_emprestimo,
+                                                e.data_emprestimo,
+                                                e.data_devolucao,
+                                                c.nome_colaborador,
+                                                e.observacoes,
+                                                SUM(ee.quantidade) AS quantidade
+                                            FROM emprestimos e
+                                            LEFT JOIN colaboradores c ON c.id_colaborador = e.colaborador
+                                            LEFT JOIN equipamentos_emprestimo ee ON ee.emprestimo = e.id_emprestimo
+                                            WHERE e.situacao = 2 and e.data_devolucao not null  
+                                            GROUP BY e.id_emprestimo, e.data_emprestimo, e.data_devolucao, c.nome_colaborador, e.observacoes
+                                            ORDER BY e.id_emprestimo ASC;';
+            
+                                    $dados = $banco->Consultar($sql, [], true);
+                                    if ($dados) {
+                                        foreach ($dados as $linha) 
+                                        {
+                                            echo 
+                                            "<tr class='text-center'>
+                                                <td>{$linha['id_emprestimo']}</td>
+                                                <td>{$linha['nome_colaborador']}</td>
+                                                <td>{$linha['quantidade']}</td>
+                                                <td>{$linha['data_emprestimo']}</td>
+                                                <td>{$linha['data_devolucao']}</td>
+                                                <td>{$linha['observacoes']}</td>
+                                                <td>
+                                                    <a href='#' onclick='AlterarEmprestimo({$linha['id_emprestimo']})'><i class='bi bi-pencil-square'></i></a>
+                                                    <a href='#' onclick='CancelarEmprestimo({$linha['id_emprestimo']})'><i class='bi bi-trash3-fill'></i></a>
+                                                    <a href='#' onclick='FinalizarEmprestimo({$linha['id_emprestimo']})'><i class='bi bi-dropbox'></i></a>
+                                                </td>
+                                            </tr>";
+                                        }
+                                    } 
+                                    else 
+                                    {
+                                        echo "<tr><td colspan='4' class='text-center'>Nenhum empréstimo finalizado...</td></tr>";
+                                    }
+                                } 
+                                catch (PDOException $erro) 
+                                {
+                                    $msg = $erro->getMessage();
+                                    echo "<script>alert(\"$msg\");</script>";
+                                }
+                                ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
+<script>
+
+document.addEventListener('DOMContentLoaded', function() {
+    const tabs = document.querySelectorAll('.nav-link');
+    tabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            tabs.forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+        });
+    });
+});
+
+document.querySelectorAll('.table a').forEach(link => {
+    link.classList.add('btn-action', 'mx-1');
+});
+</script>
 <!--Modal Principal-->
 <?php
     include_once 'src/class/BancodeDados.php';
