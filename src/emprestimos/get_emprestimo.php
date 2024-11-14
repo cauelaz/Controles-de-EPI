@@ -111,3 +111,4 @@ function get_all($banco,$inativos){
 
 
 }
+

@@ -1,5 +1,5 @@
 <div class="container-fluid py-4">
-    <!-- Cabeçalho com título e botão -->
+
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="h3 mb-0 text-gray-800">Empréstimos</h1>
         <button onclick="abrirModal()" class="btn btn-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#adicionar_departamento">
@@ -7,9 +7,34 @@
         </button>
     </div>
 
-    <!-- Cards de Estatísticas (opcional) -->
+    <?php
+        try {
+            include_once 'src/class/BancodeDados.php';
+            $banco = new BancodeDados;
+            $sql = 'SELECT 
+                    COUNT(CASE WHEN situacao = 1 THEN 1 END) AS ativos,
+                    COUNT(CASE WHEN situacao = 2 THEN 1 END) AS finalizados
+                FROM emprestimos e;
+                ;';
+            $dados = $banco->Consultar($sql, [], true);
+
+            if ($dados) {
+                $ativos = $dados[0]['ativos'];
+                $finalizados = $dados[0]['finalizados'];
+            } else {
+                $ativos = 0;
+                $finalizados = 0;
+            }
+
+        } catch (PDOException $erro) 
+        {
+            $msg = $erro->getMessage();
+            echo "<script>alert(\"$msg\");</script>";
+        } 
+
+    ?>
+
     <div class="row mb-4">
-   <!-- Card Empréstimos Ativos -->
         <div class="col-xl-3 col-md-6 mb-4">
             <div class="card border-left-primary shadow h-100 py-2">
                 <div class="card-body">
@@ -17,7 +42,7 @@
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
                                 Empréstimos Ativos</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">18</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?= $ativos ?></div>
                         </div>
                         <div class="col-auto">
                             <i class="bi bi-box-seam fs-2 text-gray-300"></i>
@@ -27,7 +52,6 @@
             </div>
         </div>
 
-        <!-- Card Empréstimos Finalizados -->
         <div class="col-xl-3 col-md-6 mb-4">
             <div class="card border-left-success shadow h-100 py-2">
                 <div class="card-body">
@@ -35,7 +59,7 @@
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
                                 Empréstimos Finalizados</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">12</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?= $finalizados ?></div>
                         </div>
                         <div class="col-auto">
                             <i class="bi bi-check-circle-fill fs-2 text-gray-300"></i>
@@ -46,9 +70,6 @@
         </div>
     </div>
 
-
-
-    <!-- Abas estilizadas -->
     <div class="card shadow mb-4">
         <div class="card-header p-0">
             <ul class="nav nav-pills nav-fill p-2" id="departamentostab" role="tablist">
@@ -543,12 +564,10 @@ document.querySelectorAll('.table a').forEach(link => {
         }
     }
 
-    // Chame a função verificarStatusInicial ao abrir o modal
     document.getElementById('emprestimo_editor').addEventListener('shown.bs.modal', function() {
         verificarStatusInicial();
     });
 
-    // Função de Adicionar Equipamento com Quantidade
     document.getElementById('btnAdicionar').addEventListener('click', function() {
         const cbEquipamento = document.getElementById('cbEquipamento');
         const equipamentoId = cbEquipamento.value;

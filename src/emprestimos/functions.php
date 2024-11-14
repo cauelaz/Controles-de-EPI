@@ -77,6 +77,7 @@ function BuscarEmprestimo($idEmprestimo,$banco){
 function BuscarEquipamentoEmprestimo($idEmprestimo,$banco){
     $sql = ' SELECT equip.id_equipamento 
                     ,equip.descricao
+                    ,ee.quantidade
                 FROM equipamentos_emprestimo ee 
                 LEFT JOIN equipamentos equip on equip.id_equipamento = ee.equipamento 
                 LEFT JOIN emprestimos e2 on e2.id_emprestimo = ee.emprestimo 
@@ -96,3 +97,46 @@ function BuscarEquipamentoEmprestimo($idEmprestimo,$banco){
  
 }
 
+
+function AtualizarEstoque($banco,$idEquipamento,$quantidade,$soma){
+
+    try {
+
+        $sqlqtd  = 'SELECT qtd_estoque FROM equipamentos WHERE id_equipamento = ?';
+
+        $parametros = [
+            $idEquipamento
+        ];
+
+        $qtdAtual = $banco->Consultar($sqlqtd,$parametros);
+
+
+        if ($soma == true){
+            $qtd =  $qtdAtual + $quantidade;
+        }else{
+            $qtd =  $qtdAtual - $qtdAtual;
+        }
+
+        $sql = 'UPDATE equipamentos SET qtd_estoque = ?
+        WHERE id_equipamento = ?';
+
+        $parametros = [
+            $idEquipamento,
+            $qtd 
+        ];
+
+        $result = $banco->ExecutarComando($sql,$parametros);
+
+        return true;
+
+    } catch (PDOException $error) {
+        $msg = $erro->getMessage();
+        echo json_encode([
+            'codigo' => 0,
+            'mensagem' => "Erro ao atualizar estoque: $msg"
+        ]);
+        return false;
+    }
+
+
+}
