@@ -4,7 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registro - EPIs</title>
+    <!--Jquery-->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <!--Bootstrap-->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="assets/css/index.css" rel="stylesheet">
+    <script src="assets/js/registrar.js"></script>
 </head>
 <body class="d-flex align-items-center py-4 bg-body-tertiary">
     <button class="btn btn-outline-primary btn-login" onclick="Login()">
@@ -31,54 +36,4 @@
         </form>
     </main>
 </body>
-</html>   
-<!--Jquery-->
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<!--Bootstrap-->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<script>
-    function Login() {
-        window.location = 'sistema.php';
-    }
-    // Desativa o submit do formulário
-    $('#registrarform').submit(function() {
-        return false; // Evita o envio padrão do formulário
-    });
-    function Registrar() {
-        var usuario = document.getElementById('txt_usuario').value;
-        var senha = document.getElementById('txt_senha').value;
-        var adm = document.getElementById('list_user').value;
-
-        if (usuario && senha) { // Validação simples
-            $.ajax({
-                type: 'post',
-                datatype: 'json',
-                url: './src/usuarios/registrar_usuario.php',
-                data: {
-                    'usuario': usuario,
-                    'senha': senha,
-                    'adm': adm
-                },
-                success: function(retorno) {
-                    if (retorno['codigo'] == 2) {
-                        alert(retorno['mensagem']);
-                        window.location = 'index.php';
-                    } 
-                    else if (retorno['codigo'] == 0)
-                    {
-                        alert(retorno['mensagem']);
-                        window.location = 'registrar.php';
-                    }
-                },
-                error: function(erro) 
-                {
-                    alert('Ocorreu um erro na requisição: ' + erro);
-                }
-            });
-        } 
-        else 
-        {
-            alert('Por favor, preencha todos os campos!');
-        }
-    }
-</script>
+</html> 

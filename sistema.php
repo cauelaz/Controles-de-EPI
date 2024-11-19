@@ -55,15 +55,36 @@
                  WHERE equipamentos.ativo = 1
                  GROUP BY equipamentos.id_equipamento, equipamentos.descricao, equipamentos.qtd_estoque';
     $estoquepordepartamento = $banco->Consultar($sql, [], true);
-    $dataPointsPizza_estoquepordepartamento = [];
+    $data_PointsPizza_estoque_disponivel = [];
     foreach($estoquepordepartamento as $estoque)
     {
-        $dataPointsPizza_estoquepordepartamento[] = 
+        $data_PointsPizza_estoque_disponivel[] = 
         [
             "label" => $estoque['descricao'], // Nome do departamento como label
             "y"     => $estoque['qtd_disponivel']      // Quantidade de empréstimos como valor
         ];
     }
+    $sql = 'SELECT COUNT(emprestimos.id_emprestimo) as total_emprestimos
+                 , MONTHNAME(emprestimos.data_emprestimo) AS mes_emprestimo
+            FROM emprestimos
+            JOIN colaboradores ON colaboradores.id_colaborador = emprestimos.colaborador
+            WHERE emprestimos.ativo = 1';
+    $datapoint_qtdemprestimospormes = [];
+    $emprestimos = $banco->Consultar($sql, [], true);
+    foreach($emprestimos as $emprestimo)
+    {
+        if(!isset($qtdemprestimospormes[$emprestimo['mes_emprestimo']]))
+        {
+            if($emprestimo['total_emprestimos'] > 0)
+            {
+                $datapoint_qtdemprestimospormes[] = 
+                [
+                    "label" => $emprestimo['mes_emprestimo'], 
+                    "y"     => $emprestimo['total_emprestimos)']      
+                ];
+            }
+        }
+    }            
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -75,7 +96,9 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.canvasjs.com/canvasjs.min.js"></script>
+    <script src="assets/js/sistema.js"></script>
 </head>
 <body style="overflow-x: hidden">
     <div>
@@ -225,6 +248,7 @@
                                     <h1 class="h2">Bem-vindo <strong>' . $_SESSION['nome_usuario'] . '</strong>!</h1>
                                 </div>
                                     <div class="col-md-6 align-items-center" id="chartContainerGraphicDISPONIVELporDEPARTAMENTO" style="height: 370px;"></div>
+                                    <div class="col-md-6 align-items-center" id="chartContainerGraphicBarEmprestimosporMes" style="height: 370px;"></div>
                                 <div class="row">
                                     <div class="col-md-6 align-items-center" id="chartContainerGraphicPizzaEMPRESTIMOS" style="height: 370px;"></div>
                                     <div class="col-md-6 align-items-center" id="chartContainerGraphicPizzaCOLABORADORES" style="height: 370px;"></div>
@@ -236,120 +260,85 @@
             </div>
         </div>
     </body>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-            function sair() 
-            {
-                var confirmou = confirm('Deseja realmente sair do sistema?');
-                if (confirmou) 
-                {
-                    window.location = 'src/logout.php';
-                }
-            }
-            // Função para criar gráfico no Dashboard
-            window.onload = function Graphic() 
-            {
-                // Grafico com crosshair
-                var chartgraphicestoquepordepartamento = new CanvasJS.Chart("chartContainerGraphicDISPONIVELporDEPARTAMENTO", {
-                    animationEnabled: true,
-                    theme: "light2",
-                    title:{
-                        text: "Estoque Disponível por Departamento"
-                    },
-                    axisY: {
-                        title: "Qtd. Disponível"
-                    },
-                    data: [{
-                        type: "column",
-                        yValueFormatString: "#",
-                        dataPoints: <?php echo json_encode($dataPointsPizza_estoquepordepartamento, JSON_NUMERIC_CHECK); ?>
-                    }]
-                });
-                chartgraphicestoquepordepartamento.render();
-                // Grafico Pizza Empréstimos por Departamento
-                var chartgraphicpizzaEMPRESTIMOS = new CanvasJS.Chart("chartContainerGraphicPizzaEMPRESTIMOS", {
+        // Função para criar gráfico no Dashboard
+        window.onload = function Graphic() 
+        {
+            // Grafico com crosshair
+            var chartgraphicestoquepordepartamento = new CanvasJS.Chart("chartContainerGraphicDISPONIVELporDEPARTAMENTO", {
                 animationEnabled: true,
-                exportEnabled: false,
+                theme: "light2",
                 title:{
-                    text: "Empréstimos por Departamento"
+                    text: "Estoque Disponível"
+                },
+                axisY: {
+                    title: "Qtd. Disponível"
                 },
                 data: [{
-                    type: "pie",
-                    showInLegend: true,
-                    legendText: "{label}",
-                    indexLabelFontSize: 16,
-                    indexLabel: "{label} - {y}",
-                    yValueFormatString: "#,##0",
-                    dataPoints: <?php echo json_encode($dataPointsPizza_totalemprestimospordepartamento, JSON_NUMERIC_CHECK); ?>
+                    type: "column",
+                    yValueFormatString: "#",
+                    dataPoints: <?php echo json_encode($data_PointsPizza_estoque_disponivel, JSON_NUMERIC_CHECK); ?>
                 }]
-                });
-                chartgraphicpizzaEMPRESTIMOS.render();
-                //Gráfio Pizza Colaboradores por Departamento
-                var chartgraphicpizzaCOLABORADORES = new CanvasJS.Chart("chartContainerGraphicPizzaCOLABORADORES", {
+            });
+            chartgraphicestoquepordepartamento.render();
+            // Grafico Pizza Empréstimos por Departamento
+            var chartgraphicpizzaEMPRESTIMOS = new CanvasJS.Chart("chartContainerGraphicPizzaEMPRESTIMOS", {
+            animationEnabled: true,
+            exportEnabled: false,
+            title:{
+                text: "Empréstimos por Departamento"
+            },
+            data: [{
+                type: "pie",
+                showInLegend: true,
+                legendText: "{label}",
+                indexLabelFontSize: 16,
+                indexLabel: "{label} - {y}",
+                yValueFormatString: "#,##0",
+                dataPoints: <?php echo json_encode($dataPointsPizza_totalemprestimospordepartamento, JSON_NUMERIC_CHECK); ?>
+            }]
+            });
+            chartgraphicpizzaEMPRESTIMOS.render();
+            //Gráfio Pizza Colaboradores por Departamento
+            var chartgraphicpizzaCOLABORADORES = new CanvasJS.Chart("chartContainerGraphicPizzaCOLABORADORES", {
+            animationEnabled: true,
+            exportEnabled: false,
+            title:{
+                text: "Colaboradores por Departamento"
+            },
+            data: [{
+                type: "pie",
+                showInLegend: true,
+                legendText: "{label}",
+                indexLabelFontSize: 16,
+                indexLabel: "{label} - {y}",
+                yValueFormatString: "#,##0",
+                dataPoints: <?php echo json_encode($dataPointsPizza_totalcolaboradorespordepartamento, JSON_NUMERIC_CHECK); ?>
+            }]
+            });
+            chartgraphicpizzaCOLABORADORES.render();
+            // Grafico Bar Emprestimos por Mês
+            var chartgraphicbaremprestimospormes = new CanvasJS.Chart("chartContainerGraphicBarEmprestimosporMes", {
                 animationEnabled: true,
-                exportEnabled: false,
                 title:{
-                    text: "Colaboradores por Departamento"
+                    text: "Total Emprestimos por Mês"
+                },
+                axisY: {
+                    includeZero: true,
+                    prefix: "$",
+                    suffix:  "k"
                 },
                 data: [{
-                    type: "pie",
-                    showInLegend: true,
-                    legendText: "{label}",
-                    indexLabelFontSize: 16,
-                    indexLabel: "{label} - {y}",
-                    yValueFormatString: "#,##0",
-                    dataPoints: <?php echo json_encode($dataPointsPizza_totalcolaboradorespordepartamento, JSON_NUMERIC_CHECK); ?>
+                    type: "bar",
+                    yValueFormatString: "$#,##0K",
+                    indexLabel: "{y}",
+                    indexLabelPlacement: "inside",
+                    indexLabelFontWeight: "bolder",
+                    indexLabelFontColor: "white",
+                    dataPoints: <?php echo json_encode($datapoint_qtdemprestimospormes, JSON_NUMERIC_CHECK); ?>
                 }]
-                });
-                chartgraphicpizzaCOLABORADORES.render();
-            }
-            function getCookie(name) 
-            {
-                let value = `; ${document.cookie}`;
-                let parts = value.split(`; ${name}=`); 
-                if (parts.length === 2) return parts.pop().split(';').shift(); 
-            }
-
-            // Pega o timestamp do login
-            let loginTime = getCookie('login_time'); 
-            if (loginTime) 
-            {
-                // Converte o valor do cookie de string para número e de segundos para milissegundos
-                loginTime = parseInt(loginTime) * 1000;
-                // Define o tempo máximo de sessão (30 minutos em milissegundos)
-                let sessionDuration = 30 * 60 * 1000;
-                function updateTimer() 
-                {
-                    let now = new Date().getTime();
-                    let elapsedTime = now - loginTime; // Tempo decorrido desde o login
-                    let timeRemaining = sessionDuration - elapsedTime; // Tempo restante
-
-                    if (timeRemaining > 0) 
-                    {
-                        let minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
-                        let seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
-                        let sessionText = `Tempo restante da sessão: ${minutes}m ${seconds}s`;
-                        // Atualiza tanto no layout principal quanto no offcanvas
-                        document.getElementById("temp_session").innerHTML = sessionText;
-                        document.getElementById("temp_session_mobile").innerHTML = sessionText;
-                    } 
-                    else 
-                    {
-                        clearInterval(sessionInterval); // Limpa o setInterval para evitar o loop
-                        document.getElementById("temp_session").innerHTML = "Sessão expirada.";
-                        document.getElementById("temp_session_mobile").innerHTML = "Sessão expirada.";
-                        alert("Sua sessão expirou. Por favor, efetue o login novamente.");
-                        window.location = 'index.php';
-                    }
-                }
-                // Atualiza o timer a cada segundo
-                let sessionInterval = setInterval(updateTimer, 100); 
-            } 
-            else 
-            {
-                document.getElementById("temp_session").innerHTML = "Nenhum cookie de login encontrado.";
-                document.getElementById("temp_session_mobile").innerHTML = "Nenhum cookie de login encontrado.";
-                window.location = 'index.php';
-            }
-        </script>
+            });
+            chartgraphicbaremprestimospormes.render();
+        }
+    </script>
 </html>

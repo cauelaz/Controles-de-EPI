@@ -34,7 +34,7 @@
         {         
             echo json_encode([
                'codigo' => 3,
-               'mensagem' => 'Estoque insuficiente para o ajuste, pois existem itens emprestaodos!'
+               'mensagem' => 'Estoque insuficiente para o ajuste, pois existem itens emprestados!'
             ]);
             exit;
         }
