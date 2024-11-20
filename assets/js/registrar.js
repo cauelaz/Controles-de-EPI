@@ -28,7 +28,7 @@ function Registrar() {
                 else if (retorno['codigo'] == 0)
                 {
                     alert(retorno['mensagem']);
-                    window.location = 'registrar.php';
+                    LimpaCampos();
                 }
             },
             error: function(erro) 
@@ -41,4 +41,9 @@ function Registrar() {
     {
         alert('Por favor, preencha todos os campos!');
     }
+}
+function LimpaCampos()
+{
+    document.getElementById('txt_usuario').value = '';
+    document.getElementById('txt_senha').value = '';
 }

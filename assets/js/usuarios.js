@@ -17,6 +17,11 @@ function CadastrarUsuario()
     var usuario = document.getElementById('txt_nome').value;
     var senha   = document.getElementById('txt_senha').value;
     var adm     = document.getElementById('list_user').value;
+    if(adm == "")
+    {
+        alert("Escolha um tipo de usuário!");
+        return false;
+    }
     if (usuario && senha) 
     { 
         $.ajax({
@@ -37,10 +42,10 @@ function CadastrarUsuario()
                     alert(retorno['mensagem']);
                     window.location = 'sistema.php?tela=usuarios';
                 }
-                else 
+                else if (retorno['codigo'] == 0)
                 {
                     alert(retorno['mensagem']);
-                    window.location = 'sistema.php?tela=usuarios';
+                    LimpaCampos();
                 }
             },
             error: function(erro) 
@@ -126,4 +131,11 @@ function ReativarUsuario(id)
             alert('Ocorreu um erro na requisição: ' + erro.responseText);
         }
     });
+}
+function LimpaCampos()
+{
+    document.getElementById('txt_id').value = '';
+    document.getElementById('txt_nome').value = '';
+    document.getElementById('txt_senha').value = '';
+    document.getElementById('list_user').value = '';
 }

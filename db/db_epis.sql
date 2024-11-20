@@ -16,11 +16,9 @@ USE `db_epis`;
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
-
 --
 -- Table structure for table `colaboradores`
 --
-
 DROP TABLE IF EXISTS `colaboradores`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
@@ -37,13 +35,11 @@ CREATE TABLE `colaboradores` (
   PRIMARY KEY (`id_colaborador`),
   KEY `fk_id_departamento_idx` (`id_departamento`),
   CONSTRAINT `fk_id_departamento` FOREIGN KEY (`id_departamento`) REFERENCES `departamentos` (`id_departamento`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
 --
 -- Table structure for table `departamentos`
 --
-
 DROP TABLE IF EXISTS `departamentos`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
@@ -52,13 +48,11 @@ CREATE TABLE `departamentos` (
   `nome_departamento` varchar(255) DEFAULT NULL,
   `ativo` tinyint(1) DEFAULT NULL,
   PRIMARY KEY (`id_departamento`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
 --
 -- Table structure for table `emprestimos`
 --
-
 DROP TABLE IF EXISTS `emprestimos`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
@@ -75,13 +69,11 @@ CREATE TABLE `emprestimos` (
   KEY `emprestimos_usuarios_FK` (`usuario`),
   CONSTRAINT `emprestimos_colaboradores_FK` FOREIGN KEY (`colaborador`) REFERENCES `colaboradores` (`id_colaborador`),
   CONSTRAINT `emprestimos_usuarios_FK` FOREIGN KEY (`usuario`) REFERENCES `usuarios` (`id_usuario`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
 --
 -- Table structure for table `endereco_colaborador`
 --
-
 DROP TABLE IF EXISTS `endereco_colaborador`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
@@ -98,11 +90,9 @@ CREATE TABLE `endereco_colaborador` (
   CONSTRAINT `fk_id_colaborador` FOREIGN KEY (`fk_id_colaborador`) REFERENCES `colaboradores` (`id_colaborador`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
 --
 -- Table structure for table `equipamentos`
 --
-
 DROP TABLE IF EXISTS `equipamentos`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
@@ -114,13 +104,11 @@ CREATE TABLE `equipamentos` (
   `certificado_aprovacao` varchar(100) DEFAULT NULL,
   `imagem_equipamento` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id_equipamento`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
 --
 -- Table structure for table `equipamentos_emprestimo`
 --
-
 DROP TABLE IF EXISTS `equipamentos_emprestimo`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
@@ -130,15 +118,14 @@ CREATE TABLE `equipamentos_emprestimo` (
   `emprestimo` int(11) DEFAULT NULL,
   PRIMARY KEY (`id_equipamento_emprestimo`),
   KEY `equipamentos_emprestimo_equipamentos_FK` (`equipamento`),
-  CONSTRAINT `equipamentos_emprestimo_emprestimos_FK` FOREIGN KEY (`equipamento`) REFERENCES `emprestimos` (`id_emprestimo`),
-  CONSTRAINT `equipamentos_emprestimo_equipamentos_FK` FOREIGN KEY (`equipamento`) REFERENCES `equipamentos` (`id_equipamento`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  KEY `FK_EMPRESTIMO_idx` (`emprestimo`),
+  CONSTRAINT `FK_EMPRESTIMO` FOREIGN KEY (`emprestimo`) REFERENCES `emprestimos` (`id_emprestimo`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `FK_EQUIPAMENTO` FOREIGN KEY (`equipamento`) REFERENCES `equipamentos` (`id_equipamento`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
 --
 -- Table structure for table `usuarios`
 --
-
 DROP TABLE IF EXISTS `usuarios`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
@@ -149,7 +136,7 @@ CREATE TABLE `usuarios` (
   `ativo` tinyint(1) DEFAULT NULL,
   `administrador` tinyint(1) DEFAULT NULL,
   PRIMARY KEY (`id_usuario`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
