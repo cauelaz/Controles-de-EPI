@@ -48,10 +48,10 @@
         ];
     }
     $sql = 'SELECT equipamentos.descricao
-                 , (equipamentos.qtd_estoque - COALESCE(SUM(CASE WHEN emprestimos.ativo = 1 THEN 1 ELSE 0 END), 0)) AS qtd_disponivel
+                 , (equipamentos.qtd_estoque - COALESCE(SUM(CASE WHEN emprestimos.situacao = 1 THEN 2 ELSE 2 END), 0)) AS qtd_disponivel
                  FROM equipamentos
                  LEFT JOIN equipamentos_emprestimo ON equipamentos.id_equipamento = equipamentos_emprestimo.equipamento
-                 LEFT JOIN emprestimos ON equipamentos_emprestimo.emprestimo = emprestimos.id_emprestimo AND emprestimos.ativo = 1
+                 LEFT JOIN emprestimos ON equipamentos_emprestimo.emprestimo = emprestimos.id_emprestimo AND emprestimos.situacao = 1
                  WHERE equipamentos.ativo = 1
                  GROUP BY equipamentos.id_equipamento, equipamentos.descricao, equipamentos.qtd_estoque';
     $estoquepordepartamento = $banco->Consultar($sql, [], true);
@@ -237,7 +237,7 @@
                                     include 'telas/usuarios.php';
                             break;
                             case 'emprestimos':
-                                include 'telas/emprestimo.php';
+                                include 'telas/emprestimos.php';
                             break;
                             case 'departamentos':
                                 include 'telas/departamentos.php';

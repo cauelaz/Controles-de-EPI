@@ -105,3 +105,101 @@ body {
     top: 10px;
     left: 10px;
 }
+.nav-pills .nav-link {
+    border-radius: 8px;
+    font-weight: 500;
+    color: #6c757d;
+    transition: all 0.2s ease;
+}
+
+.nav-pills .nav-link:hover {
+    background-color: #f8f9fa;
+    color: #495057;
+}
+
+.nav-pills .nav-link.active {
+    background-color: #4e73df;
+    color: white;
+    box-shadow: 0 2px 4px rgba(78, 115, 223, 0.25);
+}
+
+/* Estilização da tabela */
+.table {
+    vertical-align: middle;
+}
+
+.table thead th {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #e3e6f0;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+}
+
+/* Estilização dos cards */
+.border-left-primary {
+    border-left: 4px solid #4e73df !important;
+}
+
+/* Estilização dos botões de ação */
+.btn-action {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+    color: #6c757d;
+    transition: all 0.2s;
+}
+
+.btn-action:hover {
+    color: #4e73df;
+}
+
+/* Animações suaves */
+.fade {
+    transition: opacity 0.15s linear;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .nav-pills .nav-link {
+        padding: 0.5rem;
+        font-size: 0.9rem;
+    }
+}
+.border-left-primary {
+    border-left: 4px solid #4e73df !important;
+ }
+ 
+ .border-left-success {
+    border-left: 4px solid #1cc88a !important;
+ }
+ 
+ /* Hover effect nos cards */
+ .card:hover {
+    transform: translateY(-2px);
+    transition: transform 0.2s ease-in-out;
+ }
+ 
+ /* Cores do texto */
+ .text-primary {
+    color: #4e73df !important;
+ }
+ 
+ .text-success {
+    color: #1cc88a !important;
+ }
+ 
+ /* Estilo para os ícones */
+ .text-gray-300 {
+    color: #dddfeb !important;
+ }
+ 
+ /* Tamanho do texto */
+ .text-xs {
+    font-size: .8rem;
+ }
+ 
+ /* Espaçamento e alinhamento */
+ .card-body {
+    padding: 1.25rem;
+ }
