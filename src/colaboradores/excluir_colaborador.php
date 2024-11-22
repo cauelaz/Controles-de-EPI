@@ -16,7 +16,7 @@
         $banco = new BancoDeDados;
         $sql = 'SELECT COUNT(emprestimos.colaborador) AS total_emprestimos
                     FROM emprestimos
-                    WHERE emprestimos.ativo = 1 AND emprestimos.colaborador = ?';
+                    WHERE emprestimos.situacao = 1 AND emprestimos.colaborador = ?';
         $parametros = [$formulario['id']];
         $total_emprestimos = $banco->consultar($sql, $parametros);
         if($total_emprestimos['total_emprestimos'] > 0)

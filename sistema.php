@@ -68,7 +68,7 @@
                  , MONTHNAME(emprestimos.data_emprestimo) AS mes_emprestimo
             FROM emprestimos
             JOIN colaboradores ON colaboradores.id_colaborador = emprestimos.colaborador
-            WHERE emprestimos.ativo = 1';
+            WHERE emprestimos.situacao = 1';
     $datapoint_qtdemprestimospormes = [];
     $emprestimos = $banco->Consultar($sql, [], true);
     foreach($emprestimos as $emprestimo)

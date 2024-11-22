@@ -17,7 +17,7 @@
                     FROM equipamentos
                     JOIN equipamentos_emprestimo ON equipamentos.id_equipamento = equipamentos_emprestimo.equipamento
                     JOIN emprestimos ON emprestimos.id_emprestimo = equipamentos_emprestimo.emprestimo
-                    WHERE emprestimos.ativo = 1 AND equipamentos.id_equipamento = ?';
+                    WHERE emprestimos.situacao = 1 AND equipamentos.id_equipamento = ?';
         $parametros = [$formulario['id_equipamento']];
         $total_emprestimos = $banco->consultar($sql, $parametros);
         if($total_emprestimos['total_emprestimos'] > 0)
