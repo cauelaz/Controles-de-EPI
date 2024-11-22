@@ -49,8 +49,67 @@ function CadastrarEquipamentosEmprestimo($idEmprestimo, $idEquipamento, $banco, 
         ]);
     }
 }
-function AtualizarEmprestimo($idEmprestimo,$banco){
 
+function AtualizarEmprestimo($idEmprestimo, $formulario, $banco) : bool {
+    try {
+
+        $colaborador = $formulario['colaborador'];    
+        $situacao = $formulario['situacao'];          
+        $dataEmprestimo = $formulario['dataEmprestimo'];  
+        $dataDevolucao = $formulario['dataDevolucao'];   
+        $observacoes = $formulario['observacoes'];   
+
+        $parametros = [
+            $colaborador,      
+            $situacao,         // Nova situação
+            $dataEmprestimo,   // Nova data do empréstimo
+            $dataDevolucao,    // Nova data de devolução
+            $observacoes,      // Novas observações
+            $idEmprestimo      // ID do empréstimo a ser atualizado
+        ];
+
+        // SQL para atualizar o empréstimo
+        $sql = 'UPDATE emprestimos 
+                SET colaborador = ?, situacao = ?, data_emprestimo = ?, data_devolucao = ?, observacoes = ?
+                WHERE id_emprestimo = ?';
+
+        // Executa o comando SQL
+        $banco->ExecutarComando($sql, $parametros);
+
+        return true;
+
+    } catch (PDOException $erro) {
+        $msg = $erro->getMessage();
+        echo json_encode([
+            'codigo' => 0,
+            'mensagem' => "Erro ao atualizar empréstimo: $msg"
+        ]);
+        return false;
+    }
+}
+
+function AtualizarEquipamentosEmprestimo($idEmprestimo, $idEquipamento, $banco, $quantidade) {
+    try {
+        $sql = 'UPDATE equipamentos_emprestimo 
+                SET quantidade = ? 
+                WHERE emprestimo = ? AND equipamento = ?';
+
+        $parametros = [
+            $quantidade,     // Nova quantidade do equipamento emprestado
+            $idEmprestimo,   // ID do empréstimo
+            $idEquipamento   // ID do equipamento
+        ];
+
+        // Executa o comando SQL
+        $banco->ExecutarComando($sql, $parametros);
+
+    } catch (PDOException $erro) {
+        $msg = $erro->getMessage();
+        echo json_encode([
+            'codigo' => 0,
+            'mensagem' => "Erro ao atualizar equipamento: $msg"
+        ]);
+    }
 }
 
 function BuscarEmprestimo($idEmprestimo,$banco){

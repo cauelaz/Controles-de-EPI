@@ -13,9 +13,8 @@
             $banco = new BancodeDados;
             $sql = 'SELECT 
                     COUNT(CASE WHEN situacao = 1 THEN 1 END) AS ativos,
-                    COUNT(CASE WHEN situacao = 2 THEN 1 END) AS finalizados
-                FROM emprestimos e;
-                ;';
+                    COUNT(CASE WHEN situacao = 2 THEN 2 END) AS finalizados
+                FROM emprestimos e;';
             $dados = $banco->Consultar($sql, [], true);
 
             if ($dados) {
@@ -31,10 +30,11 @@
             $msg = $erro->getMessage();
             echo "<script>alert(\"$msg\");</script>";
         } 
-
     ?>
 
-    <div class="row mb-4">
+    <!-- Centralizando a linha de cards -->
+    <div class="row justify-content-center mb-4"> <!-- Aqui adicionamos justify-content-center -->
+        
         <div class="col-xl-3 col-md-6 mb-4">
             <div class="card border-left-primary shadow h-100 py-2">
                 <div class="card-body">
@@ -67,8 +67,9 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div>      
     </div>
+</div> 
 
     <div class="card shadow mb-4">
         <div class="card-header p-0">
@@ -394,7 +395,7 @@ document.querySelectorAll('.table a').forEach(link => {
     function CadastrarEmprestimo() {
 
         var emprestimo = {
-            "id": "NOVO",
+            "id": document.getElementById('txt_id').value,
             "colaborador": document.getElementById('cbColaborador').value,
             "situacao": document.getElementById('cbSituacao').value,
             "dataEmprestimo": document.getElementById('dataEmprestimo').value,
@@ -476,6 +477,9 @@ document.querySelectorAll('.table a').forEach(link => {
                 console.log(retorno);
                 var emprestimo = (retorno);
 
+                console.log("id do emprestimo:", emprestimo.id);
+
+                // Preenchendo os campos do formulário
                 document.getElementById('txt_id').value = emprestimo.id;
                 document.getElementById('cbColaborador').value = emprestimo.colaborador; // Exemplo de colaborador
                 document.getElementById('cbSituacao').value = emprestimo.situacao;
@@ -483,20 +487,45 @@ document.querySelectorAll('.table a').forEach(link => {
                 document.getElementById('dataDevolucao').value = emprestimo.dataDevolucao ? emprestimo.dataDevolucao : ''; // Se não houver devolução, deixa em branco
                 document.getElementById('txtObservacoes').value = emprestimo.observacoes;
 
+                // Desabilitar os campos para impedir a edição
+                document.getElementById('txt_id').disabled = true;
+                document.getElementById('cbColaborador').disabled = true;
+                document.getElementById('cbSituacao').disabled = true;
+                document.getElementById('dataEmprestimo').disabled = true;
+                document.getElementById('dataDevolucao').disabled = true;
+                document.getElementById('txtObservacoes').disabled = true;
+                var btn = document.getElementById('btnAdicionar');
+                if (btn) {
+                    btn.style.display = 'none';
+                } else {
+                }
+ 
                 var grid = document.getElementById('tabelaEquipamentos');
                 grid.innerHTML = ''; 
-
 
                 emprestimo.itens.forEach(function(item) {
                     var row = grid.insertRow();
                     
                     var cell1 = row.insertCell(0);
                     var cell2 = row.insertCell(1);
-                    
+
                     cell1.innerHTML = item.idEquipamento;
                     cell2.innerHTML = item.descricao;
+
+                    // Desabilitar campos para edição/removal (se houver botões de editar ou remover)
+                    // Aqui estamos apenas desabilitando as células e não permitindo que o usuário interaja com elas
+                    var btnEditar = document.createElement('button');
+                    var btnRemover = document.createElement('button');
+
+                    btnEditar.disabled = true; // Desabilitar botão de edição
+                    btnRemover.disabled = true; // Desabilitar botão de remoção
+
+                    // Você pode incluir os botões na célula ou apenas desabilitar os controles de edição
+                    row.appendChild(btnEditar);
+                    row.appendChild(btnRemover);
                 });
 
+                // Chamar o modal de edição
                 EditarEmprestimoModal();
             },
 
@@ -505,6 +534,7 @@ document.querySelectorAll('.table a').forEach(link => {
             }
         });
     }
+
 
     function CancelarEmprestimo(id)
     {

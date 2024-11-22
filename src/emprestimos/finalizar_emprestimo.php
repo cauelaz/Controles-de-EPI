@@ -47,9 +47,15 @@ function FinalizarEmprestimo($banco,$idEmprestimo,$soma){
 
     try {
 
-        $sql = 'UPDATE emprestimos set situacao = 2 where id_emprestimo = ? ;';
-        $parametros  = [
-            $idEmprestimo  
+        $sql = 'UPDATE emprestimos 
+        SET situacao = 2, data_devolucao = ? 
+        WHERE id_emprestimo = ?';
+
+        $date = date('Y-m-d H:i:s'); // Data e hora atuais no formato 'YYYY-MM-DD HH:MM:SS'
+
+        $parametros = [
+            $date,  // A data atual
+            $idEmprestimo  // ID do empréstimo
         ];
 
         $resultado = $banco->ExecutarComando($sql,$parametros);

@@ -11,11 +11,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $mensagem = '';
 
         include '../class/BancodeDados.php';
+        
         $banco = new BancodeDados;
+        $banco->startTransaction();
 
-        $banco->start_transaction();
-
-        if ($formulario['id'] == "NOVO") {
+        if ($formulario['id'] == "") {
             $idEmprestimo = CadastrarEmprestimo($formulario, $banco);
             if ($idEmprestimo != 0) {
                 foreach ($formulario['itens'] as $equipamento) {
@@ -27,7 +27,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $banco->commit();
             $mensagem = 'Empréstimo cadastrado com sucesso!';
         } else {
-            
+            AtualizarEmprestimo($formulario['id'],$formulario,$banco);
+
+            foreach ($formulario['itens'] as $equipamento) {
+                $quantidade = $equipamento['quantidade'];
+                AtualizarEquipamentosEmprestimo($formulario['id'],$equipamento['id'], $banco,$equipamento['quantidade']);
+            }
             $mensagem = 'Empréstimo atualizado com sucesso!';
         }
 
@@ -45,5 +50,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ]);
     }
 }
-
-
