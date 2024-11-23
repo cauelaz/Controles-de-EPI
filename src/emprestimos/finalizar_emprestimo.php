@@ -16,12 +16,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $idEmprestimo = isset($_GET['id']) ? $_GET['id'] : 0 ;
         $soma =  isset($_GET['soma'])  ? true : false;
 
-        $banco->startTransaction();
 
         $concluiu = FinalizarEmprestimo($banco,$idEmprestimo,$soma);
 
         if ($concluiu) {
-            $banco->commit();
             echo json_encode([
                 'codigo'=> 2,
                 'mensagem' => 'Empréstimo finalizado com sucesso!'
@@ -30,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
     } catch (PDOException $error) {
-        $banco->rollback();
+
         $msg = $error->getMessage();
         echo json_encode([
             'codigo' => 0,
@@ -58,13 +56,19 @@ function FinalizarEmprestimo($banco,$idEmprestimo,$soma){
             $idEmprestimo  // ID do empréstimo
         ];
 
+
         $resultado = $banco->ExecutarComando($sql,$parametros);
 
         $equipamentosEmprestimo = BuscarEquipamentoEmprestimo($idEmprestimo,$banco);
 
         foreach ($equipamentosEmprestimo as $equipamento) {
-            extract($equipamento);
-            AtualizarEstoque($banco,$equipamento['id_equipamento'],$equipamento['quantidade'],false);
+            try {
+                AtualizarEstoque($banco, $equipamento['id_equipamento'], $equipamento['quantidade'], false);
+            } catch (Exception $e) {
+                error_log("Erro ao atualizar estoque: " . $e->getMessage());
+                echo "Erro: Não foi possível atualizar o estoque.";
+            }
+
         }
 
 

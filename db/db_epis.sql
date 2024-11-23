@@ -64,9 +64,9 @@ DROP TABLE IF EXISTS `emprestimos`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `emprestimos` (
   `id_emprestimo` int(11) NOT NULL AUTO_INCREMENT,
-  `data_emprestimo` datetime DEFAULT NULL,
+  `data_emprestimo` date DEFAULT NULL,
   `usuario` int(11) DEFAULT NULL,
-  `data_devolucao` datetime DEFAULT NULL,
+  `data_devolucao` date DEFAULT NULL,
   `observacoes` varchar(100) DEFAULT NULL,
   `colaborador` int(11) DEFAULT NULL,
   `situacao` tinyint(1) DEFAULT NULL,

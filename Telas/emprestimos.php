@@ -191,7 +191,7 @@
                                             FROM emprestimos e
                                             LEFT JOIN colaboradores c ON c.id_colaborador = e.colaborador
                                             LEFT JOIN equipamentos_emprestimo ee ON ee.emprestimo = e.id_emprestimo
-                                            WHERE e.situacao = 2 and e.data_devolucao not null  
+                                            WHERE e.situacao = 2
                                             GROUP BY e.id_emprestimo, e.data_emprestimo, e.data_devolucao, c.nome_colaborador, e.observacoes
                                             ORDER BY e.id_emprestimo ASC;';
             
@@ -284,7 +284,8 @@ document.querySelectorAll('.table a').forEach(link => {
                     <div class="tab-content" id="modalTabsContent">
                         <!-- Aba Geral -->
                         <div class="tab-pane fade show active" id="geral" role="tabpanel" aria-labelledby="geral-tab">
-                            <input type="hidden" id="txt_id">
+                            <input type="hidden" id="txt_id" value="NOVO">
+
                             
                             <!-- Colaborador -->
                             <div class="form-group">
@@ -425,7 +426,9 @@ document.querySelectorAll('.table a').forEach(link => {
             datatype: 'json',
             url: './src/emprestimos/editor_emprestimo.php',
             data: JSON.stringify(emprestimo),
-            success: function(retorno) {
+            success: function(retorno) 
+            {
+                console.log(retorno);
                 if (retorno['codigo'] == 2) {
                     alert(retorno['mensagem']);
                     window.location = 'sistema.php?tela=emprestimos';
@@ -442,13 +445,14 @@ document.querySelectorAll('.table a').forEach(link => {
 
     function FinalizarEmprestimo(id)
     {
+        var urlp = './src/emprestimos/finalizar_emprestimo.php?id=' + id + '&soma';
+        console.log(urlp);
         if (confirm('Tem certeza que deseja finalizar esse empréstimo?')) 
         {
             $.ajax({
                 type: 'post',
                 datatype: 'json',
-                url: './src/emprestimos/finalizar_emprestimo.php',
-                data: { 'id': id },
+                url: urlp,
                 success: function(retorno) 
                 {
                     if (retorno['codigo'] == 2) 
@@ -477,7 +481,6 @@ document.querySelectorAll('.table a').forEach(link => {
                 console.log(retorno);
                 var emprestimo = (retorno);
 
-                console.log("id do emprestimo:", emprestimo.id);
 
                 // Preenchendo os campos do formulário
                 document.getElementById('txt_id').value = emprestimo.id;
@@ -487,43 +490,63 @@ document.querySelectorAll('.table a').forEach(link => {
                 document.getElementById('dataDevolucao').value = emprestimo.dataDevolucao ? emprestimo.dataDevolucao : ''; // Se não houver devolução, deixa em branco
                 document.getElementById('txtObservacoes').value = emprestimo.observacoes;
 
-                // Desabilitar os campos para impedir a edição
-                document.getElementById('txt_id').disabled = true;
-                document.getElementById('cbColaborador').disabled = true;
-                document.getElementById('cbSituacao').disabled = true;
-                document.getElementById('dataEmprestimo').disabled = true;
-                document.getElementById('dataDevolucao').disabled = true;
-                document.getElementById('txtObservacoes').disabled = true;
-                var btn = document.getElementById('btnAdicionar');
-                if (btn) {
-                    btn.style.display = 'none';
-                } else {
+                // impedir edição quando estiver finalizado
+
+                if (emprestimo.situacao == 2) {
+                    document.getElementById('txt_id').disabled = true;
+                    document.getElementById('cbColaborador').disabled = true;
+                    document.getElementById('cbSituacao').disabled = true;
+                    document.getElementById('dataEmprestimo').disabled = true;
+                    document.getElementById('dataDevolucao').disabled = true;
+                    document.getElementById('txtObservacoes').disabled = true;
+
+                    var btn = document.getElementById('btnAdicionar');
+                    if (btn) {
+                        btn.style.display = 'none';
+                    } else {
+                    }
                 }
+
+
+                // impedir ediçao de equipamento independente do caso
+                
+                document.getElementById('cbEquipamento').disabled = true;
+                document.getElementById('inputQuantidade').disabled = true;
  
                 var grid = document.getElementById('tabelaEquipamentos');
-                grid.innerHTML = ''; 
+                grid.innerHTML = ''; // Limpar a tabela
+
+                var header = grid.createTHead();
+                var headerRow = header.insertRow(0);
+
+                var th1 = document.createElement('th');
+                th1.innerHTML = 'Quantidade';
+                headerRow.appendChild(th1);
+
+                var th2 = document.createElement('th');
+                th2.innerHTML = 'Nome do EPI';
+                headerRow.appendChild(th2);
+
 
                 emprestimo.itens.forEach(function(item) {
                     var row = grid.insertRow();
-                    
+
+                    // Criar células para a quantidade e nome do EPI
                     var cell1 = row.insertCell(0);
                     var cell2 = row.insertCell(1);
 
-                    cell1.innerHTML = item.idEquipamento;
+                    // Preencher os valores
+                    cell1.innerHTML = item.quantidade;
                     cell2.innerHTML = item.descricao;
 
-                    // Desabilitar campos para edição/removal (se houver botões de editar ou remover)
-                    // Aqui estamos apenas desabilitando as células e não permitindo que o usuário interaja com elas
                     var btnEditar = document.createElement('button');
                     var btnRemover = document.createElement('button');
 
                     btnEditar.disabled = true; // Desabilitar botão de edição
                     btnRemover.disabled = true; // Desabilitar botão de remoção
 
-                    // Você pode incluir os botões na célula ou apenas desabilitar os controles de edição
-                    row.appendChild(btnEditar);
-                    row.appendChild(btnRemover);
                 });
+
 
                 // Chamar o modal de edição
                 EditarEmprestimoModal();

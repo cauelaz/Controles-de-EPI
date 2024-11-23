@@ -13,26 +13,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         include '../class/BancodeDados.php';
         
         $banco = new BancodeDados;
-        $banco->startTransaction();
 
-        if ($formulario['id'] == "") {
+        if ($formulario['id'] == "NOVO") {
+            $banco->startTransaction();
             $idEmprestimo = CadastrarEmprestimo($formulario, $banco);
             if ($idEmprestimo != 0) {
                 foreach ($formulario['itens'] as $equipamento) {
                     $quantidade = $equipamento['quantidade'];
-                    // VerificarEstoque( $equipamento['id']);
-                    CadastrarEquipamentosEmprestimo($idEmprestimo, $equipamento['id'], $banco, $quantidade);
+                    $podeInserir = AtualizarEstoque($banco, $equipamento['id'], $quantidade,false);
+
+                    if ($podeInserir == false) {
+                        $banco->rollback();
+                        $mensagem = 'Estoque insuficiente!';
+                        break;
+                    }else{
+                        CadastrarEquipamentosEmprestimo($idEmprestimo, $equipamento['id'], $banco, $quantidade);
+                    }
                 }
             }
             $banco->commit();
             $mensagem = 'Empréstimo cadastrado com sucesso!';
         } else {
             AtualizarEmprestimo($formulario['id'],$formulario,$banco);
-
-            foreach ($formulario['itens'] as $equipamento) {
-                $quantidade = $equipamento['quantidade'];
-                AtualizarEquipamentosEmprestimo($formulario['id'],$equipamento['id'], $banco,$equipamento['quantidade']);
-            }
             $mensagem = 'Empréstimo atualizado com sucesso!';
         }
 

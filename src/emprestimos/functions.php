@@ -17,6 +17,7 @@ function CadastrarEmprestimo($formulario, $banco) : int {
         $id = $banco->ExecutarComando($sql, $parametros);
         $id = $banco->getLastInsertId();
 
+
         return $id;
 
     } catch (PDOException $erro) {
@@ -157,45 +158,49 @@ function BuscarEquipamentoEmprestimo($idEmprestimo,$banco){
 }
 
 
-function AtualizarEstoque($banco,$idEquipamento,$quantidade,$soma){
+function AtualizarEstoque($banco, $idEquipamento, $quantidade, $soma) {
 
     try {
 
+        // Consulta a quantidade atual de estoque
         $sqlqtd  = 'SELECT qtd_estoque FROM equipamentos WHERE id_equipamento = ?';
+        $parametros = [$idEquipamento];
+        $qtdAtual = $banco->Consultar($sqlqtd, $parametros);
 
-        $parametros = [
-            $idEquipamento
-        ];
+        $qtdAtual = is_array($qtdAtual) ? reset($qtdAtual) : $qtdAtual;
+        $quantidade = is_array($quantidade) ? reset($quantidade) : $quantidade;
 
-        $qtdAtual = $banco->Consultar($sqlqtd,$parametros);
-
-
-        if ($soma == true){
-            $qtd =  $qtdAtual + $quantidade;
-        }else{
-            $qtd =  $qtdAtual - $qtdAtual;
+        // Verificação de estoque insuficiente quando a operação é subtração
+        if (!$soma && $quantidade > $qtdAtual) {
+            echo json_encode([
+                'codigo' => 0,
+                'mensagem' => "Estoque insuficiente! Quantidade solicitada: $quantidade, Quantidade em estoque: $qtdAtual."
+            ]);
+            return false;  // Retorna false se não houver estoque suficiente
         }
 
-        $sql = 'UPDATE equipamentos SET qtd_estoque = ?
-        WHERE id_equipamento = ?';
+        // Se for para somar a quantidade
+        if ($soma) {
+            $qtd = $qtdAtual + $quantidade;
+        } else {  // Se for para subtrair a quantidade
+            $qtd = $qtdAtual - $quantidade;
+        }
 
-        $parametros = [
-            $idEquipamento,
-            $qtd 
-        ];
+        // Atualiza o estoque com a nova quantidade
+        $sql = 'UPDATE equipamentos SET qtd_estoque = ? WHERE id_equipamento = ?';
+        $parametros = [$qtd, $idEquipamento];
 
-        $result = $banco->ExecutarComando($sql,$parametros);
+        // Executa o comando de atualização
+        $banco->ExecutarComando($sql, $parametros);
 
         return true;
 
     } catch (PDOException $error) {
-        $msg = $erro->getMessage();
+        $msg = $error->getMessage();
         echo json_encode([
             'codigo' => 0,
             'mensagem' => "Erro ao atualizar estoque: $msg"
         ]);
         return false;
     }
-
-
 }

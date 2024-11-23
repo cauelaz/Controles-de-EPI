@@ -48,6 +48,7 @@ function get_one($banco,$id){
             $response['itens'][] = [
                 "idEquipamento" => $equipamento['id_equipamento'],  
                 "descricao" => $equipamento['descricao'],
+                "quantidade" => $equipamento['quantidade'],
             ];
         }
 
