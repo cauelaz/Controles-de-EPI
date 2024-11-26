@@ -48,15 +48,15 @@
         ];
     }
     $sql = 'SELECT equipamentos.descricao
-                 , (equipamentos.qtd_estoque - COALESCE(SUM(CASE WHEN emprestimos.situacao = 1 THEN 2 ELSE 2 END), 0)) AS qtd_disponivel
+                 , (equipamentos.qtd_estoque - COALESCE(SUM(CASE WHEN emprestimos.situacao = 1 THEN 1 ELSE 0 END), 0)) AS qtd_disponivel
                  FROM equipamentos
                  LEFT JOIN equipamentos_emprestimo ON equipamentos.id_equipamento = equipamentos_emprestimo.equipamento
                  LEFT JOIN emprestimos ON equipamentos_emprestimo.emprestimo = emprestimos.id_emprestimo AND emprestimos.situacao = 1
                  WHERE equipamentos.ativo = 1
                  GROUP BY equipamentos.id_equipamento, equipamentos.descricao, equipamentos.qtd_estoque';
-    $estoquepordepartamento = $banco->Consultar($sql, [], true);
+    $estoquedisponivel = $banco->Consultar($sql, [], true);
     $data_PointsPizza_estoque_disponivel = [];
-    foreach($estoquepordepartamento as $estoque)
+    foreach($estoquedisponivel as $estoque)
     {
         $data_PointsPizza_estoque_disponivel[] = 
         [
@@ -267,7 +267,7 @@
         window.onload = function Graphic() 
         {
             // Grafico com crosshair
-            var chartgraphicestoquepordepartamento = new CanvasJS.Chart("chartContainerGraphicDISPONIVELporDEPARTAMENTO", {
+            var chartgraphicestoquedisponivel = new CanvasJS.Chart("chartContainerGraphicDISPONIVELporDEPARTAMENTO", {
                 animationEnabled: true,
                 title:{
                     text: "Estoque Disponível"
@@ -281,7 +281,7 @@
                     dataPoints: <?php echo json_encode($data_PointsPizza_estoque_disponivel, JSON_NUMERIC_CHECK); ?>
                 }]
             });
-            chartgraphicestoquepordepartamento.render();
+            chartgraphicestoquedisponivel.render();
             // Grafico Pizza Empréstimos por Departamento
             var chartgraphicpizzaEMPRESTIMOS = new CanvasJS.Chart("chartContainerGraphicPizzaEMPRESTIMOS", {
             animationEnabled: true,
