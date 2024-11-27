@@ -28,7 +28,6 @@
                     <th scope="col">Descrição</th>
                     <th scope="col">Qtd. em Estoque</th>
                     <th scope="col">Emprestados</th>
-                    <th scope="col">Qtd. Disponível</th>
                     <th scope="col">Certificado Aprovação</th>
                     <th scope="col">Ações</th>
                 </tr>
@@ -43,7 +42,6 @@
                                      , equipamentos.descricao
                                      , equipamentos.qtd_estoque AS estoque_total
                                      , COALESCE(SUM(CASE WHEN emprestimos.situacao = 1 THEN 1 ELSE 0 END), 0) AS emprestados
-                                     , (equipamentos.qtd_estoque - COALESCE(SUM(CASE WHEN emprestimos.situacao = 1 THEN 1 ELSE 0 END), 0)) AS qtd_disponivel
                                      , equipamentos.certificado_aprovacao
                                      , equipamentos.imagem_equipamento
                                      FROM equipamentos
@@ -64,7 +62,6 @@
                                     <td>{$linha['descricao']}</td>
                                     <td>{$linha['estoque_total']}</td>
                                     <td>{$linha['emprestados']}</td>
-                                    <td>{$linha['qtd_disponivel']}</td>
                                     <td>{$linha['certificado_aprovacao']}</td>
                                     <td>
                                         " . ($imagem_existe ? "<a href='#' onclick='AbrirImagem(\"{$caminho_imagem}\")'><i class='bi bi-image'></i></a>" : "<i class='bi bi-image' style='color: gray;'></i>") . "
@@ -171,19 +168,9 @@
                         <label for="txt_descricao">Descrição</label>
                         <input type="text" class="form-control" id="txt_descricao" required varchar="255">
                     </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="txt_estoque">Qtd. Estoque</label>
-                                <input type="number" class="form-control" id="txt_estoque" required value="0">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="txt_estoque_disponivel">Qtd. Disponível</label>
-                                <input type="number" class="form-control" id="txt_estoque_disponivel" required value="0" readonly>
-                            </div>
-                        </div>
+                    <div class="form-group">
+                        <label for="txt_estoque">Qtd. Estoque</label>
+                        <input type="number" class="form-control" id="txt_estoque" required value="0">
                     </div>
                     <div class="form-group">
                         <label for="txt_cert_aprovacao">Certificado Aprovação</label>
@@ -221,19 +208,9 @@
                         <label for="txt_descricao_estoque">Descrição</label>
                         <input type="text" class="form-control" name="txt_descricao_estoque" id="txt_descricao_estoque" required varchar="255" readonly>
                     </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="txt_estoque">Qtd. Estoque</label>
-                                <input type="number" class="form-control" id="txt_estoque_ajuste" required readonly>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="txt_estoque_disponivel">Qtd. Disponível</label>
-                                <input type="number" class="form-control" id="txt_estoque_disponivel_ajuste" required readonly>
-                            </div>
-                        </div>
+                    <div class="form-group">
+                        <label for="txt_estoque">Qtd. Estoque</label>
+                        <input type="number" class="form-control" id="txt_estoque_ajuste" required readonly>
                     </div>
                     <div class="form-group">
                         <label for="txt_new_qtd_estoque">Qtd. Ajuste</label>

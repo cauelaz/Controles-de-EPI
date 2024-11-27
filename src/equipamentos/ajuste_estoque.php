@@ -2,7 +2,6 @@
     header('content-type: application/json');
     $formulario['id']             = isset($_POST['id'])             ? $_POST['id'] : '';
     $formulario['qtd_estoque']    = isset($_POST['qtd_estoque'])    ? $_POST['qtd_estoque'] : '';
-    $formulario['qtd_disponivel'] = isset($_POST['qtd_disponivel']) ? $_POST['qtd_disponivel'] : '';
     $formulario['qtd_ajuste']     = isset($_POST['qtd_ajuste'])     ? $_POST['qtd_ajuste'] : '';
     $formulario['emprestados']    = isset($_POST['emprestados'])    ? $_POST['emprestados'] : '';
     if(in_array('',$formulario))

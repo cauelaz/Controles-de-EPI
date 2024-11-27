@@ -141,7 +141,6 @@ function GetAjustarEstoque(id)
             document.getElementById('txt_id_estoque').value = equipamento.id;
             document.getElementById('txt_descricao_estoque').value = equipamento.descricao;
             document.getElementById('txt_estoque_ajuste').value = equipamento.qtd_estoque;
-            document.getElementById('txt_estoque_disponivel_ajuste').value = equipamento.qtd_disponivel;
             emprestados = equipamento.emprestados;
             AjustarEstoqueModal();
         },
@@ -158,11 +157,10 @@ function AlterarEquipamento(id)
         url: './src/equipamentos/get_equipamentos.php',
         data: { 'id': id },
         success: function(retorno) {
-            var equipamento = JSON.parse(retorno); // Converter o retorno para objeto JavaScript
+            var equipamento = JSON.parse(retorno); 
             document.getElementById('txt_id').value = equipamento.id;
             document.getElementById('txt_descricao').value = equipamento.descricao;
             document.getElementById('txt_estoque').value = equipamento.qtd_estoque;
-            document.getElementById('txt_estoque_disponivel').value = equipamento.qtd_disponivel;
             document.getElementById('txt_cert_aprovacao').value = equipamento.certificado_aprovacao;
             document.getElementById('txt_estoque').readOnly = true;
             const caminhoImagem = document.getElementById('caminho_imagem');
@@ -187,9 +185,8 @@ function AjustarEstoque()
 {
     var id = document.getElementById('txt_id_estoque').value;
     var qtd_estoque = document.getElementById('txt_estoque_ajuste').value;
-    var qtd_disponivel = document.getElementById('txt_estoque_disponivel_ajuste').value;
     var qtd_ajuste = document.getElementById('txt_new_qtd_estoque').value;
-    if (qtd_estoque && qtd_disponivel) 
+    if (qtd_estoque && qtd_ajuste) 
     {
         $.ajax({
             type: 'post',
@@ -198,7 +195,6 @@ function AjustarEstoque()
             { 
                 'id': id,
                 'qtd_estoque': qtd_estoque,
-                'qtd_disponivel': qtd_disponivel,
                 'qtd_ajuste': qtd_ajuste,
                 'emprestados': emprestados
             },

@@ -146,7 +146,7 @@
                                     } 
                                     else 
                                     {
-                                        echo "<tr><td colspan='4' class='text-center'>Nenhum empréstimo ativo...</td></tr>";
+                                        echo "<tr><td colspan='7' class='text-center'>Nenhum empréstimo ativo...</td></tr>";
                                     }
                                 } 
                                 catch (PDOException $erro) 
