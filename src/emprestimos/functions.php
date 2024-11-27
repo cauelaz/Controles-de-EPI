@@ -170,15 +170,6 @@ function AtualizarEstoque($banco, $idEquipamento, $quantidade, $soma) {
         $qtdAtual = is_array($qtdAtual) ? reset($qtdAtual) : $qtdAtual;
         $quantidade = is_array($quantidade) ? reset($quantidade) : $quantidade;
 
-        // Verificação de estoque insuficiente quando a operação é subtração
-        if (!$soma && $quantidade > $qtdAtual) {
-            echo json_encode([
-                'codigo' => 0,
-                'mensagem' => "Estoque insuficiente! Quantidade solicitada: $quantidade, Quantidade em estoque: $qtdAtual."
-            ]);
-            return false;  // Retorna false se não houver estoque suficiente
-        }
-
         // Se for para somar a quantidade
         if ($soma) {
             $qtd = $qtdAtual + $quantidade;
@@ -203,4 +194,35 @@ function AtualizarEstoque($banco, $idEquipamento, $quantidade, $soma) {
         ]);
         return false;
     }
+}
+
+
+function VerificarDisponibilidadeEstoque($banco,$idEquipamento, $quantidade) {
+    try {
+        // Consulta a quantidade atual de estoque
+        $sqlqtd = 'SELECT qtd_estoque FROM equipamentos WHERE id_equipamento = ?';
+        $parametros = [$idEquipamento];
+        $qtdAtual = $banco->Consultar($sqlqtd, $parametros);
+
+        // Se o resultado for um array, pega o primeiro valor
+        $qtdAtual = is_array($qtdAtual) ? reset($qtdAtual) : $qtdAtual;
+
+        // Verifica se a quantidade disponível é suficiente
+        if (($qtdAtual - $quantidade) < 0) {
+            return false; // Estoque insuficiente
+        }
+
+        return true; // Estoque suficiente
+    } catch (PDOException $error) {
+        $msg = $error->getMessage();
+        echo json_encode([
+            'codigo' => 0,
+            'mensagem' => "Erro ao verificar estoque: $msg"
+        ]);
+        return false;
+    }
+}
+
+function CancelarEmprestimo($banco,$idEmprestimo){
+
 }

@@ -138,7 +138,7 @@
                                                 <td>{$linha['data_devolucao']}</td>
                                                 <td>{$linha['observacoes']}</td>
                                                 <td>
-                                                    <a href='#' onclick='AlterarEmprestimo({$linha['id_emprestimo']})'><i class='bi bi-pencil-square'></i></a>
+                                                    <a href='#' onclick='AlterarEmprestimo({$linha['id_emprestimo']})'><i class='bi bi-eye'></i></a>
                                                     <a href='#' onclick='CancelarEmprestimo({$linha['id_emprestimo']})'><i class='bi bi-trash3-fill'></i></a>
                                                     <a href='#' onclick='FinalizarEmprestimo({$linha['id_emprestimo']})'><i class='bi bi-dropbox'></i></a>
                                                  </td>
@@ -208,7 +208,7 @@
                                                 <td>{$linha['data_devolucao']}</td>
                                                 <td>{$linha['observacoes']}</td>
                                                 <td>
-                                                    <a href='#' onclick='AlterarEmprestimo({$linha['id_emprestimo']})'><i class='bi bi-pencil-square'></i></a>
+                                                    <a href='#' onclick='AlterarEmprestimo({$linha['id_emprestimo']})'><i class='bi bi-eye'></i></a>
                                                     <a href='#' onclick='CancelarEmprestimo({$linha['id_emprestimo']})'><i class='bi bi-trash3-fill'></i></a>
                                                     <a href='#' onclick='FinalizarEmprestimo({$linha['id_emprestimo']})'><i class='bi bi-dropbox'></i></a>
                                                 </td>
@@ -395,11 +395,16 @@ document.querySelectorAll('.table a').forEach(link => {
 
     function CadastrarEmprestimo() {
 
+        var dataAtual = new Date();
+        var dataFormatada = dataAtual.getFullYear() + '-' + 
+                        String(dataAtual.getMonth() + 1).padStart(2, '0') + '-' + 
+                        String(dataAtual.getDate()).padStart(2, '0');
+
         var emprestimo = {
             "id": document.getElementById('txt_id').value,
             "colaborador": document.getElementById('cbColaborador').value,
             "situacao": document.getElementById('cbSituacao').value,
-            "dataEmprestimo": document.getElementById('dataEmprestimo').value,
+            "dataEmprestimo": document.getElementById('dataEmprestimo').value || dataFormatada, // Verifica se está vazia
             "dataDevolucao": document.getElementById('dataDevolucao').value,
             "observacoes": document.getElementById('txtObservacoes').value,
             "itens": [] 
@@ -418,6 +423,13 @@ document.querySelectorAll('.table a').forEach(link => {
                 "quantidade": quantidade
             });
         }
+
+
+        if (emprestimo.itens.length === 0) {
+            alert("Não é possível cadastrar o empréstimo sem itens.");
+            return; // Interrompe a execução da função
+        }
+
 
         console.log(JSON.stringify(emprestimo));
 
@@ -445,7 +457,7 @@ document.querySelectorAll('.table a').forEach(link => {
 
     function FinalizarEmprestimo(id)
     {
-        var urlp = './src/emprestimos/finalizar_emprestimo.php?id=' + id + '&soma';
+        var urlp = './src/emprestimos/atualizar_status_emprestimo.php?id=' + id + '&soma&situacao=2';
         console.log(urlp);
         if (confirm('Tem certeza que deseja finalizar esse empréstimo?')) 
         {
@@ -472,116 +484,100 @@ document.querySelectorAll('.table a').forEach(link => {
             });
         }
     }
+
     function AlterarEmprestimo(id) {
-        $.ajax({
-            type: 'get',
-            url: './src/emprestimos/get_emprestimo.php?id=' + id, 
-            
-            success: function(retorno) {
-                console.log(retorno);
-                var emprestimo = (retorno);
+    $.ajax({
+        type: 'get',
+        url: './src/emprestimos/get_emprestimo.php?id=' + id, 
+        
+        success: function(retorno) {
+            console.log(retorno);
+            var emprestimo = (retorno);
 
+            // Preenchendo os campos do formulário
+            document.getElementById('txt_id').value = emprestimo.id;
+            document.getElementById('cbColaborador').value = emprestimo.colaborador;
+            document.getElementById('cbSituacao').value = emprestimo.situacao;
+            document.getElementById('dataEmprestimo').value = emprestimo.dataEmprestimo;
+            document.getElementById('dataDevolucao').value = emprestimo.dataDevolucao ? emprestimo.dataDevolucao : '';
+            document.getElementById('txtObservacoes').value = emprestimo.observacoes;
 
-                // Preenchendo os campos do formulário
-                document.getElementById('txt_id').value = emprestimo.id;
-                document.getElementById('cbColaborador').value = emprestimo.colaborador; // Exemplo de colaborador
-                document.getElementById('cbSituacao').value = emprestimo.situacao;
-                document.getElementById('dataEmprestimo').value = emprestimo.dataEmprestimo;
-                document.getElementById('dataDevolucao').value = emprestimo.dataDevolucao ? emprestimo.dataDevolucao : ''; // Se não houver devolução, deixa em branco
-                document.getElementById('txtObservacoes').value = emprestimo.observacoes;
+            // Tornar todos os campos do formulário somente leitura
+            document.querySelectorAll('#emprestimo_editor input, #emprestimo_editor select, #emprestimo_editor textarea').forEach(function(element) {
+                element.disabled = true;
+            });
 
-                // impedir edição quando estiver finalizado
+            // Esconder botões relacionados à edição
+            document.getElementById('btnAdicionar')?.style.setProperty('display', 'none');
+            document.getElementById('btnSalvar')?.style.setProperty('display', 'none');
+            // Esconder botões relacionados à edição
 
-                if (emprestimo.situacao == 2) {
-                    document.getElementById('txt_id').disabled = true;
-                    document.getElementById('cbColaborador').disabled = true;
-                    document.getElementById('cbSituacao').disabled = true;
-                    document.getElementById('dataEmprestimo').disabled = true;
-                    document.getElementById('dataDevolucao').disabled = true;
-                    document.getElementById('txtObservacoes').disabled = true;
+            // Preencher a tabela de equipamentos
+            var grid = document.getElementById('tabelaEquipamentos');
+            grid.innerHTML = ''; // Limpar a tabela
 
-                    var btn = document.getElementById('btnAdicionar');
-                    if (btn) {
-                        btn.style.display = 'none';
-                    } else {
-                    }
-                }
+            var header = grid.createTHead();
+            var headerRow = header.insertRow(0);
 
+            var th1 = document.createElement('th');
+            th1.innerHTML = 'Quantidade';
+            headerRow.appendChild(th1);
 
-                // impedir ediçao de equipamento independente do caso
-                
-                document.getElementById('cbEquipamento').disabled = true;
-                document.getElementById('inputQuantidade').disabled = true;
- 
-                var grid = document.getElementById('tabelaEquipamentos');
-                grid.innerHTML = ''; // Limpar a tabela
+            var th2 = document.createElement('th');
+            th2.innerHTML = 'Nome do EPI';
+            headerRow.appendChild(th2);
 
-                var header = grid.createTHead();
-                var headerRow = header.insertRow(0);
+            emprestimo.itens.forEach(function(item) {
+                var row = grid.insertRow();
 
-                var th1 = document.createElement('th');
-                th1.innerHTML = 'Quantidade';
-                headerRow.appendChild(th1);
+                // Criar células para a quantidade e nome do EPI
+                var cell1 = row.insertCell(0);
+                var cell2 = row.insertCell(1);
 
-                var th2 = document.createElement('th');
-                th2.innerHTML = 'Nome do EPI';
-                headerRow.appendChild(th2);
+                // Preencher os valores
+                cell1.innerHTML = item.quantidade;
+                cell2.innerHTML = item.descricao;
+            });
 
+            // Abrir o modal em modo somente leitura
+            EditarEmprestimoModal();
+        },
 
-                emprestimo.itens.forEach(function(item) {
-                    var row = grid.insertRow();
-
-                    // Criar células para a quantidade e nome do EPI
-                    var cell1 = row.insertCell(0);
-                    var cell2 = row.insertCell(1);
-
-                    // Preencher os valores
-                    cell1.innerHTML = item.quantidade;
-                    cell2.innerHTML = item.descricao;
-
-                    var btnEditar = document.createElement('button');
-                    var btnRemover = document.createElement('button');
-
-                    btnEditar.disabled = true; // Desabilitar botão de edição
-                    btnRemover.disabled = true; // Desabilitar botão de remoção
-
-                });
-
-
-                // Chamar o modal de edição
-                EditarEmprestimoModal();
-            },
-
-            error: function(erro) {
-                alert('Ocorreu um erro na requisição: ' + erro.responseText);
-            }
+        error: function(erro) {
+            alert('Ocorreu um erro na requisição: ' + erro.responseText);
+        }
         });
     }
 
 
+
     function CancelarEmprestimo(id)
     {
-        $.ajax({
-            type: 'post',
-            datatype: 'json',
-            url: './src/emprestimos/editor_emprestimo.php',
-            data: { 'id': id },
-            success: function(retorno) {
-                if (retorno['codigo'] == 2) 
+        var urlp = './src/emprestimos/atualizar_status_emprestimo.php?id=' + id + '&soma&situacao=3';
+        console.log(urlp);
+        if (confirm('Tem certeza que deseja cancelar esse empréstimo?')) 
+        {
+            $.ajax({
+                type: 'post',
+                datatype: 'json',    
+                url : urlp,            
+                success: function(retorno) {
+                    if (retorno['codigo'] == 2) 
+                    {
+                        alert(retorno['mensagem']);
+                        window.location = 'sistema.php?tela=emprestimos';
+                    } 
+                    else 
+                    {
+                        alert(retorno['mensagem']);
+                    }
+                },
+                error: function(erro) 
                 {
-                    alert(retorno['mensagem']);
-                    window.location = 'sistema.php?tela=emprestimos';
-                } 
-                else 
-                {
-                    alert(retorno['mensagem']);
+                    alert('Ocorreu um erro na requisição: ' + erro.responseText);
                 }
-            },
-            error: function(erro) 
-            {
-                alert('Ocorreu um erro na requisição: ' + erro.responseText);
-            }
-        });
+            });
+        }
     }
         function verificarStatus() {
         const dataDevolucao = document.getElementById('dataDevolucao').value;
